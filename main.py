@@ -1,0 +1,43 @@
+import os
+import asyncio
+import logging
+from dotenv import load_dotenv
+from aiogram import Bot, Dispatcher, executor, types
+from commands import process_command
+# from commands import process_command
+
+
+
+load_dotenv()
+
+BOT_NAME = os.getenv("BOT_NAME")
+BOT_API_TOKEN = os.getenv("BOT_API_TOKEN")
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger('broadcast')
+
+# Configure Bot and Dispatcher
+bot = Bot(token=BOT_API_TOKEN)
+dp = Dispatcher(bot)
+
+ 
+
+@dp.message_handler(state='*')
+async def router(message: types.Message):
+
+    # user = ctr.get_sender(message)
+
+    if message.is_command():
+        reply = process_command(message.text, message['from']['id'])
+        await message.reply(reply, parse_mode="html")
+    else:
+        await message.reply("Unknown command. Type /help for available commands.", parse_mode="html")
+
+
+
+
+
+
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)
