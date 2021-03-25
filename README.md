@@ -5,4 +5,4 @@ SC2 Helper Bot is a project to help handling competitive data from StarCraft 2 u
 ## Setup
 Setting up the Bot is relatively painless - just run `& python main.py`
 
-The main configuration file is `settings.py`, but it is not included by default. Simply make a copy of `example_settings.py` and rename it to `settings.py`. See `example_settings.py` for more information about configurations.
+The main configuration file is `.env`, but it is not included by default. Simply make a copy of `.env.example` and rename it to `.env`. See `.env.example` for more information about configurations.
