@@ -29,14 +29,10 @@ async def router(message: types.Message):
     # user = ctr.get_sender(message)
 
     if message.is_command():
-        reply = process_command(message.text, message['from']['id'])
+        reply = process_command(message)
         await message.reply(reply, parse_mode="html")
     else:
-        await message.reply("Unknown command. Type /help for available commands.", parse_mode="html")
-
-
-
-
+        await message.reply("Type /help for available commands.", parse_mode="html")
 
 
 if __name__ == '__main__':

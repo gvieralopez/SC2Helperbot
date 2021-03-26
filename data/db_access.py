@@ -1,12 +1,19 @@
 import os
 import datetime
 import sqlalchemy
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy import desc, asc
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
-from settings import DB_LOCATION, DB_NAME
-from data.db_schema import *
+from data.db_schema import Base, User
+
+
+load_dotenv()
+
+DB_LOCATION = os.getenv("DB_LOCATION")
+DB_NAME = os.getenv("DB_NAME")
+
 
 db_empty = False
 
@@ -33,12 +40,14 @@ DBSession = sessionmaker(bind=engine)
 s = DBSession()
 
 
-def create_user(tgid, scid=None, arroba=None, battle_tag=None):
+def create_user(tgid, arroba=None, battle_tag=None, account_id=None, profile_id=None, display_name=None):
     date = datetime.datetime.now()
     s.add(User(tgid=tgid,
                arroba=arroba, 
-               scid=scid,
-               battle_tag=battle_tag, 
+               battle_tag=battle_tag,
+               account_id=account_id,
+               profile_id=profile_id,
+               display_name=display_name,
                created_at=date,
                modified_at=date))
     s.commit()
