@@ -10,9 +10,9 @@ TEMPLATE_SETTINGS = """
 <i>id:</i> <code>{0.tgid}</code>
 
 🎮 <b>StarCraft II</b>
-<i>Name:</i> {0.display_name} 
-<i>Account ID:</i> {0.account_id} 
-<i>Battle Tag:</i> {0.battle_tag} 
+<i>Name:</i> <code>{0.display_name}</code>
+<i>Account ID:</i> <code>{0.account_id}</code> 
+<i>Battle Tag:</i> <code>{0.battle_tag}</code>
 <i>Region ID:</i>
     🇺🇸 <code>{0.US_id}</code>
     🇪🇺 <code>{0.EU_id}</code>
