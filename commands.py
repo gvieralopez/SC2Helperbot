@@ -3,19 +3,23 @@ import APIs.blizzard as blizzardAPI
 
 
 TEMPLATE_SETTINGS = """
-Starcraft II Profile
-Telegram User: @{0.arroba} 
-Telegram id: {0.tgid}
-Account ID: {0.account_id} 
-SC II Name: {0.display_name} 
-Battle Tag: {0.battle_tag} 
-Region ID:
-🇺🇸 {0.US_id} 
-🇪🇺 {0.EU_id} 
-🇰🇷 {0.KR_id} 
-🇹🇼 {0.TW_id} 
+<b>SC2 Helper Settings</b>
 
-Last Updated: {0.modified_at}
+💬 <b>Telegram</b>
+<i>User:</i> @{0.arroba} 
+<i>id:</i> <code>{0.tgid}</code>
+
+🎮 <b>StarCraft II</b>
+<i>Name:</i> {0.display_name} 
+<i>Account ID:</i> {0.account_id} 
+<i>Battle Tag:</i> {0.battle_tag} 
+<i>Region ID:</i>
+    🇺🇸 <code>{0.US_id}</code>
+    🇪🇺 <code>{0.EU_id}</code>
+    🇰🇷 <code>{0.KR_id}</code>
+    🇹🇼 <code>{0.TW_id}</code> 
+
+<b>Last Updated:</b> {0.modified_at}
 """
 
 TEMPLATE_MORE_DATA = """
