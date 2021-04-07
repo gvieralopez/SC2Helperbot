@@ -28,7 +28,7 @@ def get_access_token():
     return False
 
 
-def get_player_meta(regionId, realmId=1, profileId):
+def get_player_meta(regionId=_REGION['id'], realmId=1, profileId):
     """Returns metadata for an individual's profile.
 
     Args:
