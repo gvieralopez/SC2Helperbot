@@ -6,52 +6,68 @@ Starcraft II Profile
 Telegram User: @{0.arroba} 
 Telegram id: {0.tgid}
 Account ID: {0.account_id} 
-Profile ID: {0.profile_id} 
+Blizzard ID: {0.profile_id} 
 SC II Name: {0.display_name} 
 Battle Tag: {0.battle_tag} 
 Last Updated: {0.modified_at}
 """
 
-TEMPLATE_ASK_BTAG = """
-Dear @{0.arroba} you have not entered your 
-Telegram id: {0.tgid}
-Account ID: {0.account_id} 
-Profile ID: {0.profile_id} 
-SC II Name: {0.display_name} 
-Battle Tag: {0.battle_tag} 
-Last Updated: {0.modified_at}
+TEMPLATE_MORE_DATA = """
+Dear @{0.arroba}:
+
+You have not entered sufficient information for me to track your progress in Battle Net.
+
+Please provide one of the following:
+
+Blizzard ID: /blizzardId 
+Battle Tag: /battletag 
+
+If you want to know the information I store from you, check /settings
 """
 
 
+"""
+Profile ID: /profile {ProfileId}
+Battle Tag: /battletag {BattleTag}
+"""
 
 TEMPLATE_PROFILE = "Aqui va to eso {0.arroba}"
 
 def process_help(u=None, args=None):
-    ret = "List of available commands\n\n"
-    for c in commands.keys():
-        ret += f"<b>{c}</b>: {commands[c]['desc']}\n"
-    return ret
+    if args == []:
+        ret = "List of available commands\n\n"
+        for c in commands.keys():
+            ret += f"<b>{c}</b>: {commands[c]['desc']}\n"
+        return ret
+    elif len(args) == 1:
+        c = args[0] if args[0].startswith('/') else f'/{args[0]}'
+        if c in commands.keys():
+            return commands[c]['help']
+    return commands['/help']['help']
 
 def process_settings(u, args=None):
     return TEMPLATE_SETTINGS.format(u)
 
 def process_profile(u, args=None):
     if u.battle_tag is None:
-        return TEMPLATE_ASK_BTAG
+        return TEMPLATE_MORE_DATA
     return TEMPLATE_PROFILE.format(u)
 
 commands = {
     '/help': {
         'function': process_help,
-        'desc': "Description of /help"
+        'desc': "Description of /help",
+        'help': "Help for /help command"
     },
     '/settings': {
         'function': process_settings,
-        'desc': "Description of /settings"
+        'desc': "Description of /settings",
+        'help': "Help for /settings command"
     },
     '/profile': {
         'function': process_profile,
-        'desc': "Description of /profile"
+        'desc': "Description of /profile",
+        'help': "Help for /profile command"
     }
 }
 
