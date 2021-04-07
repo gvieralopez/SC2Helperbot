@@ -1,4 +1,5 @@
 import os
+import logging
 import datetime
 import sqlalchemy
 from dotenv import load_dotenv
@@ -15,23 +16,23 @@ DB_LOCATION = os.getenv("DB_LOCATION")
 DB_NAME = os.getenv("DB_NAME")
 
 
-db_empty = False
-
 if not DB_NAME in os.listdir(DB_LOCATION):
-    print('Not db found, creating one')
+    logging.warning('Not db found, creating one')
     # Create an engine that stores data in the local directory's
     # sqlalchemy_example.db file.
-    engine = create_engine('sqlite:///{}//{}'.format(DB_LOCATION, DB_NAME))
+    engine = create_engine(f'sqlite:///{DB_LOCATION}//{DB_NAME}')
     
     # Create all tables in the engine. This is equivalent to "Create Table"
     # statements in raw SQL.
     Base.metadata.create_all(engine)
     db_empty = True
 else:
-    engine = create_engine('sqlite:///{}//{}'.format(DB_LOCATION, DB_NAME))
+    logging.info('Loading db')
+    engine = create_engine(f'sqlite:///{DB_LOCATION}//{DB_NAME}')
     # Bind the engine to the metadata of the Base class so that the
     # declaratives can be accessed through a DBSession instance
     Base.metadata.bind = engine
+    db_empty = False
 
 DBSession = sessionmaker(bind=engine)
 # A DBSession() instance establishes all conversations with the database
@@ -53,13 +54,13 @@ def create_user(tgid, arroba=None, battle_tag=None, account_id=None, profile_id=
     s.commit()
 
 def get_user(tgid, scid=None, battle_tag=None):
-    user = s.query(User)
+    qry = s.query(User)
     if tgid:
-        qry = user.filter(User.tgid == tgid)
+        qry = qry.filter(User.tgid == tgid)
     if scid:
-        qry = user.filter(User.scid == scid)
+        qry = qry.filter(User.scid == scid)
     if battle_tag:
-        qry = user.filter(User.battle_tag == battle_tag)
+        qry = qry.filter(User.battle_tag == battle_tag)
     if qry:
         try:
             return qry.one()
