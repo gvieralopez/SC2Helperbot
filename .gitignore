@@ -128,4 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-settings.py
+# Database related
+data/sc2.db
+data/sqlite3.exe
