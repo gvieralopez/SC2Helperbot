@@ -34,6 +34,5 @@ async def router(message: types.Message):
     else:
         await message.reply("Type /help for available commands.", parse_mode="html")
 
-
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
