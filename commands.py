@@ -12,6 +12,19 @@ Battle Tag: {0.battle_tag}
 Last Updated: {0.modified_at}
 """
 
+TEMPLATE_ASK_BTAG = """
+Dear @{0.arroba} you have not entered your 
+Telegram id: {0.tgid}
+Account ID: {0.account_id} 
+Profile ID: {0.profile_id} 
+SC II Name: {0.display_name} 
+Battle Tag: {0.battle_tag} 
+Last Updated: {0.modified_at}
+"""
+
+
+
+TEMPLATE_PROFILE = "Aqui va to eso {0.arroba}"
 
 def process_help(u=None, args=None):
     ret = "List of available commands\n\n"
@@ -22,6 +35,10 @@ def process_help(u=None, args=None):
 def process_settings(u, args=None):
     return TEMPLATE_SETTINGS.format(u)
 
+def process_profile(u, args=None):
+    if u.battle_tag is None:
+        return TEMPLATE_ASK_BTAG
+    return TEMPLATE_PROFILE.format(u)
 
 commands = {
     '/help': {
@@ -31,6 +48,10 @@ commands = {
     '/settings': {
         'function': process_settings,
         'desc': "Description of /settings"
+    },
+    '/profile': {
+        'function': process_profile,
+        'desc': "Description of /profile"
     }
 }
 
@@ -55,7 +76,13 @@ def _process_command(command, user):
     else:
         return "404 Command not found"
 
-  
+def get_username(message):
+    tgid = message['from']['id']
+    arroba = message['from']['username'] 
+    if arroba is None:
+        display_name = message['from']['first_name']
+        arroba = f'<a href="tg://user?id={tgid}">{display_name}</a>' 
+    return arroba
 
 def process_command(message):
     """
@@ -70,10 +97,13 @@ def process_command(message):
     command = message.text
     tgid = message['from']['id']
     user = db.get_user(tgid)
+    arroba = get_username(message)
 
-    if user is None:
-        arroba = message['from']['username']     
+    if user is None:           
         db.create_user(tgid, arroba)
         user = db.get_user(tgid)
+    else:
+        user.arroba = arroba 
+        db.update_user(user)
     
     return _process_command(command, user)

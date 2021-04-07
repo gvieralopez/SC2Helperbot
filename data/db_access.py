@@ -67,6 +67,9 @@ def get_user(tgid, scid=None, battle_tag=None):
         except sqlalchemy.orm.exc.NoResultFound:
             pass
 
+def update_user(user):
+    s.add(user)
+    s.commit()
 
 # In case we want to fill some default data    
 if db_empty:

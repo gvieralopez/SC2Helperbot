@@ -10,7 +10,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    arroba = Column(String(50), nullable=True)
+    arroba = Column(String(150), nullable=True)
     tgid = Column(Integer, nullable=False)
     account_id = Column(Integer, nullable=True)
     profile_id = Column(Integer, nullable=True)
