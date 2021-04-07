@@ -103,7 +103,7 @@ def process_regionId(u, args=None):
     rcode = int(region_code) if region_code.isdigit() else None
  
     if bid is not None:
-        data = blizzardAPI.get_player_info(bid) #TODO: Pass rcode too
+        data = blizzardAPI.get_player_info(bid, rcode)
         if not isinstance(data, int):
             u = update_region_id(u, rcode, bid)
             u.display_name = data['summary']['displayName']
