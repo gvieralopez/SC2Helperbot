@@ -14,7 +14,7 @@ BOT_NAME = os.getenv("BOT_NAME")
 BOT_API_TOKEN = os.getenv("BOT_API_TOKEN")
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('broadcast')
 
 # Configure Bot and Dispatcher
@@ -30,9 +30,9 @@ async def router(message: types.Message):
 
     if message.is_command():
         reply = process_command(message)
-        await message.reply(reply, parse_mode="html")
+        await message.answer(reply, parse_mode="html")
     else:
-        await message.reply("Type /help for available commands.", parse_mode="html")
+        await message.answer("Type /help for available commands.", parse_mode="html")
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
