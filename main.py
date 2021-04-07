@@ -4,9 +4,6 @@ import logging
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, executor, types
 from commands import process_command
-# from commands import process_command
-
-
 
 load_dotenv()
 

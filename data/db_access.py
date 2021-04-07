@@ -41,24 +41,27 @@ DBSession = sessionmaker(bind=engine)
 s = DBSession()
 
 
-def create_user(tgid, arroba=None, battle_tag=None, account_id=None, profile_id=None, display_name=None):
+def create_user(tgid, arroba=None, battle_tag=None, account_id=None, 
+    US_id=None, EU_id=None, KR_id=None, TW_id=None, display_name=None):
+
     date = datetime.datetime.now()
     s.add(User(tgid=tgid,
                arroba=arroba, 
                battle_tag=battle_tag,
                account_id=account_id,
-               profile_id=profile_id,
+               US_id = US_id,
+               EU_id = EU_id,
+               KR_id = KR_id,
+               TW_id = TW_id,
                display_name=display_name,
                created_at=date,
                modified_at=date))
     s.commit()
 
-def get_user(tgid, scid=None, battle_tag=None):
+def get_user(tgid, battle_tag=None):
     qry = s.query(User)
     if tgid:
         qry = qry.filter(User.tgid == tgid)
-    if scid:
-        qry = qry.filter(User.scid == scid)
     if battle_tag:
         qry = qry.filter(User.battle_tag == battle_tag)
     if qry:
@@ -68,6 +71,7 @@ def get_user(tgid, scid=None, battle_tag=None):
             pass
 
 def update_user(user):
+    user.modified_at = datetime.datetime.now()
     s.add(user)
     s.commit()
 
