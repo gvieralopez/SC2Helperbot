@@ -1,4 +1,5 @@
 import data.db_access as db
+import APIs.blizzard as blizzardAPI
 
 
 TEMPLATE_SETTINGS = """
@@ -6,9 +7,14 @@ Starcraft II Profile
 Telegram User: @{0.arroba} 
 Telegram id: {0.tgid}
 Account ID: {0.account_id} 
-Blizzard ID: {0.profile_id} 
 SC II Name: {0.display_name} 
 Battle Tag: {0.battle_tag} 
+Region ID:
+🇺🇸 {0.US_id} 
+🇪🇺 {0.EU_id} 
+🇰🇷 {0.KR_id} 
+🇹🇼 {0.TW_id} 
+
 Last Updated: {0.modified_at}
 """
 
@@ -17,19 +23,32 @@ Dear @{0.arroba}:
 
 You have not entered sufficient information for me to track your progress in Battle Net.
 
-Please provide one of the following:
+<b>Please provide one of the following:</b>
 
-Blizzard ID: /blizzardId 
-Battle Tag: /battletag 
+<code>Region ID:</code> /regionid 
+<code>Battle Tag:</code>  /battletag 
 
-If you want to know the information I store from you, check /settings
+ℹ️ If you want to know the information I store from you,
+You can check /settings
 """
 
+TEMPLATE_BLIZZARD_ID = """
+In order to get Blizzard Region ID, you need to send me your <i>Blizzard Profile URL:</i>
 
+<code>/regionid [your_blizzard_URL]</code>
+
+<b>To get your Blizzard Id:</b>
+
+1️ Go to https://starcraft2.com/ and log in.
+2️ Clic in view profile
+3️ Copy the URL of your profile
+4️ Send it to me using /regionid command
+
+<b>Example</b>:
+
+<code>/regionid https://starcraft2.com/en-us/profile/1/1/10993388</code>
 """
-Profile ID: /profile {ProfileId}
-Battle Tag: /battletag {BattleTag}
-"""
+
 
 TEMPLATE_PROFILE = "Aqui va to eso {0.arroba}"
 
@@ -50,24 +69,65 @@ def process_settings(u, args=None):
 
 def process_profile(u, args=None):
     if u.battle_tag is None:
-        return TEMPLATE_MORE_DATA
+        return TEMPLATE_MORE_DATA.format(u)
     return TEMPLATE_PROFILE.format(u)
+
+
+def update_region_id(user, rcode, profile_id):
+    if rcode == 1:
+        user.US_id = profile_id
+    elif rcode == 2:
+        user.EU_id = profile_id
+    elif rcode == 3:
+        user.EU_id = profile_id
+    elif rcode == 4:
+        user.EU_id = profile_id
+    else:
+        return 
+    return user
+
+def process_regionId(u, args=None):
+    if args == []:
+        return process_help(u, args =["regionid"])
+
+    if args[0].startswith('https://starcraft2.com/'):
+        profile_id = args[0].split('/')[-1]
+        region_code = args[0].split('/')[-3]
+    
+
+    bid = int(profile_id) if profile_id.isdigit() else None
+    rcode = int(region_code) if region_code.isdigit() else None
+ 
+    if bid is not None:
+        data = blizzardAPI.get_player_info(bid) #TODO: Pass rcode too
+        if not isinstance(data, int):
+            u = update_region_id(u, rcode, bid)
+            u.display_name = data['summary']['displayName']
+            db.update_user(u)
+            return process_settings(u)
+        return f"Blizzard API call Failed with error code: {data}"
+    return "Invalid Starcraft2.com profile URL, check /regionid for help."
 
 commands = {
     '/help': {
         'function': process_help,
-        'desc': "Description of /help",
-        'help': "Help for /help command"
+        'desc': "Show all available commands.",
+        'help': "Show all available commands. If you type ```/help command``` it shows the help of that command."
     },
     '/settings': {
         'function': process_settings,
-        'desc': "Description of /settings",
-        'help': "Help for /settings command"
+        'desc': "Show user settings",
+        'help': "Just run /settings to see your settings"
     },
     '/profile': {
         'function': process_profile,
-        'desc': "Description of /profile",
-        'help': "Help for /profile command"
+        'desc': "Show Battle Net statistics of the user",
+        'help': "Just run /profile to see your stats in Battle Net"
+    },
+    '/regionid': {
+        'function': process_regionId,
+        'desc': "Let the user enter his Blizzard ID",
+        'help': TEMPLATE_BLIZZARD_ID
     }
 }
 
@@ -80,13 +140,15 @@ def _split_command(command):
     if isinstance(command, list):
         args = command[1:]
         command = command[0]
+        args = [i for i in args if i != '']
     else:
         args = []
-    return command, args
+    return command.lower(), args
 
 
 def _process_command(command, user):
     command, args = _split_command(command)
+    print(command, args)
     if command in commands.keys():
         return commands[command]['function'](user, args)
     else:
@@ -97,7 +159,7 @@ def get_username(message):
     arroba = message['from']['username'] 
     if arroba is None:
         display_name = message['from']['first_name']
-        arroba = f'<a href="tg://user?id={tgid}">{display_name}</a>' 
+        arroba = f'<a href="tg://user?id={tgid}">{display_name}</a>'
     return arroba
 
 def process_command(message):
