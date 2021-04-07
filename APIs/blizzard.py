@@ -28,7 +28,7 @@ def get_access_token():
     return False
 
 
-def get_player_meta(regionId=_REGION['id'], realmId=1, profileId):
+def get_player_meta(profileId, regionId=_REGION['id'], realmId=1):
     """Returns metadata for an individual's profile.
 
     Args:
@@ -44,7 +44,7 @@ def get_player_meta(regionId=_REGION['id'], realmId=1, profileId):
         return response
     return r.status_code
 
-def get_player_info(regionId=_REGION['id'], realmId=1, profileId):
+def get_player_info(profileId, regionId=_REGION['id'], realmId=1):
     """Returns data about an individual SC2 profile.
 
     Args:
@@ -56,7 +56,7 @@ def get_player_info(regionId=_REGION['id'], realmId=1, profileId):
     url = _BASE_API_URL + "/sc2/profile/{regionId}/{realmId}/{profileId}".format(regionId=regionId, realmId=realmId, profileId=profileId)
     return get_api(url)
 
-def get_ladder_summary(regionId=_REGION['id'], realmId=1, profileId):
+def get_ladder_summary(profileId, regionId=_REGION['id'], realmId=1):
     """Returns a ladder summary for an individual SC2 profile.
 
     Args:
@@ -68,7 +68,7 @@ def get_ladder_summary(regionId=_REGION['id'], realmId=1, profileId):
     url = _BASE_API_URL + "/sc2/profile/{regionId}/{realmId}/{profileId}/ladder/summary".format(regionId=regionId, realmId=realmId, profileId=profileId)
     return get_api(url)
 
-def get_ladder_info(regionId=_REGION['id'], realmId=1, profileId, ladderid):
+def get_ladder_info(profileId, ladderid, regionId=_REGION['id'], realmId=1):
     """Returns data about an individual profile's ladder.
 
     Args:
