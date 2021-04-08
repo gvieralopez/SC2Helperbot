@@ -1,5 +1,6 @@
 import data.db_access as db
 import APIs.blizzard as blizzardAPI
+import APIs.sc2ladder as ladderAPI
 import datetime
 
 
@@ -54,8 +55,37 @@ In order to get Blizzard Region ID, you need to send me your <i>Blizzard Profile
 <code>/regionid https://starcraft2.com/en-us/profile/1/1/10993388</code>
 """
 
-def timedelta2string(delta):
+TEMPLATE_BATTLE_TAG = """
+A Battle tag is a combination of Display name and a code that identifies a user in Blizzard games. I looks like:
+
+<code>MyName#12345</code>
+
+You can check your Battle tag in the Battle Net app, near the top right corner.
+
+To send me your Battle tag you can use something:
+
+<code>/battletag [battletag]</code>
+
+<b>Example</b>:
+
+<code>/battletag MyName#12345</code>
+"""
+
+
+TEMPLATE_PROFILE = "Aqui va to eso {0.arroba}"
+
+
+def check_btag(btag):
+    if "#" in btag:
+        spt = btag.split("#")
+        if len(spt) == 2:
+            code = spt[1]
+            if code.isdigit():
+                return True
+    return False
     
+
+def timedelta2string(delta):
     seconds = int(delta.total_seconds())
     if seconds == 0:
         return '⏰ now'
@@ -71,7 +101,6 @@ def timedelta2string(delta):
     if seconds > 0:
         return f'⏰ {seconds} seconds ago'
 
-TEMPLATE_PROFILE = "Aqui va to eso {0.arroba}"
 
 def process_help(u=None, args=None):
     if args == []:
@@ -95,18 +124,37 @@ def process_profile(u, args=None):
         return TEMPLATE_MORE_DATA.format(u)
     return TEMPLATE_PROFILE.format(u)
 
+def process_battletag(u, args=None):
+    if args == []:
+        return process_help(u, args =["battletag"])
+    btag = args[0] if check_btag(args[0]) else False
+    if not btag:
+        return "Invalid Battle tag, check /battletag for help."
+    if u.battle_tag != btag:
+        u.battle_tag = btag
+        db.update_user(u,True)
+    
+    response = ladderAPI.get_btag_info(btag)
+    if not len(response):
+        return "Could not fetch enough data with this Battle tag, you also need to provide /regionid "
+    for dic in response:
+        if dic['realm'] == '1':
+            u = update_region_id(u, dic['region'], dic['profile_id'])
+            db.update_user(u, modified=True)
+    return process_settings(u)
+
 
 def update_region_id(user, rcode, profile_id):
-    if rcode == 1:
+    if rcode == 1 or rcode == 'US':
         user.US_id = profile_id
-    elif rcode == 2:
+    elif rcode == 2 or rcode == 'EU':
         user.EU_id = profile_id
-    elif rcode == 3:
-        user.EU_id = profile_id
-    elif rcode == 4:
-        user.EU_id = profile_id
+    elif rcode == 3 or rcode == 'KR':
+        user.KR_id = profile_id
+    elif rcode == 4 or rcode == 'TW':
+        user.TW_id = profile_id
     else:
-        return 
+        raise ValueError(f"Invalid region id for user {u.arroba}") 
     return user
 
 def process_regionId(u, args=None):
@@ -151,6 +199,11 @@ commands = {
         'function': process_regionId,
         'desc': "Let the user enter his Blizzard ID",
         'help': TEMPLATE_BLIZZARD_ID
+    },
+    '/battletag': {
+        'function': process_battletag,
+        'desc': "Let the user enter his Blizzard Battle Tag",
+        'help': TEMPLATE_BATTLE_TAG
     }
 }
 
