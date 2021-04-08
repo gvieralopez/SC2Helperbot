@@ -13,9 +13,9 @@ TEMPLATE_SETTINGS = """
 
 🎮 <b>StarCraft II</b>
 <i>Name:</i> <code>{0.display_name}</code>
-<i>Account ID:</i> <code>{0.account_id}</code> 
-<i>Battle Tag:</i> <code>{0.battle_tag}</code>
-<i>Region ID:</i>
+<i>Account ID:</i> <code>{0.account_id}</code> /auth
+<i>Battle Tag:</i> <code>{0.battle_tag}</code> /battletag
+<i>Region ID:</i> /regionid 
     🇺🇸 <code>{0.US_id}</code>
     🇪🇺 <code>{0.EU_id}</code>
     🇰🇷 <code>{0.KR_id}</code>
