@@ -1,7 +1,7 @@
 import requests
 import json
 
-_BASE_URL = "https://www.sc2ladder.com/api/player?query={battle_tag}&limit={limit}"
+_BASE_URL = "http://www.sc2ladder.com/api/player?query={battle_tag}&limit={limit}"
 
 
 
