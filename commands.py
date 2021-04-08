@@ -103,7 +103,7 @@ def timedelta2string(delta):
 
 
 def process_help(u=None, args=None):
-    if args == []:
+    if not len(args):
         ret = "List of available commands\n\n"
         for c in commands.keys():
             ret += f"<b>{c}</b>: {commands[c]['desc']}\n"
@@ -125,7 +125,7 @@ def process_profile(u, args=None):
     return TEMPLATE_PROFILE.format(u)
 
 def process_battletag(u, args=None):
-    if args == []:
+    if not len(args):
         return process_help(u, args =["battletag"])
     btag = args[0] if check_btag(args[0]) else False
     if not btag:
@@ -157,8 +157,12 @@ def update_region_id(user, rcode, profile_id):
         raise ValueError(f"Invalid region id for user {u.arroba}") 
     return user
 
+def process_auth(u, args=None):
+    if not len(args):
+        return process_help(u, args =["auth"])
+
 def process_regionId(u, args=None):
-    if args == []:
+    if not len(args):
         return process_help(u, args =["regionid"])
 
     if args[0].startswith('https://starcraft2.com/'):
@@ -204,6 +208,11 @@ commands = {
         'function': process_battletag,
         'desc': "Let the user enter his Blizzard Battle Tag",
         'help': TEMPLATE_BATTLE_TAG
+    },
+    '/auth': {
+        'function': process_auth,
+        'desc': "Let the user authorize the bot to use Blizzard API",
+        'help': "This is not implemented yet"
     }
 }
 
