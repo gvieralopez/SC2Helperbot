@@ -70,8 +70,9 @@ def get_user(tgid, battle_tag=None):
         except sqlalchemy.orm.exc.NoResultFound:
             pass
 
-def update_user(user):
-    user.modified_at = datetime.datetime.now()
+def update_user(user, modified=False):
+    if modified:
+        user.modified_at = datetime.datetime.now()
     s.add(user)
     s.commit()
 
