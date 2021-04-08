@@ -1,5 +1,6 @@
 import data.db_access as db
 import APIs.blizzard as blizzardAPI
+import datetime
 
 
 TEMPLATE_SETTINGS = """
@@ -19,7 +20,7 @@ TEMPLATE_SETTINGS = """
     🇰🇷 <code>{0.KR_id}</code>
     🇹🇼 <code>{0.TW_id}</code> 
 
-<b>Last Updated:</b> {0.modified_at}
+<b>Last Updated:</b> {1} 
 """
 
 TEMPLATE_MORE_DATA = """
@@ -53,6 +54,22 @@ In order to get Blizzard Region ID, you need to send me your <i>Blizzard Profile
 <code>/regionid https://starcraft2.com/en-us/profile/1/1/10993388</code>
 """
 
+def timedelta2string(delta):
+    
+    seconds = int(delta.total_seconds())
+    if seconds == 0:
+        return '⏰ now'
+    minutes = int(seconds/60)
+    hours = int(minutes/60)
+    days = int(hours/24)
+    if days > 0:
+        return f'⏰ {days} days ago'
+    if hours > 0:
+        return f'⏰ {hours} hour sago'
+    if minutes > 0:
+        return f'⏰ {minutes} minutes ago'
+    if seconds > 0:
+        return f'⏰ {seconds} seconds ago'
 
 TEMPLATE_PROFILE = "Aqui va to eso {0.arroba}"
 
@@ -69,7 +86,9 @@ def process_help(u=None, args=None):
     return commands['/help']['help']
 
 def process_settings(u, args=None):
-    return TEMPLATE_SETTINGS.format(u)
+    delta = datetime.datetime.now() - u.modified_at
+    delta_str = timedelta2string(delta)
+    return TEMPLATE_SETTINGS.format(u, delta_str)
 
 def process_profile(u, args=None):
     if u.battle_tag is None:
