@@ -1,8 +1,0 @@
-DB_LOCATION = 'data'
-DB_NAME = 'sc2.db'
-
-BOT_NAME = 'SC2Helperbot'
-BOT_API_TOKEN = '1776973261:AAEOsdLsqSUtYhA4Cm0BV3Ap6llkSs7l8gk'
-LOG_CHANNEL_ID = -1012313123123
-
-admin_ids = []

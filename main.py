@@ -1,14 +1,9 @@
 import os
 import asyncio
 import logging
-from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, executor, types
 from commands import process_command
-
-load_dotenv()
-
-BOT_NAME = os.getenv("BOT_NAME")
-BOT_API_TOKEN = os.getenv("BOT_API_TOKEN")
+from config import BOT_NAME, BOT_API_TOKEN
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
