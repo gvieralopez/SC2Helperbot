@@ -7,7 +7,8 @@ load_dotenv()
 
 _CLIENT = os.getenv("BZ_OAUTH_CLIENT")
 _TOKEN = os.getenv("BZ_OAUTH_SECRET")
-_REGION = {"id" : 2 if os.getenv("BZ_REGION") == "eu" else 1, "name" : os.getenv("BZ_REGION")}
+_region_Name = os.getenv("BZ_REGION")
+_REGION = {"id" : 2 if _region_Name == "eu" else 1 if _region_Name == 'us' else 3 if _region_Name == 'kr' else 4, 'name' : _region_Name}
 _BASE_BNET_URL = "https://{region}.battle.net".format(region=_REGION['name'])
 _BASE_API_URL = "https://{region}.api.blizzard.com".format(region=_REGION['name'])
 
@@ -27,7 +28,7 @@ def get_access_token():
     return False
 
 
-def get_player_meta(profileId):
+def get_player_meta(profileId, regionId=_REGION['id'], realmId=1):
     """Returns metadata for an individual's profile.
 
     Args:
@@ -36,14 +37,14 @@ def get_player_meta(profileId):
     Returns:
         [json]: player meta info
     """
-    url = _BASE_API_URL + "/sc2/metadata/profile/{regionId}/{realmId}/{profileId}".format(regionId=_REGION['id'], realmId=1, profileId=profileId)
+    url = _BASE_API_URL + "/sc2/metadata/profile/{regionId}/{realmId}/{profileId}".format(regionId=regionId, realmId=realmId, profileId=profileId)
     r = get_api(url)
     if r.status_code == 200:
         response = json.loads(r.content)
         return response
     return r.status_code
 
-def get_player_info(profileId):
+def get_player_info(profileId, regionId=_REGION['id'], realmId=1):
     """Returns data about an individual SC2 profile.
 
     Args:
@@ -52,10 +53,10 @@ def get_player_info(profileId):
     Returns:
         json: player extended info
     """
-    url = _BASE_API_URL + "/sc2/profile/{regionId}/{realmId}/{profileId}".format(regionId=_REGION['id'], realmId=1, profileId=profileId)
+    url = _BASE_API_URL + "/sc2/profile/{regionId}/{realmId}/{profileId}".format(regionId=regionId, realmId=realmId, profileId=profileId)
     return get_api(url)
 
-def get_ladder_summary(profileId):
+def get_ladder_summary(profileId, regionId=_REGION['id'], realmId=1):
     """Returns a ladder summary for an individual SC2 profile.
 
     Args:
@@ -64,10 +65,10 @@ def get_ladder_summary(profileId):
     Returns:
         [json]: player's ladders summary
     """
-    url = _BASE_API_URL + "/sc2/profile/{regionId}/{realmId}/{profileId}/ladder/summary".format(regionId=_REGION['id'], realmId=1, profileId=profileId)
+    url = _BASE_API_URL + "/sc2/profile/{regionId}/{realmId}/{profileId}/ladder/summary".format(regionId=regionId, realmId=realmId, profileId=profileId)
     return get_api(url)
 
-def get_ladder_info(profileId, ladderid):
+def get_ladder_info(profileId, ladderid, regionId=_REGION['id'], realmId=1):
     """Returns data about an individual profile's ladder.
 
     Args:
@@ -77,7 +78,7 @@ def get_ladder_info(profileId, ladderid):
     Returns:
         [json]: Specific ladder info
     """
-    url = _BASE_API_URL + "/sc2/profile/{regionId}/{realmId}/{profileId}/ladder/{ladderId}".format(regionId=_REGION['id'], realmId=1, profileId=profileId, ladderId=ladderid)
+    url = _BASE_API_URL + "/sc2/profile/{regionId}/{realmId}/{profileId}/ladder/{ladderId}".format(regionId=regionId, realmId=realmId, profileId=profileId, ladderId=ladderid)
     return get_api(url)
 
 
