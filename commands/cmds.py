@@ -43,6 +43,7 @@ def process_profile(u, args=None):
         return TEMPLATE_MORE_DATA.format(u)
     
     response = ladderAPI.get_btag_info(u.battle_tag)
+    response = blizzardAPI.get_ladder_summary(u.EU_id, regionId=2)
     return response
 
 def process_battletag(u, args=None):
@@ -78,9 +79,6 @@ def update_region_id(user, rcode, profile_id):
         raise ValueError(f"Invalid region id for user {u.arroba}") 
     return user
 
-def process_auth(u, args=None):
-    if not len(args):
-        return process_help(u, args =["auth"])
 
 def process_regionId(u, args=None):
     if not len(args):

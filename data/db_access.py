@@ -35,14 +35,13 @@ DBSession = sessionmaker(bind=engine)
 s = DBSession()
 
 
-def create_user(tgid, arroba=None, battle_tag=None, account_id=None, 
+def create_user(tgid, arroba=None, battle_tag=None,  
     US_id=None, EU_id=None, KR_id=None, TW_id=None, display_name=None):
 
     date = datetime.datetime.now()
     s.add(User(tgid=tgid,
                arroba=arroba, 
                battle_tag=battle_tag,
-               account_id=account_id,
                US_id = US_id,
                EU_id = EU_id,
                KR_id = KR_id,

@@ -37,12 +37,6 @@ commands_dict = {
         'desc': "Lets the user enter his Blizzard Battle Tag",
         'help': TEMPLATE_BATTLE_TAG,
         'cat': "Input"
-    },
-    '/auth': {
-        'function': process_auth,
-        'desc': "Lets the user authorize the bot to use Blizzard API",
-        'help': "This is not implemented yet",
-        'cat': "Input"
     }
 }
 
