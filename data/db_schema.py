@@ -25,12 +25,12 @@ class User(Base):
 class UserMMR(Base):
     __tablename__ = 'usersmmr'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    server = Column(String(5), nullable=False)
+    region = Column(Integer, nullable=False)
     race = Column(String(10), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
-    ladder_id = Column(Integer, nullable=True)
+    ladder_id = Column(Integer, nullable=False)
 
-    rank = Column(String(15), nullable=False)
+    league = Column(String(15), nullable=False)
     mmr = Column(Integer, nullable=False)
     wins = Column(Integer, nullable=False)
     losses = Column(Integer, nullable=False)

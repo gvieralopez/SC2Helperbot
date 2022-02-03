@@ -1,17 +1,17 @@
 race_emojis = {
     'zerg' : '🪲',
     'protoss' : '✨',
-    'terran' : '🧯',
+    'terran' : '🧍‍♂️',
     'random' : '❓'
     }
 
 league_emojis = {
-    'Bronze' : '🥉',
-    'Silver' : '🥈',
-    'Gold' : '🥇',
-    'Platinum' : '⚓',
-    'Diamond' : '💎',
-    'Master' : '🎖️'
+    'bronze' : '🥉',
+    'silver' : '🥈',
+    'gold' : '🥇',
+    'platinum' : '⚓',
+    'diamond' : '💎',
+    'master' : '🎖️'
 }
 
 region_emojis = {

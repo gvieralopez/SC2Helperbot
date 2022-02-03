@@ -2,8 +2,9 @@ import datetime
 import data.db_access as db
 import APIs.blizzard as blizzardAPI
 import APIs.sc2ladder as ladderAPI
-from commands.utils import check_btag, timedelta2string
+from commands.utils import check_btag, timedelta2string, remove_teams_ladders
 from commands.templates import *
+from consts import race_emojis, league_emojis, region_emojis
 
 def process_help(u=None, args=None):
     from commands import commands_dict, command_cats  
@@ -38,13 +39,62 @@ def process_settings(u, args=None):
     delta_str = timedelta2string(delta)
     return TEMPLATE_SETTINGS.format(u, delta_str)
 
+
+
+def fetch_region_ladders(pid, rid):
+    ladders = []
+    if pid is not None:
+        us_ladders = blizzardAPI.get_ladder_summary(pid, regionId=rid)
+        sp_us_ladders = remove_teams_ladders(us_ladders)
+        for ladder in sp_us_ladders:
+            ladder['regionId'] = rid
+            ladder['profileId'] = pid
+            ladders.append(ladder)
+    return ladders
+
+
+def process_fetch(u, args=None):
+    if u.battle_tag is None:
+        return TEMPLATE_MORE_DATA.format(u)
+    
+    ladders = []
+    profile_ids = [u.US_id, u.EU_id, u.KR_id, u.TW_id]
+
+    for i, pid in enumerate(profile_ids):
+        ladders += fetch_region_ladders(pid, i+1)
+
+    if len(ladders):
+        for l in ladders:
+            region = l['regionId']
+            race = l['team']['members'][0]['favoriteRace']
+            
+            ldb = db.get_user_ladder(u, region, race)
+            ldb.ladder_id = int(l['ladderId'])
+            ldb.wins =  l['wins']
+            ldb.losses =  l['losses']
+
+            l_info = blizzardAPI.get_ladder_info(l['profileId'], l['ladderId'], l['regionId'])
+            ldb.mmr = l_info['ranksAndPools'][0]['mmr']
+            ldb.league = l_info['league']
+            # ldb.clan = "" #TODO: Update this too
+        return "Your game data was updated"
+
+    return TEMPLATE_MORE_DATA.format(u)
+
 def process_profile(u, args=None):
     if u.battle_tag is None:
         return TEMPLATE_MORE_DATA.format(u)
     
-    response = ladderAPI.get_btag_info(u.battle_tag)
-    response = blizzardAPI.get_ladder_summary(u.EU_id, regionId=2)
-    return response
+    ladders = db.get_all_user_ladders(u)
+    if ladders is None:
+        return TEMPLATE_MORE_DATA.format(u)
+
+    ret = '<b>User ladders found</b>\n\n'
+
+    for l in ladders:
+        win_rate = int(100 * l.wins/(l.wins+l.losses))
+        ret += f'{region_emojis[l.region]}{league_emojis[l.league]} {race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {u.display_name}\n'
+    return ret
 
 def process_battletag(u, args=None):
     if not len(args):

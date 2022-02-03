@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import desc, asc
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
-from data.db_schema import Base, User
+from data.db_schema import Base, User, UserMMR
 
 from config import DB_LOCATION, DB_NAME
 
@@ -67,6 +67,56 @@ def update_user(user, modified=False):
     if modified:
         user.modified_at = datetime.datetime.now()
     s.add(user)
+    s.commit()
+
+def create_user_ladder(user, region, race):
+    date = datetime.datetime.now()
+    user_ladder = UserMMR(region = region,
+        race = race,
+        user_id = user.id,
+        ladder_id = -1,
+
+        league = "",
+        mmr = 0,
+        wins = 0,
+        losses = 0,
+        clan = '',
+
+        created_at=date,
+        modified_at=date)
+    s.add(user_ladder)
+    s.commit()
+    return user_ladder
+
+def get_user_ladder(user, region, race, create=True): 
+    qry = s.query(UserMMR)
+    qry = qry.filter(UserMMR.user_id == user.id)
+    qry = qry.filter(UserMMR.region == region)
+    qry = qry.filter(UserMMR.race == race)
+
+    if qry:
+        try:
+            return qry.one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            if create:
+                return create_user_ladder(user, region, race)
+
+def get_all_user_ladders(user, region=None, race=None, create=True): 
+    qry = s.query(UserMMR)
+    qry = qry.filter(UserMMR.user_id == user.id)
+    if region is not None:
+        qry = qry.filter(UserMMR.region == region)
+    if race is not None:
+        qry = qry.filter(UserMMR.race == race)
+    if qry:
+        try:
+            return qry.all()
+        except sqlalchemy.orm.exc.NoResultFound:
+            return
+
+def update_user_ladder(user_ladder):
+    user_ladder.modified_at = datetime.datetime.now()
+    s.add(user_ladder)
     s.commit()
 
 # In case we want to fill some default data    

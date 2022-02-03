@@ -24,3 +24,16 @@ def timedelta2string(delta):
     if seconds > 0:
         return f'⏰ {seconds} seconds ago'
 
+
+def remove_teams_ladders(ladder_summary):
+    single_player_ladders = []
+    for ladder_mode in ladder_summary.keys():
+        for ladder in ladder_summary[ladder_mode]:
+            # if 'localizedGameMode' in ladder.keys():
+            #     if ladder["localizedGameMode"].startswith('1v1'):
+            #         single_player_ladders.append(ladder)
+            if 'team' in ladder.keys():
+                if 'localizedGameMode' in ladder['team'].keys():
+                    if ladder['team']["localizedGameMode"].startswith('1v1'):
+                        single_player_ladders.append(ladder)
+    return single_player_ladders
