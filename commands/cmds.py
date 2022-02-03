@@ -6,16 +6,31 @@ from commands.utils import check_btag, timedelta2string
 from commands.templates import *
 
 def process_help(u=None, args=None):
-    from commands import commands_dict
-    if not len(args):
-        ret = "List of available commands\n\n"
+    from commands import commands_dict, command_cats  
+
+    def general_help():
+        cats = {k:[] for k in command_cats.keys()}
         for c in commands_dict.keys():
-            ret += f"<b>{c}</b>: {commands_dict[c]['desc']}\n"
+            cat = commands_dict[c]['cat']
+            desc = commands_dict[c]['desc']
+            cats[cat].append((c, desc))
+        ret = "<b>List of available commands</b>\n\n"
+        for cat in cats.keys():
+            ret += f'<i>{command_cats[cat]}</i>\n'
+            for c, desc in cats[cat]:
+                ret += f"<b>{c}</b> {desc}\n"
+            ret += '\n'
         return ret
-    elif len(args) == 1:
+
+    def particular_help():
         c = args[0] if args[0].startswith('/') else f'/{args[0]}'
         if c in commands_dict.keys():
             return commands_dict[c]['help']
+
+    if not len(args):
+        return general_help()
+    elif len(args) == 1:
+        return particular_help()
     return commands_dict['/help']['help']
 
 def process_settings(u, args=None):

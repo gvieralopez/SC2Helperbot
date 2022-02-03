@@ -1,36 +1,48 @@
 import data.db_access as db
 from commands.cmds import *
 
+command_cats = {
+    'General': "General purpose",
+    'Input': "Setting up your credentials"
+}
+
+
 commands_dict = {
     '/help': {
         'function': process_help,
-        'desc': "Show all available commands.",
-        'help': "Show all available commands. If you type ```/help command``` it shows the help of that command."
+        'desc': "Shows all available commands.",
+        'help': "Shows all available commands. If you type ```/help command``` it shows the help of that command.",
+        'cat': "General"
     },
     '/settings': {
         'function': process_settings,
-        'desc': "Show user settings",
-        'help': "Just run /settings to see your settings"
+        'desc': "Shows user settings",
+        'help': "Just run /settings to see your settings",
+        'cat': "Input"
     },
     '/profile': {
         'function': process_profile,
-        'desc': "Show Battle Net statistics of the user",
-        'help': "Just run /profile to see your stats in Battle Net"
+        'desc': "Shows Battle Net statistics of the user",
+        'help': "Just run /profile to see your stats in Battle Net",
+        'cat': "General"
     },
     '/regionid': {
         'function': process_regionId,
-        'desc': "Let the user enter his Blizzard ID",
-        'help': TEMPLATE_BLIZZARD_ID
+        'desc': "Lets the user enter his Blizzard ID",
+        'help': TEMPLATE_BLIZZARD_ID,
+        'cat': "Input"
     },
     '/battletag': {
         'function': process_battletag,
-        'desc': "Let the user enter his Blizzard Battle Tag",
-        'help': TEMPLATE_BATTLE_TAG
+        'desc': "Lets the user enter his Blizzard Battle Tag",
+        'help': TEMPLATE_BATTLE_TAG,
+        'cat': "Input"
     },
     '/auth': {
         'function': process_auth,
-        'desc': "Let the user authorize the bot to use Blizzard API",
-        'help': "This is not implemented yet"
+        'desc': "Lets the user authorize the bot to use Blizzard API",
+        'help': "This is not implemented yet",
+        'cat': "Input"
     }
 }
 
