@@ -65,6 +65,3 @@ To send me your Battle tag you can use something:
 
 <code>/battletag MyName#12345</code>
 """
-
-
-TEMPLATE_PROFILE = "Aqui va to eso {0.arroba}"

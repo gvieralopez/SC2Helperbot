@@ -41,7 +41,9 @@ def process_settings(u, args=None):
 def process_profile(u, args=None):
     if u.battle_tag is None:
         return TEMPLATE_MORE_DATA.format(u)
-    return TEMPLATE_PROFILE.format(u)
+    
+    response = ladderAPI.get_btag_info(u.battle_tag)
+    return response
 
 def process_battletag(u, args=None):
     if not len(args):
