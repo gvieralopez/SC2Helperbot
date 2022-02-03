@@ -2,19 +2,13 @@ import os
 import logging
 import datetime
 import sqlalchemy
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy import desc, asc
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from data.db_schema import Base, User
 
-
-load_dotenv()
-
-DB_LOCATION = os.getenv("DB_LOCATION")
-DB_NAME = os.getenv("DB_NAME")
-
+from config import DB_LOCATION, DB_NAME
 
 if not DB_NAME in os.listdir(DB_LOCATION):
     logging.warning('Not db found, creating one')

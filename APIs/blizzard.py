@@ -1,13 +1,11 @@
 import os
 import requests
 import json
-from dotenv import load_dotenv
+import config
 
-load_dotenv()
-
-_CLIENT = os.getenv("BZ_OAUTH_CLIENT")
-_TOKEN = os.getenv("BZ_OAUTH_SECRET")
-_region_Name = os.getenv("BZ_REGION")
+_CLIENT = config.BZ_OAUTH_CLIENT
+_TOKEN = config.BZ_OAUTH_SECRET
+_region_Name = config.BZ_REGION
 _REGION = {"id" : 2 if _region_Name == "eu" else 1 if _region_Name == 'us' else 3 if _region_Name == 'kr' else 4, 'name' : _region_Name}
 _BASE_BNET_URL = "https://{region}.battle.net".format(region=_REGION['name'])
 _BASE_API_URL = "https://{region}.api.blizzard.com".format(region=_REGION['name'])
