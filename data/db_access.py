@@ -101,9 +101,10 @@ def get_user_ladder(user, region, race, create=True):
             if create:
                 return create_user_ladder(user, region, race)
 
-def get_all_user_ladders(user, region=None, race=None, create=True): 
+def get_all_ladders(user=None, region=None, race=None, create=True): 
     qry = s.query(UserMMR)
-    qry = qry.filter(UserMMR.user_id == user.id)
+    if user is not None:
+        qry = qry.filter(UserMMR.user_id == user.id)
     if region is not None:
         qry = qry.filter(UserMMR.region == region)
     if race is not None:

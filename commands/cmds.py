@@ -99,7 +99,7 @@ def process_profile(u, args=None):
     if u.battle_tag is None:
         return TEMPLATE_MORE_DATA.format(u)
     
-    ladders = db.get_all_user_ladders(u)
+    ladders = db.get_all_ladders(u)
     if ladders is None:
         return TEMPLATE_MORE_DATA.format(u)
 
@@ -173,4 +173,17 @@ def process_users(u, args=None):
     ret = '<b>List of bot users:</b>\n\n'
     for us in all_users:
         ret += f'{us.arroba} <code>{us.battle_tag}</code>\n'
+    return ret
+
+def process_rank(u, args=None):
+    ladders = db.get_all_ladders()
+    if ladders is None:
+        return TEMPLATE_MORE_DATA.format(u)
+
+    ladders.sort(key=lambda x: x.mmr, reverse=True)
+    ret = '<b>🤖Bot Ranking</b>\n\n'
+    for i, l in enumerate(ladders):
+        win_rate = int(100 * l.wins/(l.wins+l.losses))
+        clan = '' if l.clan == '' else f'&lt;{l.clan}&gt;'
+        ret += f'<code>#{i+1}</code>{region_emojis[l.region]}{league_emojis[l.league]}{race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {clan}<b>{u.display_name}</b>\n'
     return ret
