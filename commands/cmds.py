@@ -100,9 +100,9 @@ def process_profile(u, args=None):
         return TEMPLATE_MORE_DATA.format(u)
     
     ladders = db.get_all_ladders(u)
-    if ladders is None:
-        return TEMPLATE_MORE_DATA.format(u)
-
+    if not len(ladders):
+        return TEMPLATE_NO_LADDER
+        
     ladders.sort(key=lambda x: x.mmr, reverse=True)
     ret = '<b>User ladders found (1v1)</b>\n\n'
     for l in ladders:

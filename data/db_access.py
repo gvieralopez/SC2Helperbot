@@ -114,7 +114,8 @@ def get_all_ladders(user=None, region=None, race=None, create=True):
         try:
             return qry.all()
         except sqlalchemy.orm.exc.NoResultFound:
-            return
+            pass
+    return []
 
 def get_all_users(): 
     qry = s.query(User)

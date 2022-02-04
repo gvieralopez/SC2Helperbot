@@ -18,6 +18,16 @@ TEMPLATE_SETTINGS = """
 <b>Last Updated:</b> {1} 
 """
 
+TEMPLATE_NO_LADDER = """
+Sadly, I have no ladder info from you.
+
+<b>Please make sure of the following:</b>
+
+1. You have played ladder in Battle Net
+2. You have configured regionid in your /settings
+3. You have excecuted /fetch at least once
+"""
+
 TEMPLATE_MORE_DATA = """
 Dear @{0.arroba}:
 
