@@ -103,11 +103,12 @@ def process_profile(u, args=None):
     if ladders is None:
         return TEMPLATE_MORE_DATA.format(u)
 
-    ret = '<b>User ladders found</b>\n\n'
-
+    ladders.sort(key=lambda x: x.mmr, reverse=True)
+    ret = '<b>User ladders found (1v1)</b>\n\n'
     for l in ladders:
         win_rate = int(100 * l.wins/(l.wins+l.losses))
-        ret += f'{region_emojis[l.region]}{league_emojis[l.league]} {race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {u.display_name}\n'
+        clan = '' if l.clan == '' else f'&lt;{l.clan}&gt;'
+        ret += f'{region_emojis[l.region]}{league_emojis[l.league]}{race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {clan}<b>{u.display_name}</b>\n'
     return ret
 
 def process_battletag(u, args=None):
