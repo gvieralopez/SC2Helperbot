@@ -134,3 +134,4 @@ data/sqlite3.exe
 
 # Sensitive data
 config.py
+data/history/*json
