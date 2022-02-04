@@ -114,6 +114,14 @@ def get_all_user_ladders(user, region=None, race=None, create=True):
         except sqlalchemy.orm.exc.NoResultFound:
             return
 
+def get_all_users(): 
+    qry = s.query(User)
+    if qry:
+        try:
+            return qry.all()
+        except sqlalchemy.orm.exc.NoResultFound:
+            return
+
 def update_user_ladder(user_ladder):
     user_ladder.modified_at = datetime.datetime.now()
     s.add(user_ladder)

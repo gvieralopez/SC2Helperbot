@@ -14,6 +14,12 @@ commands_dict = {
         'help': "Shows all available commands. If you type ```/help command``` it shows the help of that command.",
         'cat': "General"
     },
+    '/users': {
+        'function': process_users,
+        'desc': "Shows all the users of the bot.",
+        'help': "Shows all the users of the bot and their BattleTag if available.",
+        'cat': "General"
+    },
     '/fetch': {
         'function': process_fetch,
         'desc': "Retreives Battle Net game data via Blizzard API.",

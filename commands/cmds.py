@@ -166,3 +166,11 @@ def process_regionId(u, args=None):
             return process_settings(u)
         return f"Blizzard API call Failed with error code: {data}"
     return "Invalid Starcraft2.com profile URL, check /regionid for help."
+
+
+def process_users(u, args=None):
+    all_users = db.get_all_users()
+    ret = '<b>List of bot users:</b>\n\n'
+    for us in all_users:
+        ret += f'{us.arroba} <code>{us.battle_tag}</code>\n'
+    return ret
