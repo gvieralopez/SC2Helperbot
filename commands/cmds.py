@@ -102,7 +102,7 @@ def process_profile(u, args=None):
     ladders = db.get_all_ladders(u)
     if not len(ladders):
         return TEMPLATE_NO_LADDER
-        
+
     ladders.sort(key=lambda x: x.mmr, reverse=True)
     ret = '<b>User ladders found (1v1)</b>\n\n'
     for l in ladders:
@@ -152,8 +152,9 @@ def process_regionId(u, args=None):
     if args[0].startswith('https://starcraft2.com/'):
         profile_id = args[0].split('/')[-1]
         region_code = args[0].split('/')[-3]
+    else:
+        return "Invalid Starcraft2.com profile URL, check /regionid for help."
     
-
     bid = int(profile_id) if profile_id.isdigit() else None
     rcode = int(region_code) if region_code.isdigit() else None
  
