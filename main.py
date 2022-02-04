@@ -24,8 +24,8 @@ async def router(message: types.Message):
     if message.is_command():
         reply = process_command(message)
         await message.answer(reply, parse_mode="html")
-    else:
-        await message.answer("Type /help for available commands.", parse_mode="html")
+    # else:
+        # await message.answer("Type /help for available commands.", parse_mode="html")
 
 
 if __name__ == '__main__':
