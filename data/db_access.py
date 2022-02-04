@@ -172,3 +172,6 @@ def save_ladder_history(user_ladder):
 # In case we want to fill some default data    
 if db_empty:
     pass
+
+history_path = os.path.join(DB_LOCATION, 'history')
+os.makedirs(history_path, exist_ok = True)
