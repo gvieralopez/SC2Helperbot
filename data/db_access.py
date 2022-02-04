@@ -80,6 +80,7 @@ def create_user_ladder(user, region, race):
         mmr = 0,
         wins = 0,
         losses = 0,
+        history = None, # TODO: Create the file and a path to it
         clan = '',
 
         created_at=date,

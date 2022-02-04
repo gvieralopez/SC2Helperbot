@@ -187,3 +187,10 @@ def process_rank(u, args=None):
         clan = '' if l.clan == '' else f'&lt;{l.clan}&gt;'
         ret += f'<code>#{i+1}</code>{region_emojis[l.region]}{league_emojis[l.league]}{race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {clan}<b>{u.display_name}</b>\n'
     return ret
+
+async def fetch_all(bot):
+    users = db.get_all_users()
+    for u in users:
+        process_fetch(u) # TODO: Log here
+    print('Auto updating data')
+    # TODO: Output updated ranking
