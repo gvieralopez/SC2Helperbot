@@ -35,6 +35,7 @@ class UserMMR(Base):
     wins = Column(Integer, nullable=False)
     losses = Column(Integer, nullable=False)
     clan = Column(String(15), nullable=True)
+    history = Column(String(30), nullable=True)
 
     created_at = Column(DateTime, nullable=False)
     modified_at = Column(DateTime, nullable=False)
