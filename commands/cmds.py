@@ -55,7 +55,7 @@ def fetch_region_ladders(pid, rid):
     return ladders
 
 
-def process_fetch(u, args=None):
+def process_fetch(u, mode=None):
     if u.battle_tag is None:
         return TEMPLATE_MORE_DATA.format(u)
     
@@ -90,6 +90,8 @@ def process_fetch(u, args=None):
                 ldb.mmr = l_info['ranksAndPools'][0]['mmr']
                 ldb.league = l_info['league']
                 db.update_user_ladder(ldb)
+                if mode == 'save':
+                    db.save_ladder_history(ldb)
             else:
                 print(f"Something wrong with ladder {[l['ladderId']]}")
                 
@@ -195,7 +197,7 @@ def process_rank(u, args=None):
 async def fetch_all(bot, log):
     users = db.get_all_users()
     for u in users:
-        process_fetch(u) # TODO: Log here
+        process_fetch(u, mode='save')
     print('Auto updating data')
     await asyncio.sleep(10)
     ranking = process_rank(None)

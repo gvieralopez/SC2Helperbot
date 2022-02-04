@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 import datetime
 import sqlalchemy
@@ -133,6 +134,40 @@ def update_user_ladder(user_ladder):
     user_ladder.modified_at = datetime.datetime.now()
     s.add(user_ladder)
     s.commit()
+
+# Raw input-output operations
+def __export_db__(db_name, db_folder, data):
+    with open(os.path.join(db_folder, db_name), 'w') as f:
+        json.dump(data, f)
+
+def __load_db__(db_name, db_folder, default_data={}):
+    db = default_data
+    if db_name in os.listdir(db_folder):
+        with open(os.path.join(db_folder, db_name)) as f:
+            db = json.load(f)
+    else:
+        __export_db__(db_name, db_folder, db)        
+    return db
+
+# Alliance Loot Cache
+ALLIANCE_LOOT_MAX_BUFFER_SIZE = 3
+def _import_history(id):
+    history_path = os.path.join(DB_LOCATION, 'history')
+    history_file = f'h{id}.json'
+    return __load_db__(history_file, history_path, {'mmrs': [], 'dates': []})
+
+def _export_history(new_data, id):
+    history_path = os.path.join(DB_LOCATION, 'history')
+    history_file = f'h{id}.json'
+    return __export_db__(history_file, history_path, new_data) 
+
+
+def save_ladder_history(user_ladder):
+    date = datetime.datetime.now()
+    history = _import_history(user_ladder.id)
+    history['mmrs'].append(user_ladder.mmr)
+    history['dates'].append(date.strftime('%d-%m-%Y'))
+    _export_history(history, user_ladder.id)
 
 # In case we want to fill some default data    
 if db_empty:
