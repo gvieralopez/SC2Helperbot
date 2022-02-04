@@ -1,5 +1,6 @@
 import data.db_access as db
 from commands.cmds import *
+from config import BOT_NAME
 
 command_cats = {
     'General': "General purpose",
@@ -58,7 +59,12 @@ commands_dict = {
     }
 }
 
-def _split_command(command):
+def parse_command(command):
+    if "@" in command:
+        command, tbot = command.split("@")
+        if tbot != BOT_NAME:
+            return "", []
+
     if " " in command:
         command = command.split(" ")
     elif "_" in command:
@@ -72,9 +78,8 @@ def _split_command(command):
         args = []
     return command.lower(), args
 
-
 def execute_command(command, user):
-    command, args = _split_command(command)
+    command, args = parse_command(command)
     print(command, args)
     if command in commands_dict.keys():
         return commands_dict[command]['function'](user, args)
