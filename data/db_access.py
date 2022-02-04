@@ -51,10 +51,14 @@ def create_user(tgid, arroba=None, battle_tag=None,
                modified_at=date))
     s.commit()
 
-def get_user(tgid, battle_tag=None):
+def get_user(tgid=None, id=None, battle_tag=None):
     qry = s.query(User)
+    if tgid is None and id is None:
+        return
     if tgid:
         qry = qry.filter(User.tgid == tgid)
+    if id:
+        qry = qry.filter(User.id == id)
     if battle_tag:
         qry = qry.filter(User.battle_tag == battle_tag)
     if qry:

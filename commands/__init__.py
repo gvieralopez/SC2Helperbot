@@ -101,12 +101,12 @@ def process_command(message):
     """
     command = message.text
     tgid = message['from']['id']
-    user = db.get_user(tgid)
+    user = db.get_user(tgid=tgid)
     arroba = get_username(message)
 
     if user is None:           
         db.create_user(tgid, arroba)
-        user = db.get_user(tgid)
+        user = db.get_user(tgid=tgid)
     else:
         user.arroba = arroba 
         db.update_user(user)

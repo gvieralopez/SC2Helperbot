@@ -186,7 +186,8 @@ def process_rank(u, args=None):
     for i, l in enumerate(ladders):
         win_rate = int(100 * l.wins/(l.wins+l.losses))
         clan = '' if l.clan == '' else f'&lt;{l.clan}&gt;'
-        ret += f'<code>#{i+1}</code>{region_emojis[l.region]}{league_emojis[l.league]}{race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {clan}<b>{u.display_name}</b>\n'
+        us = db.get_user(id=l.user_id)
+        ret += f'<code>#{i+1}</code>{region_emojis[l.region]}{league_emojis[l.league]}{race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {clan}<b>{us.display_name}</b>\n'
     return ret
 
 async def fetch_all(bot):
