@@ -16,3 +16,9 @@ The main configuration file is `config.py`, but it is not included by default. S
 
 Check @SC2Helperbot in Telegram.
 
+## Contributing
+
+Just make a PR. We want to add this in the future:
+* Save and plot the time evolution of the MMR for each user ladder
+* Add some filter buttons to the ranking (Server, league, race, no duplicate users, etc)
+* Auto-fetch data from the blizzard API daily
