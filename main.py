@@ -29,6 +29,6 @@ async def router(message: types.Message):
 
 
 if __name__ == '__main__':
-    scheduler.add_job(fetch_all, 'cron', hour=17, minute=30, second=0, kwargs={'bot': bot}) 
+    scheduler.add_job(fetch_all, 'cron', hour=17, minute=30, second=0, kwargs={'bot': bot, 'log': log}) 
     scheduler.start()
     executor.start_polling(dp, skip_updates=True)

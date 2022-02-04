@@ -2,9 +2,11 @@ import datetime
 import data.db_access as db
 import APIs.blizzard as blizzardAPI
 import APIs.sc2ladder as ladderAPI
-from commands.utils import check_btag, timedelta2string, remove_teams_ladders
+from commands.utils import check_btag, timedelta2string, remove_teams_ladders, send_message
 from commands.templates import *
 from consts import race_emojis, league_emojis, region_emojis
+import asyncio
+from config import LOG_CHANNEL_ID
 
 def process_help(u=None, args=None):
     from commands import commands_dict, command_cats  
@@ -190,9 +192,11 @@ def process_rank(u, args=None):
         ret += f'<code>#{i+1}</code>{region_emojis[l.region]}{league_emojis[l.league]}{race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {clan}<b>{us.display_name}</b>\n'
     return ret
 
-async def fetch_all(bot):
+async def fetch_all(bot, log):
     users = db.get_all_users()
     for u in users:
         process_fetch(u) # TODO: Log here
     print('Auto updating data')
-    # TODO: Output updated ranking
+    await asyncio.sleep(10)
+    ranking = process_rank(None)
+    await send_message(LOG_CHANNEL_ID, ranking, log, bot, pin_it=True)
