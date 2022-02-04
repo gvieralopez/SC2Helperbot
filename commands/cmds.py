@@ -44,9 +44,9 @@ def process_settings(u, args=None):
 def fetch_region_ladders(pid, rid):
     ladders = []
     if pid is not None:
-        us_ladders = blizzardAPI.get_ladder_summary(pid, regionId=rid)
-        sp_us_ladders = remove_teams_ladders(us_ladders)
-        for ladder in sp_us_ladders:
+        region_ladders = blizzardAPI.get_ladder_summary(pid, regionId=rid)
+        sp_region_ladders = remove_teams_ladders(region_ladders)
+        for ladder in sp_region_ladders:
             ladder['regionId'] = rid
             ladder['profileId'] = pid
             ladders.append(ladder)
@@ -65,18 +65,32 @@ def process_fetch(u, args=None):
 
     if len(ladders):
         for l in ladders:
-            region = l['regionId']
-            race = l['team']['members'][0]['favoriteRace']
-            
-            ldb = db.get_user_ladder(u, region, race)
-            ldb.ladder_id = int(l['ladderId'])
-            ldb.wins =  l['wins']
-            ldb.losses =  l['losses']
-
+            race = None            
             l_info = blizzardAPI.get_ladder_info(l['profileId'], l['ladderId'], l['regionId'])
-            ldb.mmr = l_info['ranksAndPools'][0]['mmr']
-            ldb.league = l_info['league']
-            # ldb.clan = "" #TODO: Update this too
+            for team in l_info['ladderTeams']:
+                for member in team['teamMembers']:
+                    if int(member['id']) == l['profileId']:
+                        if 'clanTag' in member.keys():
+                            clan = member['clanTag'] 
+                        else:
+                            clan = ''
+                        race = member['favoriteRace']
+                        wins = team['wins']
+                        losses = team['losses']
+                        break
+            region = l['regionId']
+            if race:            
+                ldb = db.get_user_ladder(u, region, race)
+                ldb.ladder_id = int(l['ladderId'])
+                ldb.wins =  wins
+                ldb.losses =  losses
+                ldb.clan = clan
+                ldb.mmr = l_info['ranksAndPools'][0]['mmr']
+                ldb.league = l_info['league']
+                db.update_user_ladder(ldb)
+            else:
+                print(f"Something wrong with ladder {[l['ladderId']]}")
+                
         return "Your game data was updated"
 
     return TEMPLATE_MORE_DATA.format(u)
