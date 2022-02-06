@@ -72,6 +72,7 @@ def process_fetch(u, mode=None):
             for team in l_info['ladderTeams']:
                 for member in team['teamMembers']:
                     if int(member['id']) == l['profileId']:
+                        name = member['displayName']
                         if 'clanTag' in member.keys():
                             clan = member['clanTag'] 
                         else:
@@ -90,6 +91,9 @@ def process_fetch(u, mode=None):
                 ldb.mmr = l_info['ranksAndPools'][0]['mmr']
                 ldb.league = l_info['league']
                 db.update_user_ladder(ldb)
+                user = db.get_user(id=ldb.user_id)
+                user.display_name = name
+                db.update_user(user)
                 if mode == 'save':
                     db.save_ladder_history(ldb)
             else:
