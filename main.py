@@ -23,7 +23,16 @@ async def router(message: types.Message):
 
     if message.is_command():
         reply = process_command(message)
-        await message.answer(reply, parse_mode="html")
+        if isinstance(reply, str):
+            await message.answer(reply, parse_mode="html")
+        elif isinstance(reply, dict):
+            if 'photo' in reply.keys():
+                text = reply['text'] if 'text' in reply.keys() else ''
+                await message.answer_photo(reply['photo'], reply['text'], parse_mode="html")
+                reply['photo'].close()
+            else:
+                await message.answer(reply['text'], parse_mode="html")
+
     # else:
         # await message.answer("Type /help for available commands.", parse_mode="html")
 
