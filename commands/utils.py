@@ -31,9 +31,10 @@ def timedelta2string(delta):
 
 def remove_teams_ladders(ladder_summary):
     single_player_ladders = []
-    for ladder in ladder_summary['allLadderMemberships']:
-        if ladder["localizedGameMode"].startswith('1v1'):
-            single_player_ladders.append(ladder)    
+    if not isinstance(ladder_summary, int):
+        for ladder in ladder_summary['allLadderMemberships']:
+            if ladder["localizedGameMode"].startswith('1v1'):
+                single_player_ladders.append(ladder)    
     return single_player_ladders
 
 async def send_message(user_id: int, text: str, log, bot, disable_notification: bool = False, keyboard=None, pin_it=False) -> bool:
