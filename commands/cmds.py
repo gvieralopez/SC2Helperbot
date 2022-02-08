@@ -205,19 +205,41 @@ def process_users(u, args=None):
         ret += f'{us.arroba} <code>{us.battle_tag}</code>\n'
     return ret
 
-def process_rank(u, args=None):
-    ladders = db.get_all_ladders()
-    if ladders is None:
-        return TEMPLATE_MORE_DATA.format(u)
-
+def _create_ranking(title, ladders):
     ladders.sort(key=lambda x: x.mmr, reverse=True)
-    ret = '<b>🤖Bot Ranking</b>\n\n'
+    ret = f'<b>{title}</b>\n\n'
     for i, l in enumerate(ladders):
         win_rate = int(100 * l.wins/(l.wins+l.losses))
         clan = '' if l.clan == '' else f'&lt;{l.clan}&gt;'
         us = db.get_user(id=l.user_id)
         ret += f'<code>#{i+1}</code>{region_emojis[l.region]}{league_emojis[l.league]}{race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {clan}<b>{us.display_name}</b>\n'
     return ret
+
+def process_rank(u, args=None):
+    users = db.get_all_users()
+    ladders = []
+    for u in users:
+        lad = db.get_best_user_ladder(u)
+        if lad:
+            ladders.append(lad)
+            
+    if ladders is None:
+        return TEMPLATE_MORE_DATA.format(u)
+
+    ladders.sort(key=lambda x: x.mmr, reverse=True)
+
+    title='🤖Bot Ranking'
+    return _create_ranking(title, ladders)
+
+def process_ladder(u, args=None):
+    ladders = db.get_all_ladders()
+    if ladders is None:
+        return TEMPLATE_MORE_DATA.format(u)
+
+    ladders.sort(key=lambda x: x.mmr, reverse=True)
+
+    title='🤖All ladders'
+    return _create_ranking(title, ladders)
 
 async def fetch_all(bot, log):
     users = db.get_all_users()

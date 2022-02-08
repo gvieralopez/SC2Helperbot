@@ -23,6 +23,12 @@ commands_dict = {
     },
     '/rank': {
         'function': process_rank,
+        'desc': "Shows the best ladder of each user.",
+        'help': "Shows the best ladder of each user in 1v1 mode.",
+        'cat': "General"
+    },
+    '/ladders': {
+        'function': process_ladder,
         'desc': "Shows all the ladders for all the users.",
         'help': "Shows all the ladders in 1v1 mode for all the registered users.",
         'cat': "General"

@@ -5,7 +5,7 @@ import datetime
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import desc, asc
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import sessionmaker
 from data.db_schema import Base, User, UserMMR
 
@@ -121,6 +121,18 @@ def get_all_ladders(user=None, region=None, race=None, create=True):
         except sqlalchemy.orm.exc.NoResultFound:
             pass
     return []
+
+def get_best_user_ladder(user):
+    subqry = s.query(func.max(UserMMR.mmr)).filter(UserMMR.user_id == user.id)
+    qry = s.query(UserMMR).filter(UserMMR.user_id == user.id, UserMMR.mmr == subqry)
+
+    # qry = s.query(UserMMR)
+    # qry = qry.filter(UserMMR.user_id == user.id).order_by(desc(UserMMR.mmr).limit(1)
+    if qry:
+        try:
+            return qry.one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            return
 
 def get_all_users(): 
     qry = s.query(User)
