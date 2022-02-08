@@ -4,7 +4,7 @@ import APIs.blizzard as blizzardAPI
 import APIs.sc2ladder as ladderAPI
 from commands.utils import check_btag, timedelta2string, remove_teams_ladders, send_message
 from commands.templates import *
-from consts import race_emojis, league_emojis, region_emojis
+from consts import race_emojis, league_emojis, region_emojis, region
 import asyncio
 from config import LOG_CHANNEL_ID
 import matplotlib.pyplot as plt
@@ -115,6 +115,8 @@ def process_profile(u, args=None):
         return TEMPLATE_NO_LADDER
 
     fig1 = plt.Figure()
+    plt.title(u.battle_tag)
+    plt.grid()
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     # plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
     plt.gca().xaxis.set_major_locator(mdates.DayLocator())
@@ -127,12 +129,15 @@ def process_profile(u, args=None):
         ret += f'{region_emojis[l.region]}{league_emojis[l.league]}{race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {clan}<b>{u.display_name}</b>\n'
         mmrs, datetimes = db.get_ladder_history(l)
         if len(mmrs):
-            plt.plot(datetimes, mmrs)
-    
+            server = region[l.region]
+            race = l.race
+            plt.plot(datetimes, mmrs, label=f'{server} - {race}')
+    plt.legend()
     plt.gcf().autofmt_xdate()
     f = io.BytesIO()
     plt.savefig(f, format='png')
     f.seek(0)
+    plt.clf()
     return {'text': ret, 'photo': f}
 
 def process_battletag(u, args=None):
