@@ -150,7 +150,6 @@ def __load_db__(db_name, db_folder, default_data={}):
     return db
 
 # Alliance Loot Cache
-ALLIANCE_LOOT_MAX_BUFFER_SIZE = 3
 def _import_history(id):
     history_path = os.path.join(DB_LOCATION, 'history')
     history_file = f'h{id}.json'
@@ -168,6 +167,13 @@ def save_ladder_history(user_ladder):
     history['mmrs'].append(user_ladder.mmr)
     history['dates'].append(date.strftime('%d-%m-%Y'))
     _export_history(history, user_ladder.id)
+
+def get_ladder_history(user_ladder):
+    todate = lambda a : datetime.datetime.strptime(a, '%d-%m-%Y')
+    hist = _import_history(user_ladder.id)
+    mmrs = hist['mmrs']
+    dates = [todate(d) for d in hist['dates']]
+    return mmrs, dates
 
 # In case we want to fill some default data    
 if db_empty:

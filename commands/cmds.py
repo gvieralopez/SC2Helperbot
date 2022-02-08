@@ -7,6 +7,9 @@ from commands.templates import *
 from consts import race_emojis, league_emojis, region_emojis
 import asyncio
 from config import LOG_CHANNEL_ID
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import io
 
 def process_help(u=None, args=None):
     from commands import commands_dict, command_cats  
@@ -111,13 +114,26 @@ def process_profile(u, args=None):
     if not len(ladders):
         return TEMPLATE_NO_LADDER
 
+    fig1 = plt.Figure()
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    # plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator())
     ladders.sort(key=lambda x: x.mmr, reverse=True)
+
     ret = '<b>User ladders found (1v1)</b>\n\n'
     for l in ladders:
         win_rate = int(100 * l.wins/(l.wins+l.losses))
         clan = '' if l.clan == '' else f'&lt;{l.clan}&gt;'
         ret += f'{region_emojis[l.region]}{league_emojis[l.league]}{race_emojis[l.race]} <code>{l.mmr}</code> <i>{win_rate}%</i> {clan}<b>{u.display_name}</b>\n'
-    return ret
+        mmrs, datetimes = db.get_ladder_history(l)
+        if len(mmrs):
+            plt.plot(datetimes, mmrs)
+    
+    plt.gcf().autofmt_xdate()
+    f = io.BytesIO()
+    plt.savefig(f, format='png')
+    f.seek(0)
+    return {'text': ret, 'photo': f}
 
 def process_battletag(u, args=None):
     if not len(args):
