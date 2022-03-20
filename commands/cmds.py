@@ -50,6 +50,14 @@ def fetch_region_ladders(pid, rid):
     ladders = []
     if pid is not None:
         region_ladders = blizzardAPI.get_ladder_summary(pid, regionId=rid)
+
+        #TODO: Do this in a more elegant way [Separate API]:
+        if isinstance(region_ladders, int):
+            import requests 
+            region_ladders = requests.get(f"https://starcraft2.com/en-us/api/sc2/profile/{rid}/1/{pid}/ladder/summary?locale=en-us")
+            print(region_ladders.json())
+            region_ladders = region_ladders.json()
+
         sp_region_ladders = remove_teams_ladders(region_ladders)
         for ladder in sp_region_ladders:
             ladder['regionId'] = rid
@@ -72,6 +80,14 @@ def process_fetch(u, mode=None):
         for l in ladders:
             race = None            
             l_info = blizzardAPI.get_ladder_info(l['profileId'], l['ladderId'], l['regionId'])
+
+            #TODO: Do this in a more elegant way [Separate API]:
+            if isinstance(l_info, int):
+                import requests 
+                region_ladders = requests.get(f"""https://starcraft2.com/en-us/api/sc2/profile/{l['regionId']}/1/{l['profileId']}/ladder/{l['ladderId']}?locale=en-us")""")
+                print(region_ladders.json())
+                l_info = region_ladders.json()
+
             for team in l_info['ladderTeams']:
                 for member in team['teamMembers']:
                     if int(member['id']) == l['profileId']:
