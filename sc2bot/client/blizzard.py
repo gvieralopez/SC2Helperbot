@@ -53,7 +53,7 @@ class BlizzardResolver(Resolver):
         response = requests.get(url, params=self.get_params())
         if response.status_code == 200:
             return response.json()
-        raise ValueError(f"API Response status not ok: {response}({response.content})")
+        raise ValueError(f"Blizzard API Response status not ok: {response}({response.content})")
 
     def get_params(self) -> dict:
         return {}
