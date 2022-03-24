@@ -9,7 +9,7 @@ class Race(Enum):
 
 
 class League(Enum):
-    BRONZE = (0,)
+    BRONZE = 0
     SILVER = 1
     GOLD = 2
     PLATINUM = 3
