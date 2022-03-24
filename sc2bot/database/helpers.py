@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
-from sc2bot.database.schema import User, Player
+from sc2bot.database.data import Race, League
+from sc2bot.database.schema import User, Player, PlayerStat
 
 
 def create_or_update_user(
@@ -36,3 +37,27 @@ def create_or_update_player(
     db_session.add(player)
     db_session.commit()
     return player
+
+
+def add_player_stat(
+    db_session: Session,
+    player: Player,
+    race: Race,
+    league: League,
+    mmr: int,
+    wins: int,
+    losses: int,
+    clan_tag: str,
+) -> PlayerStat:
+    player_stat = PlayerStat(
+        player_id=player.id,
+        race=race.name,
+        league=league.name,
+        mmr=mmr,
+        wins=wins,
+        losses=losses,
+        clan_tag=clan_tag,
+    )
+    db_session.add(player_stat)
+    db_session.commit()
+    return player_stat
