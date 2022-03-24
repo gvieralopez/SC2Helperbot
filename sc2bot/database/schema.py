@@ -13,7 +13,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     telegram_id = Column(Integer, nullable=False)
     telegram_username = Column(String(150), nullable=True)
-    battle_tag = Column(String(50), nullable=True)
+    battle_tag = Column(String(50), nullable=False)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     modified_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
     players = relationship("Player", back_populates="user")
