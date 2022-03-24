@@ -21,6 +21,7 @@ flake8-bugbear = "^22.3.20"
 flake8-eradicate = "^1.2.0"
 flake8-cognitive-complexity = "^0.1.0"
 pdbpp = "^0.10.3"
+sqlalchemy-stubs = "^0.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -28,3 +29,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 100
+
+[tool.poetry.scripts]
+planing = "sc2bot.cli.app:app"
