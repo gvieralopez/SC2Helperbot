@@ -53,7 +53,9 @@ class BlizzardResolver(Resolver):
         response = requests.get(url, params=self.get_params())
         if response.status_code == 200:
             return response.json()
-        raise ValueError(f"Blizzard API Response status not ok: {response}({response.content})")
+        raise ValueError(
+            f"Blizzard API Response status not ok: {response}({str(response.content)})"
+        )
 
     def get_params(self) -> dict:
         return {}
@@ -77,11 +79,11 @@ class BlizzardAuthorizedResolver(BlizzardResolver):
         )
         if response.status_code == 200:
             return response.json()["access_token"]
-        raise ValueError(f"Token response status not ok: {response}({response.content})")
+        raise ValueError(f"Token response status not ok: {response}({str(response.content)})")
 
 
 def build_player_stat(player: Player, ladder_info: dict) -> PlayerStat:
-    league = League.from_raw(ladder_info["league"])
+    league = League.from_raw(ladder_info["league"]).name
     mmr = ladder_info["ranksAndPools"][0]["mmr"]
 
     for team in ladder_info["ladderTeams"]:
@@ -89,13 +91,14 @@ def build_player_stat(player: Player, ladder_info: dict) -> PlayerStat:
             if int(member["id"]) == player.profile_id:
                 return PlayerStat(
                     player_id=player.id,
-                    race=Race.from_raw(member["favoriteRace"]),
+                    race=Race.from_raw(member["favoriteRace"]).name,
                     league=league,
                     mmr=mmr,
                     wins=team["wins"],
                     losses=team["losses"],
                     clan_tag=member.get("clanTag", ""),
                 )
+    raise ValueError(f"Player ({player}) not found in ladder: {ladder_info}")
 
 
 resolvers: list[Resolver] = [
