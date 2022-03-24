@@ -23,7 +23,7 @@ class Player(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     region_id = Column(Integer, nullable=False)
     profile_id = Column(Integer, nullable=False)
-    display_name = Column(String(50), nullable=True)
+    display_name = Column(String(50), nullable=False)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     modified_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 

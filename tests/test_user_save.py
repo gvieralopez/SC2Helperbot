@@ -5,8 +5,8 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from sc2bot.database.helpers import create_or_update_user
-from sc2bot.database.schema import Base, User
+from sc2bot.database.helpers import create_or_update_user, create_or_update_player
+from sc2bot.database.schema import Base, User, Player
 
 
 @pytest.fixture()
@@ -68,11 +68,11 @@ def test_user_create(user_list, db_session):
     assert db_session.query(User).count() == 2
     now = datetime.now(tz=timezone.utc)
     assert all(
-        (now - user.modified_at.replace(tzinfo=timezone.utc)).total_seconds() < 1
+        (now - user.modified_at.replace(tzinfo=timezone.utc)).total_seconds() < 5
         for user in db_session.query(User).all()
     )
     assert all(
-        (now - user.created_at.replace(tzinfo=timezone.utc)).total_seconds() < 1
+        (now - user.created_at.replace(tzinfo=timezone.utc)).total_seconds() < 5
         for user in db_session.query(User).all()
     )
 
@@ -90,3 +90,32 @@ def test_user_update(user_list, db_session):
     assert user.telegram_id == 1
     assert user.telegram_username == "baz"
     assert user.battle_tag == "quz"
+
+
+def test_player_create(db_session):
+    user = User(telegram_id=1, telegram_username="foo", battle_tag="bar")
+    db_session.add(user)
+    db_session.commit()
+
+    player = create_or_update_player(db_session, user, 1, 2, "foo")
+    assert db_session.query(Player).count() == 1
+    now = datetime.now(tz=timezone.utc)
+    assert (now - player.modified_at.replace(tzinfo=timezone.utc)).total_seconds() < 5
+    assert (now - player.created_at.replace(tzinfo=timezone.utc)).total_seconds() < 5
+
+
+def test_player_update(db_session):
+    user = User(telegram_id=1, telegram_username="foo", battle_tag="bar")
+    player = Player(user_id=user.id, region_id=1, profile_id=2, display_name="baz")
+    db_session.add(user)
+    db_session.add(player)
+    db_session.commit()
+    created_at = player.created_at
+    modified_at = player.modified_at
+
+    sleep(1)
+    player = create_or_update_player(db_session, user, 1, 2, "quz")
+    assert db_session.query(Player).count() == 1
+    assert player.display_name == "quz"
+    assert player.created_at == created_at
+    assert player.modified_at != modified_at
