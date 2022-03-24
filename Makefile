@@ -1,4 +1,3 @@
-.PHONY: test, lint, typecheck
 test:
 	pytest
 lint:
@@ -8,12 +7,6 @@ typecheck:
 formatcheck:
 	black --check .
 
-# Alias
-.PHONY: tests
-tests:
-	make -s test
-
-.PHONY: qa
 qa:
 	make -s formatcheck
 	make -s lint
