@@ -9,6 +9,7 @@ python = "^3.10"
 aiogram = "^2.19"
 SQLAlchemy = "^1.4.32"
 requests = "^2.27.1"
+Jinja2 = "^3.1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.1"
