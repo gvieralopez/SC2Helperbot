@@ -1,23 +1,11 @@
-from abc import ABC, abstractmethod
-
 import requests
 
-from sc2bot.client.config import REALM_ID, BLIZZARD_CLIENT_ID, BLIZZARD_CLIENT_SECRET
+from sc2bot.client.config import REALM_ID
 from sc2bot.database.data import Race, League
 from sc2bot.database.schema import PlayerStat, Player
 
 
-class Resolver(ABC):
-    @abstractmethod
-    def resolve_player_stats(self, player: Player) -> list[PlayerStat]:
-        ...
-
-    @abstractmethod
-    def resolve_player_display_name(self, player: Player) -> str:
-        ...
-
-
-class BlizzardResolver(Resolver):
+class BlizzardResolver:
     def __init__(self, base_url: str):
         self.base_url = base_url
 
@@ -32,8 +20,9 @@ class BlizzardResolver(Resolver):
         ]
         return [build_player_stat(player, ladder_info) for ladder_info in ladder_infos]
 
-    def resolve_player_display_name(self, player) -> str:
-        return self.extract_player_display_name_from_metadata(self.get_player_metadata(player))
+    def resolve_player_display_name(self, region_id: int, profile_id: int) -> str:
+        metadata = self.get_player_metadata(region_id, profile_id)
+        return self.extract_player_display_name_from_metadata(metadata)
 
     def get_ladder_summary(self, profile_id: int, region_id: int) -> dict:
         url = f"{self.base_url}/sc2/profile/{region_id}/{REALM_ID}/{profile_id}/ladder/summary"
@@ -44,9 +33,9 @@ class BlizzardResolver(Resolver):
             f"{self.base_url}/sc2/profile/{player.region_id}/{REALM_ID}/{player.profile_id}/ladder/{ladder_id}"
         )
 
-    def get_player_metadata(self, player) -> dict:
+    def get_player_metadata(self, region_id: int, profile_id: int) -> dict:
         return self.make_get_request(
-            f"{self.base_url}/sc2/metadata/profile/{player.region_id}/{REALM_ID}/{player.profile_id}"
+            f"{self.base_url}/sc2/metadata/profile/{region_id}/{REALM_ID}/{profile_id}"
         )
 
     def make_get_request(self, url: str) -> dict:
@@ -102,20 +91,3 @@ def build_player_stat(player: Player, ladder_info: dict) -> PlayerStat:
                     clan_tag=member.get("clanTag", ""),
                 )
     raise ValueError(f"Player ({player}) not found in ladder: {ladder_info}")
-
-
-resolvers: list[Resolver] = [
-    BlizzardAuthorizedResolver(
-        "https://us.api.blizzard.com",
-        "https://us.battle.net",
-        BLIZZARD_CLIENT_ID,
-        BLIZZARD_CLIENT_SECRET,
-    ),
-    BlizzardAuthorizedResolver(
-        "https://eu.api.blizzard.com",
-        "https://us.battle.net",
-        BLIZZARD_CLIENT_ID,
-        BLIZZARD_CLIENT_SECRET,
-    ),
-    BlizzardResolver("https://starcraft2.com/en-us/api"),
-]
