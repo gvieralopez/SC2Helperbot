@@ -61,3 +61,6 @@ def add_player_stat(
     db_session.add(player_stat)
     db_session.commit()
     return player_stat
+
+
+# todo add db constraints (unique(telegram_id) and unique(region_id, profile_id)) - add unit test
