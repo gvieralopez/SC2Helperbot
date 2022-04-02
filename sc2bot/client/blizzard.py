@@ -33,7 +33,7 @@ class BlizzardResolver(Resolver):
         return [build_player_stat(player, ladder_info) for ladder_info in ladder_infos]
 
     def resolve_player_display_name(self, player) -> str:
-        return self.get_player_metadata(player)["name"]
+        return self.extract_player_display_name_from_metadata(self.get_player_metadata(player))
 
     def get_ladder_summary(self, profile_id: int, region_id: int) -> dict:
         url = f"{self.base_url}/sc2/profile/{region_id}/{REALM_ID}/{profile_id}/ladder/summary"
@@ -59,6 +59,9 @@ class BlizzardResolver(Resolver):
 
     def get_params(self) -> dict:
         return {}
+
+    def extract_player_display_name_from_metadata(self, metadata: dict) -> str:
+        return metadata["name"]
 
 
 class BlizzardAuthorizedResolver(BlizzardResolver):
@@ -91,8 +94,8 @@ def build_player_stat(player: Player, ladder_info: dict) -> PlayerStat:
             if int(member["id"]) == player.profile_id:
                 return PlayerStat(
                     player_id=player.id,
-                    race=Race.from_raw(member["favoriteRace"]),
-                    league=league,
+                    race=Race.from_raw(member["favoriteRace"]),  # type: ignore
+                    league=league,  # type: ignore
                     mmr=mmr,
                     wins=team["wins"],
                     losses=team["losses"],
