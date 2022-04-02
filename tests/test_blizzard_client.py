@@ -79,4 +79,20 @@ def test_player_display_name(fake_metadata_response):
 
 
 def test_obtain_token(monkeypatch):
-    pass
+    base_url = "http://api.com"
+    auth_url = "http://auth.com"
+    with requests_mock.Mocker() as m:
+        monkeypatch.setattr(
+            BlizzardAuthorizedResolver, "extract_player_display_name_from_metadata", MagicMock()
+        )
+        auth_response = m.post(f"{auth_url}/oauth/token", json={"access_token": "bazquzqux"})
+        api_response = m.get(re.compile(rf"{base_url}/.*"), json={})
+        BlizzardAuthorizedResolver(base_url, auth_url, "foo", "bar").resolve_player_display_name(
+            Player(id=111, region_id=1, profile_id=123)
+        )
+    assert (
+        auth_response.last_request.headers["Authorization"]
+        == f"Basic {base64.urlsafe_b64encode(b'foo:bar').decode()}"
+    )
+    assert auth_response.last_request.text == "grant_type=client_credentials"
+    assert "access_token=bazquzqux" in api_response.last_request.query
