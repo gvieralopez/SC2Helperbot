@@ -1,10 +1,13 @@
+import base64
 import json
+import re
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 import requests_mock
 
-from sc2bot.client.blizzard import BlizzardResolver
+from sc2bot.client.blizzard import BlizzardResolver, BlizzardAuthorizedResolver
 from sc2bot.database.data import Race, League
 from sc2bot.database.schema import Player
 
@@ -64,8 +67,15 @@ def test_player_stats(
     assert (s.player_id, s.race, s.league, s.mmr, s.wins, s.losses, s.clan_tag) == expected
 
 
-def test_player_display_name(fake_metadata_response, monkeypatch):
-    pass
+def test_player_display_name(fake_metadata_response):
+    base_url = "http://api.com"
+    profile_id = 10993388
+    with requests_mock.Mocker() as m:
+        m.get(f"{base_url}/sc2/metadata/profile/1/1/{profile_id}", json=fake_metadata_response)
+        display_name = BlizzardResolver(base_url).resolve_player_display_name(
+            Player(id=111, region_id=1, profile_id=profile_id)
+        )
+    assert display_name == "FarSeer"
 
 
 def test_obtain_token(monkeypatch):
