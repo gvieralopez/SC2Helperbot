@@ -51,8 +51,8 @@ def add_player_stat(
 ) -> PlayerStat:
     player_stat = PlayerStat(
         player_id=player.id,
-        race=race.name,
-        league=league.name,
+        race=race,
+        league=league,
         mmr=mmr,
         wins=wins,
         losses=losses,

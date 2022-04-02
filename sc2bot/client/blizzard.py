@@ -83,7 +83,7 @@ class BlizzardAuthorizedResolver(BlizzardResolver):
 
 
 def build_player_stat(player: Player, ladder_info: dict) -> PlayerStat:
-    league = League.from_raw(ladder_info["league"]).name
+    league = League.from_raw(ladder_info["league"])
     mmr = ladder_info["ranksAndPools"][0]["mmr"]
 
     for team in ladder_info["ladderTeams"]:
@@ -91,7 +91,7 @@ def build_player_stat(player: Player, ladder_info: dict) -> PlayerStat:
             if int(member["id"]) == player.profile_id:
                 return PlayerStat(
                     player_id=player.id,
-                    race=Race.from_raw(member["favoriteRace"]).name,
+                    race=Race.from_raw(member["favoriteRace"]),
                     league=league,
                     mmr=mmr,
                     wins=team["wins"],

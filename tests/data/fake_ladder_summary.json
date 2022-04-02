@@ -1,10 +1,85 @@
 {
+  "showCaseEntries": [
+    {
+      "ladderId": "307103",
+      "team": {
+        "localizedGameMode": "2v2",
+        "members": [
+          {
+            "favoriteRace": "zerg",
+            "name": "FarSeer",
+            "playerId": "10993388",
+            "region": 1
+          },
+          {
+            "favoriteRace": "zerg",
+            "name": "Overmind",
+            "playerId": "12418178",
+            "region": 1
+          }
+        ]
+      },
+      "leagueName": "MASTER",
+      "localizedDivisionName": "Hanson Charlie",
+      "rank": 28,
+      "wins": 7,
+      "losses": 3
+    },
+    {
+      "ladderId": "307413",
+      "team": {
+        "localizedGameMode": "1v1",
+        "members": [
+          {
+            "favoriteRace": "protoss",
+            "name": "FarSeer",
+            "playerId": "10993388",
+            "region": 1
+          }
+        ]
+      },
+      "leagueName": "MASTER",
+      "localizedDivisionName": "Hyperion Bravo",
+      "rank": 39,
+      "wins": 0,
+      "losses": 1
+    },
+    {
+      "ladderId": "307173",
+      "team": {
+        "localizedGameMode": "1v1",
+        "members": [
+          {
+            "favoriteRace": "zerg",
+            "name": "FarSeer",
+            "playerId": "10993388",
+            "region": 1
+          }
+        ]
+      },
+      "leagueName": "DIAMOND",
+      "localizedDivisionName": "Koronis Alamo",
+      "rank": 9,
+      "wins": 10,
+      "losses": 8
+    }
+  ],
   "placementMatches": [],
   "allLadderMemberships": [
     {
-      "ladderId": "243475",
-      "localizedGameMode": "2v2 Bronze",
-      "rank": 47
+      "ladderId": "307413",
+      "localizedGameMode": "1v1 Master",
+      "rank": 39
+    },
+    {
+      "ladderId": "307173",
+      "localizedGameMode": "1v1 Diamond",
+      "rank": 9
+    },
+    {
+      "ladderId": "307103",
+      "localizedGameMode": "2v2 Master",
+      "rank": 28
     }
   ]
 }
