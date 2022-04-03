@@ -1,6 +1,6 @@
 import logging
 
-from sc2bot.client.blizzard import Resolver, BlizzardAuthorizedResolver, BlizzardResolver
+from sc2bot.client.blizzard import BlizzardAuthorizedResolver, BlizzardResolver
 from sc2bot.client.config import BLIZZARD_CLIENT_ID, BLIZZARD_CLIENT_SECRET
 from sc2bot.client.sc2_ladder import get_battle_tag_info as _get_battle_tag_info
 from sc2bot.database.schema import PlayerStat, User, Player
