@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 
 from sc2bot.database.data import Race, League
@@ -47,7 +48,7 @@ def add_player_stat(
     mmr: int,
     wins: int,
     losses: int,
-    clan_tag: str,
+    clan_tag: Optional[str],
 ) -> PlayerStat:
     player_stat = PlayerStat(
         player_id=player.id,

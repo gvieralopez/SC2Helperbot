@@ -55,8 +55,8 @@ def add_player_stats(telegram_id: int) -> BotResponse:
             add_player_stat(
                 db_session,
                 player,
-                player_stat.race,
-                player_stat.league,
+                player_stat.race,  # type: ignore
+                player_stat.league,  # type: ignore
                 player_stat.mmr,
                 player_stat.wins,
                 player_stat.losses,
