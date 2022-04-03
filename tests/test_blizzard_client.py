@@ -73,7 +73,7 @@ def test_player_display_name(fake_metadata_response):
     with requests_mock.Mocker() as m:
         m.get(f"{base_url}/sc2/metadata/profile/1/1/{profile_id}", json=fake_metadata_response)
         display_name = BlizzardResolver(base_url).resolve_player_display_name(
-            Player(id=111, region_id=1, profile_id=profile_id)
+            region_id=1, profile_id=profile_id
         )
     assert display_name == "FarSeer"
 
@@ -88,7 +88,7 @@ def test_obtain_token(monkeypatch):
         auth_response = m.post(f"{auth_url}/oauth/token", json={"access_token": "bazquzqux"})
         api_response = m.get(re.compile(rf"{base_url}/.*"), json={})
         BlizzardAuthorizedResolver(base_url, auth_url, "foo", "bar").resolve_player_display_name(
-            Player(id=111, region_id=1, profile_id=123)
+            region_id=1, profile_id=10993388
         )
     assert (
         auth_response.last_request.headers["Authorization"]
