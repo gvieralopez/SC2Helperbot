@@ -37,7 +37,7 @@ def add_player(telegram_id: int, profile_uri: str) -> BotResponse:
     try:
         region_id, profile_id = _parse_profile_url(profile_uri)
         profile_name = resolve_player_display_name(region_id, profile_id)
-    except AttributeError:
+    except ValueError:
         return render(
             "invalid_sc2_url", url_template="https://starcraft2.com/en-us/profile/1/2/1234"
         )
@@ -78,4 +78,8 @@ def _is_valid_battle_tag(battle_tag: str) -> bool:
 
 
 def _parse_profile_url(profile_uri: str) -> tuple[int, int]:
-    return re.match(r"https://starcraft2.com/en-us/profile/1/([1-4])/(\d+)", profile_uri).groups()
+    match = re.match(r"https://starcraft2.com/en-us/profile/1/([1-4])/(\d+)", profile_uri)
+    if match:
+        region_id_raw, profile_id_raw = match.groups()
+        return int(region_id_raw), int(profile_id_raw)
+    raise ValueError("Invalid URL")
