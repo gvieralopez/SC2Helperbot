@@ -1,6 +1,4 @@
-from sc2bot.controller import add_player, retrieve_user
-from sc2bot.database import session
-from sc2bot.database.helpers import create_or_update_user
+from sc2bot.controller import retrieve_user
 from sc2bot.database.schema import User
 
 

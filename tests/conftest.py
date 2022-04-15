@@ -6,7 +6,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from sc2bot.database import session
-from sc2bot.database.helpers import create_or_update_user
 from sc2bot.database.schema import Base, User
 
 
@@ -36,4 +35,10 @@ def user(db) -> User:
 @pytest.fixture()
 def fake_metadata_response(data_folder):
     with Path(data_folder / "fake_metadata.json").open() as f:
+        return json.load(f)
+
+
+@pytest.fixture()
+def fake_battle_tag_response(data_folder):
+    with Path(data_folder / "fake_battle_tag_info.json").open() as f:
         return json.load(f)

@@ -4,6 +4,10 @@
 
 🎮 <b>StarCraft II</b>
 <i>Battle Tag:</i> <code>{{ user.battle_tag }}</code> {{ goto_register }}
+<i>Players:</i>
+{% if not user.players%}
+    <code>[No players found]</code>
+{% endif %}
 
 {% for player in user.players %}
     {% if player.region_id == 1%}
@@ -16,5 +20,7 @@
     🇹🇼 <code>{{ player.profile_id }}</code> {{ player.display_name }}     
     {% endif %}
 {% endfor %}
+
+You can manually /{{ goto_link }} a player to your user.
 
 <b>Last Updated:</b> {{ user.modified_at }}
