@@ -1,23 +1,42 @@
-# SC2Helperbot
-SC2 Helper Bot is a project to help handling competitive data from StarCraft 2 using Telegram Bot API.
+# SC2Bot
 
+## Project build
 
-## Setup
+```
+$ poetry shell
+$ poetry install
+$ poetry build
+```
 
-The main configuration file is `config.py`, but it is not included by default. Simply make a copy of `config.py.example` and rename it to `config.py`. See `config.py.example` for more information about configurations.
+## Run Pytests
 
+```
+$ pytest
+```
 
-## Running your own instance
+## Mypy
 
- `python main.py`
+```
+$ mypy
+```
 
+## Flake8
 
-## Inspect the functionalities in a (hopefully) live instance
+```
+$ flake8
+```
 
-Check @SC2Helperbot in Telegram.
+## Run locally
+You need to set the following environment variables:
+- `BOT_TOKEN` containing the telegram token for the bot
+- `CONNECTION_STRING` containing the database connection string
+- `BLIZZARD_CLIENT_ID` containing the Blizzard client id
+- `BLIZZARD_CLIENT_SECRET` containing the Blizzard client secret
+- [Optional] `REALM_ID` containing the Blizzard realm id
 
-## Contributing
+There is an example of [`.env` file](.env.sample) you could use as a template
+to create your own .env file with the actual values of your variables.
 
-Just make a PR. We want to add this in the future:
-* Plot the time evolution of the MMR for each user ladder
-* Add some filter buttons to the ranking (Server, league, race, no duplicate users, etc)
+```
+$ python -m sc2bot
+```
