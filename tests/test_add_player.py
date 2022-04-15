@@ -1,15 +1,7 @@
-import pytest
 import requests_mock
 
 from sc2bot.controller import add_player
-from sc2bot.database import session
-from sc2bot.database.helpers import create_or_update_user
 from sc2bot.database.schema import User
-
-
-@pytest.fixture
-def user(db) -> User:
-    return create_or_update_user(session.db_session, 1, "foo", "bar")
 
 
 def test_add_player_wrong_user(db):

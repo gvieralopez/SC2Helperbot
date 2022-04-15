@@ -6,7 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from sc2bot.database import session
-from sc2bot.database.schema import Base
+from sc2bot.database.helpers import create_or_update_user
+from sc2bot.database.schema import Base, User
 
 
 @pytest.fixture()
@@ -22,6 +23,14 @@ def db(monkeypatch):
     monkeypatch.setattr(session, "db_session", session_maker())
     yield
     Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture
+def user(db) -> User:
+    user = User(telegram_id=1, telegram_username="foo", battle_tag="bar")
+    session.db_session.add(user)
+    session.db_session.commit()
+    return user
 
 
 @pytest.fixture()
