@@ -8,7 +8,10 @@ from sc2bot.bot_response import render, BotResponse
 from sc2bot.commands import register, link
 
 
-def set_battle_tag(telegram_id: int, telegram_username: str, battle_tag: str) -> BotResponse:
+def set_battle_tag(battle_tag: str, **kwargs) -> BotResponse:
+    telegram_id = extract_from_kwargs("telegram_id", **kwargs)
+    telegram_username = extract_from_kwargs("telegram_username", **kwargs)
+
     if not _is_valid_battle_tag(battle_tag):
         return render("invalid_battle_tag")
 
@@ -22,14 +25,16 @@ def set_battle_tag(telegram_id: int, telegram_username: str, battle_tag: str) ->
     return render("user_info", user=user, goto_register=register, goto_link=link)
 
 
-def retrieve_user(telegram_id: int) -> BotResponse:
+def retrieve_user(**kwargs) -> BotResponse:
+    telegram_id = extract_from_kwargs("telegram_id", **kwargs)
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
         return render("user_not_found", goto=register)
     return render("user_info", user=user, goto_register=register, goto_link=link)
 
 
-def add_player(telegram_id: int, profile_uri: str) -> BotResponse:
+def add_player(profile_uri: str, **kwargs) -> BotResponse:
+    telegram_id = extract_from_kwargs("telegram_id", **kwargs)
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
         return render("user_not_found", goto=register)
@@ -49,7 +54,8 @@ def add_player(telegram_id: int, profile_uri: str) -> BotResponse:
     return render("user_info", user=user, goto_register=register, goto_link=link)
 
 
-def add_new_player_stats(telegram_id: int) -> BotResponse:
+def add_new_player_stats(**kwargs) -> BotResponse:
+    telegram_id = extract_from_kwargs("telegram_id", **kwargs)
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
         return render("user_not_found", goto=register)
@@ -67,6 +73,12 @@ def add_new_player_stats(telegram_id: int) -> BotResponse:
                 player_stat.clan_tag,
             )
     return render("user_info", user=user, goto_register=register, goto_link=link)
+
+
+def extract_from_kwargs(arg_name: str, **kwargs):
+    if arg_name not in kwargs:
+        raise TypeError(f"{arg_name} kwarg expected")
+    return kwargs[arg_name]
 
 
 def _is_valid_battle_tag(battle_tag: str) -> bool:

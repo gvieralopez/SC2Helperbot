@@ -1,19 +1,26 @@
+import logging
 import requests
 
 from sc2bot.database.schema import Player, User
 
+logger = logging.getLogger(__name__)
+
 
 def get_battle_tag_info(user: User) -> list[Player]:
-    player_infos = make_get_request(user.battle_tag)
-    return [
-        Player(
-            user_id=user.id,
-            region_id=region_raw_to_id[player_info["region"].lower()],
-            profile_id=player_info["profile_id"],
-            display_name=player_info["username"],
-        )
-        for player_info in player_infos
-    ]
+    try:
+        player_infos = make_get_request(user.battle_tag)
+        return [
+            Player(
+                user_id=user.id,
+                region_id=region_raw_to_id[player_info["region"].lower()],
+                profile_id=player_info["profile_id"],
+                display_name=player_info["username"],
+            )
+            for player_info in player_infos
+        ]
+    except Exception as e:
+        logger.warning(f"API call failed: {e}")
+        return []
 
 
 def make_get_request(battle_tag: str) -> list[dict]:

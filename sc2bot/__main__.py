@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from sc2bot.bot_response import BotResponse
 from sc2bot.routes import routes
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 bot = Bot(token=os.environ.get("BOT_TOKEN"))
@@ -25,7 +25,10 @@ async def router(message: types.Message):
 
     try:
         telegram_id = int(message["from"]["id"])
-        response = routes[command_name].target(telegram_id, *arguments)
+        telegram_username = message["from"]["username"]
+        response = routes[command_name].target(
+            *arguments, telegram_id=telegram_id, telegram_username=telegram_username
+        )
     except Exception as e:
         logger.warning(f"There was an error executing the command: {e}")
         response = routes[command_name].help

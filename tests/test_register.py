@@ -6,7 +6,7 @@ from sc2bot.database.schema import User
 
 
 def test_register_wrong_battle_tag(db):
-    response = set_battle_tag(1, "foo", "bar")
+    response = set_battle_tag("bar", telegram_id=1, telegram_username="foo")
     assert "battletag" in response.text.lower()
 
 
@@ -16,7 +16,7 @@ def test_register(db, fake_battle_tag_response):
         m.get(
             f"http://www.sc2ladder.com/api/player?query={battle_tag}", json=fake_battle_tag_response
         )
-        response = set_battle_tag(1, "foo", battle_tag)
+        response = set_battle_tag(battle_tag, telegram_id=1, telegram_username="foo")
     assert "8972769" in response.text
     assert battle_tag in response.text
     assert "foo" in response.text
@@ -33,6 +33,6 @@ def test_register_existing(db, user, fake_battle_tag_response):
         m.get(
             f"http://www.sc2ladder.com/api/player?query={battle_tag}", json=fake_battle_tag_response
         )
-        set_battle_tag(user.telegram_id, "baz", battle_tag)
+        set_battle_tag(battle_tag, telegram_id=user.telegram_id, telegram_username="baz")
     assert user.telegram_username == "baz"
     assert user.battle_tag == battle_tag
