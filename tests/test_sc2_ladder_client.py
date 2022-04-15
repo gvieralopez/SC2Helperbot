@@ -1,20 +1,10 @@
-import json
-from pathlib import Path
-
-import pytest
 import requests_mock
 
 from sc2bot.client.sc2_ladder import get_battle_tag_info
 from sc2bot.database.schema import User
 
 
-@pytest.fixture()
-def fake_battle_tag_response(data_folder):
-    with Path(data_folder / "fake_battle_tag_info.json").open() as f:
-        return json.load(f)
-
-
-def test_battle_tag_info(fake_battle_tag_response, monkeypatch):
+def test_battle_tag_info(fake_battle_tag_response):
     battle_tag = "foo"
     with requests_mock.Mocker() as m:
         m.get(

@@ -5,7 +5,7 @@ from sc2bot.database.helpers import create_or_update_user, create_or_update_play
 from sc2bot.database.schema import User
 from sc2bot.database import session
 from sc2bot.bot_response import render, BotResponse
-from sc2bot.commands import register
+from sc2bot.commands import register, link
 
 
 def set_battle_tag(telegram_id: int, telegram_username: str, battle_tag: str) -> BotResponse:
@@ -19,14 +19,14 @@ def set_battle_tag(telegram_id: int, telegram_username: str, battle_tag: str) ->
             session.db_session, user, player.region_id, player.profile_id, player.display_name
         )
 
-    return render("user_info", user=user)
+    return render("user_info", user=user, goto_register=register, goto_link=link)
 
 
 def retrieve_user(telegram_id: int) -> BotResponse:
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
         return render("user_not_found", goto=register)
-    return render("user_info", user=user)
+    return render("user_info", user=user, goto_register=register, goto_link=link)
 
 
 def add_player(telegram_id: int, profile_uri: str) -> BotResponse:
@@ -46,7 +46,7 @@ def add_player(telegram_id: int, profile_uri: str) -> BotResponse:
 
     create_or_update_player(session.db_session, user, region_id, profile_id, profile_name)
 
-    return render("user_info", user=user, goto_register=register)
+    return render("user_info", user=user, goto_register=register, goto_link=link)
 
 
 def add_new_player_stats(telegram_id: int) -> BotResponse:
@@ -66,7 +66,7 @@ def add_new_player_stats(telegram_id: int) -> BotResponse:
                 player_stat.losses,
                 player_stat.clan_tag,
             )
-    return render("user_info", user=user)
+    return render("user_info", user=user, goto_register=register, goto_link=link)
 
 
 def _is_valid_battle_tag(battle_tag: str) -> bool:
