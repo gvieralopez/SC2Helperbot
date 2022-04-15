@@ -1,33 +1,12 @@
 import base64
-import json
 import re
-from pathlib import Path
 from unittest.mock import MagicMock
 
-import pytest
 import requests_mock
 
 from sc2bot.client.blizzard import BlizzardResolver, BlizzardAuthorizedResolver
 from sc2bot.database.data import Race, League
 from sc2bot.database.schema import Player
-
-
-@pytest.fixture()
-def fake_ladder_info_response_1(data_folder):
-    with Path(data_folder / "fake_ladder_info_1.json").open() as f:
-        return json.load(f)
-
-
-@pytest.fixture()
-def fake_ladder_info_response_2(data_folder):
-    with Path(data_folder / "fake_ladder_info_2.json").open() as f:
-        return json.load(f)
-
-
-@pytest.fixture()
-def fake_ladder_summary_response(data_folder):
-    with Path(data_folder / "fake_ladder_summary.json").open() as f:
-        return json.load(f)
 
 
 def test_player_stats(

@@ -42,3 +42,21 @@ def fake_metadata_response(data_folder):
 def fake_battle_tag_response(data_folder):
     with Path(data_folder / "fake_battle_tag_info.json").open() as f:
         return json.load(f)
+
+
+@pytest.fixture()
+def fake_ladder_info_response_1(data_folder):
+    with Path(data_folder / "fake_ladder_info_1.json").open() as f:
+        return json.load(f)
+
+
+@pytest.fixture()
+def fake_ladder_info_response_2(data_folder):
+    with Path(data_folder / "fake_ladder_info_2.json").open() as f:
+        return json.load(f)
+
+
+@pytest.fixture()
+def fake_ladder_summary_response(data_folder):
+    with Path(data_folder / "fake_ladder_summary.json").open() as f:
+        return json.load(f)
