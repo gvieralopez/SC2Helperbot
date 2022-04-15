@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from jinja2 import select_autoescape, PackageLoader, Environment
 
-_environment = Environment(loader=PackageLoader("path"), autoescape=select_autoescape())
+_environment = Environment(loader=PackageLoader("sc2bot"), autoescape=select_autoescape())
 
 
 @dataclass

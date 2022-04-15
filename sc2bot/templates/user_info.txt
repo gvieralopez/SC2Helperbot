@@ -1,0 +1,20 @@
+💬 <b>Telegram</b>
+<i>User:</i> {{ user.telegram_username }}
+<i>id:</i> <code>{{ user.telegram_id }}</code>
+
+🎮 <b>StarCraft II</b>
+<i>Battle Tag:</i> <code>{{ user.battle_tag }}</code> {{ goto_register }}
+
+{% for player in user.players %}
+    {% if player.region_id == 1%}
+    🇺🇸 <code>{{ player.profile_id }}</code> {{ player.display_name }}
+    {% elif player.region_id == 2%}
+    🇪🇺 <code>{{ player.profile_id }}</code> {{ player.display_name }}    
+    {% elif player.region_id == 3%}
+    🇰🇷 <code>{{ player.profile_id }}</code> {{ player.display_name }}     
+    {% else %}
+    🇹🇼 <code>{{ player.profile_id }}</code> {{ player.display_name }}     
+    {% endif %}
+{% endfor %}
+
+<b>Last Updated:</b> {{ user.modified_at }}
