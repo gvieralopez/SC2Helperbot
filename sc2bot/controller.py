@@ -25,7 +25,7 @@ def set_battle_tag(telegram_id: int, telegram_username: str, battle_tag: str) ->
 def retrieve_user(telegram_id: int) -> BotResponse:
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
-        return render("user_not_found")
+        return render("user_not_found", goto=register)
     return render("user_info", user=user)
 
 
@@ -52,7 +52,7 @@ def add_player(telegram_id: int, profile_uri: str) -> BotResponse:
 def add_new_player_stats(telegram_id: int) -> BotResponse:
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
-        return render("user_not_found")
+        return render("user_not_found", goto=register)
 
     for player in user.players:
         for player_stat in resolve_player_stats(player):
