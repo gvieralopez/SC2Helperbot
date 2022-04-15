@@ -24,12 +24,12 @@ def player_2(user) -> Player:
 
 
 def test_add_player_wrong_user(db):
-    response = add_new_player_stats(1)
+    response = add_new_player_stats(telegram_id=1)
     assert "register" in response.text
 
 
 def test_add_player_stats_no_player(user):
-    response = add_new_player_stats(1)
+    response = add_new_player_stats(telegram_id=1)
     assert user.battle_tag in response.text
     assert user.telegram_username and user.telegram_username in response.text
 
@@ -66,7 +66,7 @@ def test_add_player_stats(
             f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_2.profile_id}/ladder/307173",
             json=fake_ladder_info_response_2,
         )
-        response = add_new_player_stats(1)
+        response = add_new_player_stats(telegram_id=1)
     assert str(player_1.profile_id) in response.text
     assert str(player_2.profile_id) in response.text
     assert len(player_1.stats) == 2  # type: ignore
