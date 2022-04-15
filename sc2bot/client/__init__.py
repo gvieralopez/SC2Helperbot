@@ -17,7 +17,7 @@ def resolve_player_display_name(region_id: int, profile_id: int) -> str:
             logger.warning(
                 f"The resolver {resolver.base_url} couldn't retrieve the player display name: {e}"
             )
-    return ""
+    raise RuntimeError("Player display name couldn't be resolved.")
 
 
 def resolve_player_stats(player: Player) -> list[PlayerStat]:
