@@ -4,7 +4,7 @@ SC2 Helper Bot is a project to help handling competitive data from StarCraft 2 u
 
 ## 1. Inspect the functionalities in a (hopefully) live instance
 
-Check @SC2Helperbot in Telegram.
+Check [@SC2Helperbot](https://t.me/SC2Helperbot) in Telegram.
 
 ## 2. Setup a local instance
 
@@ -70,13 +70,13 @@ Just make a PR.
 $ pytest
 ```
 
-## Type checking:
+### Type checking:
 
 ```
 $ mypy
 ```
 
-## Code style:
+### Code style:
 
 ```
 $ flake8
