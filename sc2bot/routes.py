@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from typing import Callable
 
-from sc2bot.bot_response import BotResponse, render
+from sc2bot.bot_response import BotResponse, render, text
 from sc2bot.controller import add_new_player_stats, set_battle_tag, add_player, retrieve_user, help
-from sc2bot.commands import Category, command_names
+from sc2bot.commands import Category
+from sc2bot.commands import command_names as cn
 
 
 @dataclass
@@ -16,11 +17,17 @@ class Route:
 
 
 _routes = [
-    Route(command_names["help"], help, render("def"), "...", Category.CONFIG),
-    Route(command_names["register"], set_battle_tag, render("def"), "...", Category.CONFIG),
-    Route(command_names["link"], add_player, render("def"), "...", Category.CONFIG),
-    Route(command_names["user"], retrieve_user, render("def"), "...", Category.GENERAL),
-    Route(command_names["fetch"], add_new_player_stats, render("def"), "...", Category.GENERAL),
+    Route(cn["help"], help, render("def"), text("dsc_help"), Category.GENERAL),
+    Route(cn["register"], set_battle_tag, render("def"), text("dsc_register"), Category.CONFIG),
+    Route(cn["link"], add_player, render("def"), text("dsc_link"), Category.CONFIG),
+    Route(cn["user"], retrieve_user, render("def"), text("dsc_user"), Category.GENERAL),
+    Route(
+        cn["fetch"],
+        add_new_player_stats,
+        render("def"),
+        text("dsc_fetch"),
+        Category.GENERAL,
+    ),
 ]
 
 
