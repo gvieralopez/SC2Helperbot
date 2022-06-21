@@ -4,3 +4,6 @@
 {% for cmd_name, cmd in cat.items() %}
 <b>/{{ cmd_name }}</b> {{ cmd.description }} {% endfor %}
 {% endfor %}
+
+ℹ️Get also help from specific commands:
+<code>/help register</code>

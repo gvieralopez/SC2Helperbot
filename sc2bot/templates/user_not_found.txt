@@ -1,1 +1,1 @@
-You need to /{{ goto }} before adding the Profile ID. 
+You need to /{{ goto }} first.
