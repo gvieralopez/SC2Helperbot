@@ -9,9 +9,13 @@ from sc2bot.commands import command_names, categories_dict
 
 
 def help(command: str | None = None, **kwargs) -> BotResponse:
-    from sc2bot.routes import routes_by_category
-
-    return render("help", categories=routes_by_category, categories_dict=categories_dict)
+    if command is None or command == 'help':
+        from sc2bot.routes import routes_by_category
+        return render("help", categories=routes_by_category, categories_dict=categories_dict)
+    for cmd in command_names.values():
+        if cmd == command:
+            return render(f"hlp_{cmd}")
+    return render("command_not_found", command=command)
 
 
 def set_battle_tag(battle_tag: str, **kwargs) -> BotResponse:
