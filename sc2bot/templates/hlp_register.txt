@@ -1,0 +1,11 @@
+Register your Battle tag in the bot.
+
+A Battle tag is a combination of a <i>Display Name</i> and a <i>Code</i> that identifies a user in Blizzard games. It looks like:
+<code>MyName#12345</code>
+
+You can check your Battle tag in the Battle Net app, near the top right corner.
+To send me your Battle tag you can use:
+<code>/register [battletag]</code>
+
+<b>Example</b>:
+<code>/register MyName#12345</code>

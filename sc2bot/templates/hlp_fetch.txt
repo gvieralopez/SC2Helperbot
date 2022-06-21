@@ -1,0 +1,4 @@
+Retreives Battle Net game data via Blizzard API. 
+
+You just need to text me: /fetch 
+(with no additional parameters)

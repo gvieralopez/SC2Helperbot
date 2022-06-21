@@ -1,0 +1,4 @@
+Display all your user data registered in the bot.
+
+You just need to text me: /user 
+(with no additional parameters)
