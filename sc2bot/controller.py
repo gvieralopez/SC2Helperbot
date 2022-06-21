@@ -9,8 +9,9 @@ from sc2bot.commands import command_names, categories_dict
 
 
 def help(command: str | None = None, **kwargs) -> BotResponse:
-    if command is None or command == 'help':
+    if command is None:
         from sc2bot.routes import routes_by_category
+
         return render("help", categories=routes_by_category, categories_dict=categories_dict)
     for cmd in command_names.values():
         if cmd == command:
