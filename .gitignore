@@ -131,3 +131,5 @@ dmypy.json
 # Database related
 data/sc2.db
 data/sqlite3.exe
+data/*
+*.db
