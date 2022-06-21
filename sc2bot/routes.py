@@ -3,7 +3,7 @@ from typing import Callable
 
 from sc2bot.bot_response import BotResponse, render, text
 from sc2bot.controller import add_new_player_stats, set_battle_tag, add_player, retrieve_user, help
-from sc2bot.commands import Category
+from sc2bot.commands import Category, categories_dict
 from sc2bot.commands import command_names as cn
 
 
@@ -18,13 +18,13 @@ class Route:
 
 _routes = [
     Route(cn["help"], help, render("def"), text("dsc_help"), Category.GENERAL),
-    Route(cn["register"], set_battle_tag, render("def"), text("dsc_register"), Category.CONFIG),
-    Route(cn["link"], add_player, render("def"), text("dsc_link"), Category.CONFIG),
-    Route(cn["user"], retrieve_user, render("def"), text("dsc_user"), Category.GENERAL),
+    Route(cn["register"], set_battle_tag, render("hlp_register"), text("dsc_register"), Category.CONFIG),
+    Route(cn["link"], add_player, render("hlp_link"), text("dsc_link"), Category.CONFIG),
+    Route(cn["user"], retrieve_user, render("hlp_user"), text("dsc_user"), Category.GENERAL),
     Route(
         cn["fetch"],
         add_new_player_stats,
-        render("def"),
+        render("hlp_fetch"),
         text("dsc_fetch"),
         Category.GENERAL,
     ),
