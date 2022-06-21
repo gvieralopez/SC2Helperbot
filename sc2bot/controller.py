@@ -5,7 +5,13 @@ from sc2bot.database.helpers import create_or_update_user, create_or_update_play
 from sc2bot.database.schema import User
 from sc2bot.database import session
 from sc2bot.bot_response import render, BotResponse
-from sc2bot.commands import command_names
+from sc2bot.commands import command_names, categories_dict
+
+
+def help(command: str | None = None, **kwargs) -> BotResponse:
+    from sc2bot.routes import routes_by_category
+
+    return render("help", categories=routes_by_category, categories_dict=categories_dict)
 
 
 def set_battle_tag(battle_tag: str, **kwargs) -> BotResponse:

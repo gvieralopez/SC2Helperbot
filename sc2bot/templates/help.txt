@@ -1,1 +1,6 @@
-Wrong command
+<b>List of available commands</b>
+{% for cat_name, cat in categories.items() %}
+<i>{{ categories_dict[cat_name] }}</i>
+{% for cmd_name, cmd in cat.items() %}
+<b>/{{ cmd_name }}</b> {{ cmd.description }} {% endfor %}
+{% endfor %}
