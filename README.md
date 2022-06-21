@@ -49,7 +49,7 @@ The main configuration file is `.env`, but it is not distributed with this code.
 In unix-based systems (Linux, macOS):
 
 ```
-$ (source .env && python -m sc2bot)
+$ (export $(xargs < .env) && python -m sc2bot)
 ```
 
 In windows:
