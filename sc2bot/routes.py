@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from typing import Callable
 
+from attr import field
+from click import command
+
 from sc2bot.bot_response import BotResponse, render, text
 from sc2bot.controller import add_new_player_stats, set_battle_tag, add_player, retrieve_user, help
 from sc2bot.commands import Category, categories_dict
@@ -11,23 +14,23 @@ from sc2bot.commands import command_names as cn
 class Route:
     name: str
     target: Callable[..., BotResponse]
-    help: BotResponse
-    description: str
     category: Category
+    help: BotResponse = field(init=False)
+    description: str = field(init=False)
+    error: BotResponse = field(init=False)
+
+    def __post_init__(self):
+        self.help = render(f"hlp_{self.name}")
+        self.description = text(f"dsc_{self.name}")
+        self.error = render("invalid_params", command=self.name)
 
 
 _routes = [
-    Route(cn["help"], help, render("def"), text("dsc_help"), Category.GENERAL),
-    Route(cn["register"], set_battle_tag, render("hlp_register"), text("dsc_register"), Category.CONFIG),
-    Route(cn["link"], add_player, render("hlp_link"), text("dsc_link"), Category.CONFIG),
-    Route(cn["user"], retrieve_user, render("hlp_user"), text("dsc_user"), Category.GENERAL),
-    Route(
-        cn["fetch"],
-        add_new_player_stats,
-        render("hlp_fetch"),
-        text("dsc_fetch"),
-        Category.GENERAL,
-    ),
+    Route(cn["help"], help, Category.GENERAL),
+    Route(cn["register"], set_battle_tag, Category.CONFIG),
+    Route(cn["link"], add_player, Category.CONFIG),
+    Route(cn["user"], retrieve_user, Category.GENERAL),
+    Route(cn["fetch"], add_new_player_stats, Category.GENERAL),
 ]
 
 
