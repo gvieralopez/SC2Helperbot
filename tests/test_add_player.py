@@ -15,7 +15,7 @@ def test_add_player_wrong_url(user: User):
 
 
 def test_add_player_no_api_response(user: User):
-    response = add_player("https://starcraft2.com/en-us/profile/1/2/1234", telegram_id=1)
+    response = add_player("https://starcraft2.com/en-us/profile/2/1/1234", telegram_id=1)
     assert "display name" in response.text
 
 
