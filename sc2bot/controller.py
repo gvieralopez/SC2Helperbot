@@ -5,7 +5,7 @@ from sc2bot.database.helpers import create_or_update_user, create_or_update_play
 from sc2bot.database.schema import User
 from sc2bot.database import session
 from sc2bot.bot_response import render, BotResponse
-from sc2bot.commands import register, link
+from sc2bot.commands import command_names
 
 
 def set_battle_tag(battle_tag: str, **kwargs) -> BotResponse:
@@ -22,22 +22,32 @@ def set_battle_tag(battle_tag: str, **kwargs) -> BotResponse:
             session.db_session, user, player.region_id, player.profile_id, player.display_name
         )
 
-    return render("user_info", user=user, goto_register=register, goto_link=link)
+    return render(
+        "user_info",
+        user=user,
+        goto_register=command_names["register"],
+        goto_link=command_names["link"],
+    )
 
 
 def retrieve_user(**kwargs) -> BotResponse:
     telegram_id = extract_from_kwargs("telegram_id", **kwargs)
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
-        return render("user_not_found", goto=register)
-    return render("user_info", user=user, goto_register=register, goto_link=link)
+        return render("user_not_found", goto=command_names["register"])
+    return render(
+        "user_info",
+        user=user,
+        goto_register=command_names["register"],
+        goto_link=command_names["link"],
+    )
 
 
 def add_player(profile_uri: str, **kwargs) -> BotResponse:
     telegram_id = extract_from_kwargs("telegram_id", **kwargs)
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
-        return render("user_not_found", goto=register)
+        return render("user_not_found", goto=command_names["register"])
 
     try:
         region_id, profile_id = _parse_profile_url(profile_uri)
@@ -51,14 +61,19 @@ def add_player(profile_uri: str, **kwargs) -> BotResponse:
 
     create_or_update_player(session.db_session, user, region_id, profile_id, profile_name)
 
-    return render("user_info", user=user, goto_register=register, goto_link=link)
+    return render(
+        "user_info",
+        user=user,
+        goto_register=command_names["register"],
+        goto_link=command_names["link"],
+    )
 
 
 def add_new_player_stats(**kwargs) -> BotResponse:
     telegram_id = extract_from_kwargs("telegram_id", **kwargs)
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
-        return render("user_not_found", goto=register)
+        return render("user_not_found", goto=command_names["register"])
 
     for player in user.players:
         for player_stat in resolve_player_stats(player):
@@ -72,7 +87,12 @@ def add_new_player_stats(**kwargs) -> BotResponse:
                 player_stat.losses,
                 player_stat.clan_tag,
             )
-    return render("user_info", user=user, goto_register=register, goto_link=link)
+    return render(
+        "user_info",
+        user=user,
+        goto_register=command_names["register"],
+        goto_link=command_names["link"],
+    )
 
 
 def extract_from_kwargs(arg_name: str, **kwargs):
