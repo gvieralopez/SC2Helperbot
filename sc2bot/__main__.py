@@ -31,7 +31,7 @@ async def router(message: types.Message):
         )
     except Exception as e:
         logger.warning(f"There was an error executing the command: {e}")
-        response = routes[command_name].help
+        response = routes[command_name].error
 
     await answer(message, response)
 
