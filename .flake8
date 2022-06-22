@@ -15,4 +15,3 @@ exclude = .git,
           dist,
 
 max-complexity = 7
-
