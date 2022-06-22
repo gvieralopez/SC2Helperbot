@@ -6,7 +6,7 @@
 
 🎮 <b>StarCraft II</b>
 
-<i>Battle Tag:</i> <code>{{ user.battle_tag }}</code> 
+<i>Battle Tag:</i> <code>{{ user.battle_tag }}</code>
                    (Click on /{{ goto_register }} to modify it)
 
 <i>StarCraft 2 Profiles Ids:</i>{% if not user.players%}

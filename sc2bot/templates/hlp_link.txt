@@ -1,6 +1,6 @@
-Link a StarCraft 2 Region ID to your user profile. 
+Link a StarCraft 2 Region ID to your user profile.
 
-A StarCraft 2 Region ID is a combination of a <i>Server ID</i> and a <i>Player ID</i> that identifies a player in a Blizzard server. 
+A StarCraft 2 Region ID is a combination of a <i>Server ID</i> and a <i>Player ID</i> that identifies a player in a Blizzard server.
 
 <b>To get your StarCraft 2 Region Id:</b>
 1️ Go to https://starcraft2.com/ and log in.
