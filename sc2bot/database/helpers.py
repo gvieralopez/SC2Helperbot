@@ -1,8 +1,12 @@
 from typing import Optional
+
 from sqlalchemy.orm import Session
 
-from sc2bot.database.data import Race, League
-from sc2bot.database.schema import User, Player, PlayerStat
+from sc2bot.database.data import League
+from sc2bot.database.data import Race
+from sc2bot.database.schema import Player
+from sc2bot.database.schema import PlayerStat
+from sc2bot.database.schema import User
 
 
 def create_or_update_user(

@@ -6,7 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from sc2bot.database import session
-from sc2bot.database.schema import Base, User
+from sc2bot.database.schema import Base
+from sc2bot.database.schema import User
 
 
 @pytest.fixture()

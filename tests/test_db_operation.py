@@ -1,13 +1,20 @@
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from time import sleep
 
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 
-from sc2bot.database.data import Race, League
-from sc2bot.database.helpers import create_or_update_user, create_or_update_player, add_player_stat
-from sc2bot.database.schema import Base, User, Player
+from sc2bot.database.data import League
+from sc2bot.database.data import Race
+from sc2bot.database.helpers import add_player_stat
+from sc2bot.database.helpers import create_or_update_player
+from sc2bot.database.helpers import create_or_update_user
+from sc2bot.database.schema import Base
+from sc2bot.database.schema import Player
+from sc2bot.database.schema import User
 
 
 @pytest.fixture()

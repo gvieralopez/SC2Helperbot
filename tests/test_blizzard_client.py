@@ -4,8 +4,10 @@ from unittest.mock import MagicMock
 
 import requests_mock
 
-from sc2bot.client.blizzard import BlizzardResolver, BlizzardAuthorizedResolver
-from sc2bot.database.data import Race, League
+from sc2bot.client.blizzard import BlizzardAuthorizedResolver
+from sc2bot.client.blizzard import BlizzardResolver
+from sc2bot.database.data import League
+from sc2bot.database.data import Race
 from sc2bot.database.schema import Player
 
 

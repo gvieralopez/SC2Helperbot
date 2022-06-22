@@ -1,8 +1,10 @@
 import requests
 
 from sc2bot.client.config import REALM_ID
-from sc2bot.database.data import Race, League
-from sc2bot.database.schema import PlayerStat, Player
+from sc2bot.database.data import League
+from sc2bot.database.data import Race
+from sc2bot.database.schema import Player
+from sc2bot.database.schema import PlayerStat
 
 
 class BlizzardResolver:

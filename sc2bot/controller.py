@@ -1,11 +1,17 @@
 import re
 
-from sc2bot.client import get_battle_tag_info, resolve_player_display_name, resolve_player_stats
-from sc2bot.database.helpers import create_or_update_user, create_or_update_player, add_player_stat
-from sc2bot.database.schema import User
+from sc2bot.bot_response import BotResponse
+from sc2bot.bot_response import render
+from sc2bot.client import get_battle_tag_info
+from sc2bot.client import resolve_player_display_name
+from sc2bot.client import resolve_player_stats
+from sc2bot.commands import categories_dict
+from sc2bot.commands import command_names
 from sc2bot.database import session
-from sc2bot.bot_response import render, BotResponse
-from sc2bot.commands import command_names, categories_dict
+from sc2bot.database.helpers import add_player_stat
+from sc2bot.database.helpers import create_or_update_player
+from sc2bot.database.helpers import create_or_update_user
+from sc2bot.database.schema import User
 
 
 def help(command: str | None = None, **kwargs) -> BotResponse:

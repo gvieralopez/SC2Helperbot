@@ -1,7 +1,9 @@
 import logging
+
 import requests
 
-from sc2bot.database.schema import Player, User
+from sc2bot.database.schema import Player
+from sc2bot.database.schema import User
 
 logger = logging.getLogger(__name__)
 

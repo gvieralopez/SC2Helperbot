@@ -1,7 +1,10 @@
 import logging
 import os
 
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import Bot
+from aiogram import Dispatcher
+from aiogram import executor
+from aiogram import types
 
 from sc2bot.bot_response import BotResponse
 from sc2bot.routes import routes

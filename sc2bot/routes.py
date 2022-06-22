@@ -1,13 +1,17 @@
 from dataclasses import dataclass
+from dataclasses import field
 from typing import Callable
 
-from attr import field
-from click import command
-
-from sc2bot.bot_response import BotResponse, render, text
-from sc2bot.controller import add_new_player_stats, set_battle_tag, add_player, retrieve_user, help
-from sc2bot.commands import Category, categories_dict
+from sc2bot.bot_response import BotResponse
+from sc2bot.bot_response import render
+from sc2bot.bot_response import text
+from sc2bot.commands import Category
 from sc2bot.commands import command_names as cn
+from sc2bot.controller import add_new_player_stats
+from sc2bot.controller import add_player
+from sc2bot.controller import help
+from sc2bot.controller import retrieve_user
+from sc2bot.controller import set_battle_tag
 
 
 @dataclass

@@ -3,7 +3,8 @@ import requests_mock
 
 from sc2bot.controller import add_new_player_stats
 from sc2bot.database import session
-from sc2bot.database.data import League, Race
+from sc2bot.database.data import League
+from sc2bot.database.data import Race
 from sc2bot.database.schema import Player
 
 
