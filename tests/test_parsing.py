@@ -14,6 +14,9 @@ from sc2bot.parsing import extract_command
         ("/rank@SC2Helperbot", ["rank"]),
         ("/help@sc2helperbot fetch", ["help", "fetch"]),
         ("/rank@OtherBot", []),
+        ("/help_fetch@SC2Helperbot", ["help", "fetch"]),
+        ("/help_fetch@OtherBot", []),
+        ("/ping@SC2Helperbot", ["ping"]),
         ("/", []),
     ],
 )
