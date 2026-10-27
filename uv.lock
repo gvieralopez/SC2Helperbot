@@ -1565,7 +1565,7 @@ wheels = [
 
 [[package]]
 name = "sc2bot"
-version = "0.1.0b0"
+version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiogram" },
