@@ -127,7 +127,7 @@ def _profile_view(user: User, region_id: int, race: Race, window: str) -> BotRes
 
     def button(label: str, selected: bool, region: int, button_race: Race, span: str) -> Button:
         data = f"profile:{user.id}:{region}:{button_race.value}:{span}"
-        return Button(f"• {label}" if selected else label, data)
+        return Button(label, data, selected)
 
     regions = sorted({player.region_id for player in user.players})
     response.buttons = [

@@ -147,15 +147,18 @@ def test_main_polls_commands(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def _buttons() -> list[list[Button]]:
-    return [[Button("• 🇺🇸 US", "profile:1:1:1:6m"), Button("🇪🇺 EU", "profile:1:2:1:6m")]]
+    return [
+        [Button("🇺🇸 US", "profile:1:1:1:6m", selected=True), Button("🇪🇺 EU", "profile:1:2:1:6m")]
+    ]
 
 
 async def test_buttons_go_under_the_photo() -> None:
     bot = fake_bot()
     await bot_main.answer(bot, CHAT_ID, BotResponse("caption", b"\x89PNG", _buttons()))
     markup = bot.send_photo.await_args.kwargs["reply_markup"]
-    assert [[b.text for b in row] for row in markup.inline_keyboard] == [["• 🇺🇸 US", "🇪🇺 EU"]]
-    assert markup.inline_keyboard[0][1].callback_data == "profile:1:2:1:6m"
+    us, eu = markup.inline_keyboard[0]
+    assert (us.text, us.style, eu.text, eu.style) == ("🇺🇸 US", "primary", "🇪🇺 EU", None)
+    assert eu.callback_data == "profile:1:2:1:6m"
 
 
 async def test_buttons_of_a_text_go_under_its_last_part() -> None:

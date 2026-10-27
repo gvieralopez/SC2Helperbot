@@ -22,6 +22,7 @@ _environment.filters["mention"] = mention
 class Button:
     label: str
     data: str  # what to show when tapped, read back by the controller
+    selected: bool = False  # the current choice of its row
 
 
 @dataclass

@@ -147,7 +147,14 @@ def _keyboard(response: BotResponse) -> InlineKeyboardMarkup | None:
         return None
     return InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton(button.label, callback_data=button.data) for button in row]
+            [
+                InlineKeyboardButton(
+                    button.label,
+                    callback_data=button.data,
+                    style="primary" if button.selected else None,  # blue
+                )
+                for button in row
+            ]
             for row in response.buttons
         ]
     )

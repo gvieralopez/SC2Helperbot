@@ -8,7 +8,8 @@ from sc2bot.database.schema import User
 
 
 def _labels(rows: list[list[Button]]) -> list[list[str]]:
-    return [[button.label for button in row] for row in rows]
+    """Labels, the selected ones starting with "*"."""
+    return [[("*" if b.selected else "") + b.label for b in row] for row in rows]
 
 
 def test_profile_user_not_found(db: None) -> None:
@@ -34,9 +35,9 @@ def test_profile_shows_the_last_played_ladder(ladders: tuple[User, User]) -> Non
     assert "bar" in response.text and "2500" in response.text and "3100" not in response.text
     assert response.image is not None and response.image.startswith(b"\x89PNG")
     assert _labels(response.buttons) == [
-        ["• 🇺🇸 US", "🇪🇺 EU"],
-        ["🪲", "✨", "• 🧍‍♂️", "❓"],
-        ["• 6 months", "1 year", "All"],
+        ["*🇺🇸 US", "🇪🇺 EU"],
+        ["🪲", "✨", "*🧍‍♂️", "❓"],
+        ["*6 months", "1 year", "All"],
     ]
 
 
@@ -49,7 +50,7 @@ def test_a_button_changes_only_its_row(ladders: tuple[User, User]) -> None:
     zerg = response.buttons[1][0]
     every = response.buttons[2][2]
     assert us.data == f"profile:{foo.id}:1:{Race.ZERG.value}:1y"
-    assert zerg.label.startswith("• ") and eu.label.startswith("• ")
+    assert zerg.selected and eu.selected and not us.selected
     assert every.data == f"profile:{foo.id}:2:{Race.ZERG.value}:all"
 
 
