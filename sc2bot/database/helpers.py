@@ -70,10 +70,16 @@ def add_player_stat(
 
 
 def latest_stats(db_session: Session, user: Optional[User] = None) -> list[PlayerStat]:
-    """Latest stat of every (player, race): the player's current ladder for that race."""
-    latest_ids = db_session.query(func.max(PlayerStat.id)).group_by(
-        PlayerStat.player_id, PlayerStat.race
+    """Latest stat of every (player, race): the player's current ladder for that race.
+
+    Latest by date, not by insertion: imported history can be older than what is stored.
+    """
+    newest_first = func.row_number().over(
+        partition_by=(PlayerStat.player_id, PlayerStat.race),
+        order_by=(PlayerStat.created_at.desc(), PlayerStat.id.desc()),
     )
+    ranked = db_session.query(PlayerStat.id, newest_first.label("position")).subquery()
+    latest_ids = db_session.query(ranked.c.id).filter(ranked.c.position == 1)
     query = db_session.query(PlayerStat).filter(PlayerStat.id.in_(latest_ids))
     if user is not None:
         query = query.join(Player).filter(Player.user_id == user.id)

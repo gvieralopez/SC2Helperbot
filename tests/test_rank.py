@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sc2bot.controller import rank
 from sc2bot.database import session
 from sc2bot.database.helpers import latest_stats
@@ -24,3 +26,20 @@ def test_rank_best_ladder_per_user(ladders):
     assert "3500" in text and "3100" in text
     assert "2500" not in text and "3000" not in text
     assert "75%" in text and "&lt;CLAN&gt;" in text
+
+
+def test_latest_stats_uses_the_date_not_the_insertion_order(ladders):
+    foo, _ = ladders
+    zerg = max(latest_stats(session.db_session, foo), key=lambda stat: stat.mmr)
+    old = type(zerg)(
+        player_id=zerg.player_id,
+        race=zerg.race,
+        league=zerg.league,
+        mmr=9999,
+        wins=0,
+        losses=0,
+        created_at=datetime(2016, 1, 1),
+    )
+    session.db_session.add(old)
+    session.db_session.commit()
+    assert 9999 not in [stat.mmr for stat in latest_stats(session.db_session)]
