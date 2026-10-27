@@ -12,6 +12,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from sc2bot.bot_response import BotResponse
 from sc2bot.controller import fetch_all_users
+from sc2bot.parsing import extract_command
 from sc2bot.routes import routes
 
 logging.basicConfig(level=logging.INFO)
@@ -30,10 +31,11 @@ async def router(message: types.Message):
     if not message.is_command():
         return
 
-    command_name, *arguments = extract_command(message.text)
-
-    if command_name not in routes:
+    me = await bot.me
+    parts = extract_command(message.text, me.username)
+    if not parts or parts[0] not in routes:
         return
+    command_name, *arguments = parts
 
     try:
         telegram_id = int(message["from"]["id"])
@@ -66,11 +68,6 @@ async def daily_fetch():
         await bot.pin_chat_message(LOG_CHANNEL_ID, message.message_id)
     except TelegramAPIError as e:
         logger.warning(f"Couldn't post the daily ranking: {e}")
-
-
-def extract_command(text: str) -> list[str]:
-    raw_without_slash = text[1:]
-    return raw_without_slash.split(" ")
 
 
 def schedule_daily_fetch(_dispatcher: Dispatcher):
