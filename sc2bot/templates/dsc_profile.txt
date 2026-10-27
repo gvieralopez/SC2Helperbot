@@ -1,0 +1,1 @@
+Shows your ladders and your MMR over time

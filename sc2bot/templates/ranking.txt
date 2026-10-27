@@ -1,0 +1,4 @@
+<b>{{ title }}</b>
+{% for stat in stats %}
+<code>#{{ loop.index }}</code>{{ region_emojis[stat.player.region_id] }}{{ league_emojis[stat.league] }}{{ race_emojis[stat.race] }} <code>{{ stat.mmr }}</code> <i>{{ (100 * stat.wins // (stat.wins + stat.losses)) if stat.wins + stat.losses else 0 }}%</i> {% if stat.clan_tag %}&lt;{{ stat.clan_tag }}&gt;{% endif %}<b>{{ stat.player.display_name }}</b>{% else %}
+<code>[No ladders yet: try /fetch]</code>{% endfor %}

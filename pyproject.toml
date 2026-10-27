@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "sc2bot"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiogram = "^2.19"
+SQLAlchemy = "^1.4.32"
+requests = "^2.27.1"
+Jinja2 = "^3.1.1"
+matplotlib = "^3.5"
+apscheduler = "^3.9"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.1"
+mypy = "^0.991"
+black = "^22.1.0"
+flake8 = "^4.0.1"
+pytest-cov = "^3.0.0"
+flake8-fixme = "^1.1.1"
+flake8-bugbear = "^22.3.20"
+flake8-eradicate = "^1.2.0"
+flake8-cognitive-complexity = "^0.1.0"
+pdbpp = "^0.10.3"
+sqlalchemy-stubs = "^0.4"
+types-requests = "^2.27.14"
+requests-mock = "^1.9.3"
+pre-commit = "^2.19.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+
+[tool.poetry.scripts]
+planing = "sc2bot.cli.app:app"
