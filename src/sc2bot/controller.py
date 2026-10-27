@@ -1,20 +1,31 @@
 import logging
 import re
+from datetime import timedelta
 
 import requests
 
-from sc2bot.bot_response import BotResponse, render
+from sc2bot.bot_response import BotResponse, Button, render
 from sc2bot.client.sc2_pulse import current_ladders, get_battle_tag_info
 from sc2bot.commands import command_names
 from sc2bot.database import session
+from sc2bot.database.data import Race
 from sc2bot.database.helpers import create_or_update_player, create_or_update_user, latest_stats
 from sc2bot.database.schema import Player, PlayerStat, User
 from sc2bot.emojis import league_emojis, race_emojis, region_emojis
-from sc2bot.plot import plot_mmr_history
+from sc2bot.plot import plot_ladder
 
 logger = logging.getLogger(__name__)
 
 PINGS_PER_MESSAGE = 4
+REGION_NAMES = {1: "US", 2: "EU", 3: "KR", 4: "TW", 5: "CN"}
+# Time shown by the /profile chart, before the ladder's last game (None: all of it).
+PROFILE_WINDOWS = {
+    "6m": ("6 months", timedelta(days=182)),
+    "1y": ("1 year", timedelta(days=365)),
+    "all": ("All", None),
+}
+DEFAULT_WINDOW = "6m"
+PROFILE_RACES = [Race.ZERG, Race.PROTOSS, Race.TERRAN, Race.RANDOM]
 
 
 def set_battle_tag(
@@ -79,15 +90,63 @@ def ladders(**_kwargs: object) -> BotResponse:
 
 
 def profile(*, telegram_id: int, **_kwargs: object) -> BotResponse:
+    """The chart of the user's most recently played ladder, with buttons to pick another."""
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
         return render("user_not_found", goto=command_names["register"])
+    stats = [stat for player in user.players for stat in player.stats]
+    if not stats:
+        return _ranking(f"🎮 {user.battle_tag}", [])
+    last = max(stats, key=lambda stat: stat.created_at)
+    return _profile_view(user, last.player.region_id, last.race, DEFAULT_WINDOW)
 
-    stats = latest_stats(session.db_session, user)
-    response = _ranking(f"🎮 {user.battle_tag}", stats)
-    if stats:
-        response.image = plot_mmr_history(user)
+
+def profile_button(data: str) -> BotResponse | None:
+    """The profile view a button asks for ("profile:user:region:race:window"), or None."""
+    _, user_id, region_id, race, window = data.split(":")
+    user = session.db_session.get(User, int(user_id))
+    if user is None or window not in PROFILE_WINDOWS:
+        return None
+    return _profile_view(user, int(region_id), Race(int(race)), window)
+
+
+def _profile_view(user: User, region_id: int, race: Race, window: str) -> BotResponse:
+    """One ladder (region and race) of the user over a time window, and the buttons that change
+    one of the three; each button holds the whole view it leads to."""
+    stats = _ladder_stats(user, region_id, race)
+    name = user.battle_tag.split("#")[0]
+    chart = plot_ladder(stats, race, region_id, name, PROFILE_WINDOWS[window][1])
+    response = BotResponse("", chart)
+
+    def button(label: str, selected: bool, region: int, button_race: Race, span: str) -> Button:
+        data = f"profile:{user.id}:{region}:{button_race.value}:{span}"
+        return Button(label, data, selected)
+
+    regions = sorted({player.region_id for player in user.players})
+    response.buttons = [
+        [
+            button(f"{region_emojis[r]} {REGION_NAMES[r]}", r == region_id, r, race, window)
+            for r in regions
+        ],
+        [button(race_emojis[r], r == race, region_id, r, window) for r in PROFILE_RACES],
+        [
+            button(label, key == window, region_id, race, key)
+            for key, (label, _) in PROFILE_WINDOWS.items()
+        ],
+    ]
     return response
+
+
+def _ladder_stats(user: User, region_id: int, race: Race) -> list[PlayerStat]:
+    """The stats of the user's ladder in that region and race, sorted by date. With more than
+    one profile in the region, the one played last."""
+    ladders = [
+        sorted((s for s in player.stats if s.race == race), key=lambda s: s.created_at)
+        for player in user.players
+        if player.region_id == region_id
+    ]
+    played = [ladder for ladder in ladders if ladder]
+    return max(played, key=lambda ladder: ladder[-1].created_at) if played else []
 
 
 def _ranking(title: str, stats: list[PlayerStat]) -> BotResponse:
@@ -136,6 +195,8 @@ def _fetch_stats(players: list[Player]) -> None:
         last = latest.get((stat.player_id, stat.race))
         games = stat.wins + stat.losses
         if last and (last.mmr, last.wins + last.losses) == (stat.mmr, games):
+            if last.tier is None:  # stored before tiers were
+                last.tier = stat.tier
             continue
         session.db_session.add(stat)
     session.db_session.commit()

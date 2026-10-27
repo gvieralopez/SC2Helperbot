@@ -4,7 +4,7 @@ from typing import Any
 
 import requests_mock
 
-from sc2bot.client.sc2_pulse import current_ladders, current_seasons, get_battle_tag_info
+from sc2bot.client.sc2_pulse import current_ladders, current_seasons, get_battle_tag_info, tier
 from sc2bot.database.schema import Player, User
 
 SEARCH = "https://sc2pulse.nephest.com/sc2/api/characters"
@@ -54,3 +54,7 @@ def test_current_ladders_of_nobody_asks_nothing() -> None:
     with requests_mock.Mocker() as m:
         assert current_ladders([]) == []
     assert m.request_history == []
+
+
+def test_tier_counts_from_one() -> None:
+    assert [tier(0), tier("1"), tier(2)] == [1, 2, 3]

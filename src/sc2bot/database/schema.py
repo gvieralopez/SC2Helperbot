@@ -52,6 +52,7 @@ class PlayerStat(Base):
     player_id: Mapped[int] = mapped_column(ForeignKey("players.id"))
     race: Mapped[Race] = mapped_column(Enum(Race))
     league: Mapped[League] = mapped_column(Enum(League))
+    tier: Mapped[int | None]  # 1 (top) to 3 within the league; unknown for old stats
     mmr: Mapped[int]
     wins: Mapped[int]
     losses: Mapped[int]

@@ -4,15 +4,30 @@ import os
 from datetime import time
 from html import escape
 
-from telegram import Bot, Message, Update
+from telegram import (
+    Bot,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    InputMediaPhoto,
+    Message,
+    Update,
+)
 from telegram.constants import ChatMemberStatus, ChatType, ParseMode
-from telegram.error import TelegramError
-from telegram.ext import Application, ContextTypes, Defaults, MessageHandler, filters
+from telegram.error import BadRequest, TelegramError
+from telegram.ext import (
+    Application,
+    CallbackQueryHandler,
+    ContextTypes,
+    Defaults,
+    MessageHandler,
+    filters,
+)
 from tzlocal import get_localzone
 
 from sc2bot.bot_response import BotResponse, split_text
 from sc2bot.commands import command_names
-from sc2bot.controller import fetch_all_users, ping_texts, registered_users
+from sc2bot.controller import fetch_all_users, ping_texts, profile_button, registered_users
+from sc2bot.database import session
 from sc2bot.database.schema import User
 from sc2bot.parsing import extract_command
 from sc2bot.routes import routes
@@ -28,6 +43,10 @@ CAPTION_LIMIT = 1024
 
 
 def main() -> None:
+    connection_string = os.environ.get("CONNECTION_STRING")
+    if not connection_string:
+        raise SystemExit("Set CONNECTION_STRING to the database, e.g. sqlite:////data/sc2bot.db")
+    session.connect(connection_string)
     # httpx logs every request, a line per poll.
     logging.getLogger("httpx").setLevel(logging.WARNING)
     application = (
@@ -38,8 +57,11 @@ def main() -> None:
         .build()
     )
     application.add_handler(MessageHandler(filters.COMMAND, _on_command))
+    application.add_handler(CallbackQueryHandler(_on_button, pattern="^profile:"))
     _schedule_daily_fetch(application)
-    application.run_polling(drop_pending_updates=True)
+    # Telegram remembers the update types a bot last asked for: ask for all of them, or the
+    # button taps (callback queries) of a bot that once asked only for messages never arrive.
+    application.run_polling(drop_pending_updates=True, allowed_updates=Update.ALL_TYPES)
 
 
 async def _on_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -93,14 +115,59 @@ async def _is_member(bot: Bot, chat_id: int, user: User) -> bool:
 
 
 async def answer(bot: Bot, chat_id: int | str, response: BotResponse) -> None:
-    text = response.text
+    """Send the response; its buttons go under the photo, or else under the last message."""
+    text, markup = response.text, _keyboard(response)
     if response.image:
-        if len(split_text(text, CAPTION_LIMIT)) == 1:
-            await bot.send_photo(chat_id, response.image, caption=text, filename="mmr.png")
+        caption = split_text(text, CAPTION_LIMIT)
+        if len(caption) <= 1:
+            await bot.send_photo(
+                chat_id,
+                response.image,
+                caption=caption[0] if caption else None,
+                filename="mmr.png",
+                reply_markup=markup,
+            )
             return
-        await bot.send_photo(chat_id, response.image, filename="mmr.png")
-    for part in split_text(text, MESSAGE_LIMIT):
-        await bot.send_message(chat_id, part)
+        await bot.send_photo(chat_id, response.image, filename="mmr.png", reply_markup=markup)
+        markup = None
+    parts = split_text(text, MESSAGE_LIMIT)
+    for i, part in enumerate(parts):
+        await bot.send_message(chat_id, part, reply_markup=markup if i == len(parts) - 1 else None)
+
+
+async def _on_button(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show the profile view a button asks for in place of the message's photo."""
+    query = update.callback_query
+    if query is None or query.data is None:
+        return
+    await query.answer()
+    response = profile_button(query.data)
+    if response is None or response.image is None:
+        return
+    media = InputMediaPhoto(response.image, caption=response.text or None, filename="mmr.png")
+    try:
+        await query.edit_message_media(media, reply_markup=_keyboard(response))
+    except BadRequest as error:
+        if "not modified" not in error.message:  # the button of what is already shown
+            raise
+
+
+def _keyboard(response: BotResponse) -> InlineKeyboardMarkup | None:
+    if not response.buttons:
+        return None
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    button.label,
+                    callback_data=button.data,
+                    style="primary" if button.selected else None,  # blue
+                )
+                for button in row
+            ]
+            for row in response.buttons
+        ]
+    )
 
 
 async def daily_fetch(bot: Bot) -> None:

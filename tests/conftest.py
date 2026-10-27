@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.orm import Session, sessionmaker
 
 from sc2bot.database import session
 from sc2bot.database.data import League, Race
@@ -28,6 +28,17 @@ def db(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     db_session.close()
     Base.metadata.drop_all(bind=engine)
     engine.dispose()
+
+
+@pytest.fixture()
+def unbound_session(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """A session for session.connect() to bind, closed with its engine afterwards."""
+    monkeypatch.setattr(session, "db_session", Session())
+    yield
+    engine = session.db_session.bind
+    session.db_session.close()
+    if isinstance(engine, Engine):
+        engine.dispose()
 
 
 @pytest.fixture

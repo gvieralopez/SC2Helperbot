@@ -1,18 +1,19 @@
 import logging
 
 from sqlalchemy import create_engine, inspect
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
 
-from sc2bot.database.config import CONNECTION_STRING
 from sc2bot.database.schema import Base
 
 logger = logging.getLogger(__name__)
 
-engine = create_engine(CONNECTION_STRING)
-if not inspect(engine).has_table("users"):
-    logger.info("A connection to the database couldn't be established. Creating tables in new DB.")
-    Base.metadata.create_all(engine)
+# Bound to the database by connect() when the bot starts.
+db_session = Session()
 
 
-session_maker = sessionmaker(bind=engine)
-db_session = session_maker()
+def connect(connection_string: str) -> None:
+    engine = create_engine(connection_string)
+    if not inspect(engine).has_table("users"):
+        logger.info("Empty database: creating the tables.")
+        Base.metadata.create_all(engine)
+    db_session.bind = engine
