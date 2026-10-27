@@ -1,0 +1,4 @@
+Shows all the users of the bot and their Battle Tag.
+
+You just need to text me: /users
+(with no additional parameters)

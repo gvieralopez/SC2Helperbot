@@ -1,0 +1,4 @@
+<b>List of bot users:</b>
+{% for user in users %}
+{{ user.telegram_username }} <code>{{ user.battle_tag }}</code>{% else %}
+<code>[No users yet]</code>{% endfor %}

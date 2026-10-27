@@ -112,6 +112,11 @@ def add_new_player_stats(**kwargs) -> BotResponse:
     )
 
 
+def list_users(**kwargs) -> BotResponse:
+    users = session.db_session.query(User).order_by(User.id).all()
+    return render("users", users=users)
+
+
 def extract_from_kwargs(arg_name: str, **kwargs):
     if arg_name not in kwargs:
         raise TypeError(f"{arg_name} kwarg expected")

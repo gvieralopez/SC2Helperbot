@@ -6,6 +6,7 @@ command_names = {
     "link": "link",
     "user": "user",
     "fetch": "fetch",
+    "users": "users",
 }
 
 
