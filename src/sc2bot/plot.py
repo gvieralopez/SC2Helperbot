@@ -10,7 +10,7 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 
 from sc2bot.database.data import Race
-from sc2bot.database.schema import User
+from sc2bot.database.schema import PlayerStat, User
 
 region_names = {1: "US", 2: "EU", 3: "KR", 4: "TW"}
 
@@ -75,7 +75,9 @@ def plot_mmr_history(user: User) -> bytes:
     return image.getvalue()
 
 
-def window_series(stats: list, start: datetime) -> tuple[list, list, int] | None:
+def window_series(
+    stats: list[PlayerStat], start: datetime
+) -> tuple[list[datetime], list[int], int] | None:
     """(times, MMRs, points inside) of one ladder from start on, or None if not played since.
 
     A ladder played before the window starts at the MMR it had when the window opens.
@@ -91,14 +93,14 @@ def window_series(stats: list, start: datetime) -> tuple[list, list, int] | None
     return x, y, len(recent)
 
 
-def _ladders(user: User) -> list[tuple[int, Race, list]]:
+def _ladders(user: User) -> list[tuple[int, Race, list[PlayerStat]]]:
     """(region, race, stats sorted by date) of every ladder the user has stats for."""
     ladders = []
-    for player in user.players:  # type: ignore
-        races = sorted({stat.race for stat in player.stats}, key=lambda race: race.value)  # type: ignore
+    for player in user.players:
+        races = sorted({stat.race for stat in player.stats}, key=lambda race: race.value)
         for race in races:
             stats = sorted(
-                (stat for stat in player.stats if stat.race == race),  # type: ignore
+                (stat for stat in player.stats if stat.race == race),
                 key=lambda stat: stat.created_at,
             )
             ladders.append((player.region_id, race, stats))

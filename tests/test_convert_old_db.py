@@ -70,24 +70,24 @@ def test_convert_old_db(old_data, tmp_path):
     with Session(create_engine(new_db)) as db_session:
         foo = db_session.query(User).filter_by(telegram_id=100).one()
         assert (foo.telegram_username, foo.battle_tag) == ("@foo", "Foo#1234")
-        players = {player.region_id: player for player in foo.players}  # type: ignore
+        players = {player.region_id: player for player in foo.players}
         assert {r: (p.profile_id, p.display_name) for r, p in players.items()} == {
             1: (111, "Foo"),
             2: (222, "Foo"),
         }
-        zerg = players[2].stats  # type: ignore
+        zerg = players[2].stats
         assert [stat.mmr for stat in zerg] == [3000, 3050, 3100]
         assert zerg[0].created_at == datetime(2022, 2, 4)
         assert {(s.race, s.league, s.wins, s.losses, s.clan_tag) for s in zerg} == {
             (Race.ZERG, League.DIAMOND, 30, 20, "CLAN")
         }
-        terran = players[1].stats  # type: ignore
+        terran = players[1].stats
         assert [(stat.mmr, stat.clan_tag) for stat in terran] == [(2500, None)]
         assert terran[0].created_at == datetime(2022, 3, 21, 17, 30, 5, 123456)
 
         bar = db_session.query(Player).filter_by(profile_id=333).one()
         assert bar.display_name == "Bar"
-        assert [stat.mmr for stat in bar.stats] == [3900, 4000]  # type: ignore
+        assert [stat.mmr for stat in bar.stats] == [3900, 4000]
         assert db_session.query(PlayerStat).count() == 6
 
 

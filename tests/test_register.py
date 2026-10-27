@@ -23,8 +23,8 @@ def test_register(db, fake_battle_tag_response):
     user = session.db_session.query(User).filter_by(telegram_id=1).one()
     assert user.telegram_username == "foo"
     assert user.battle_tag == battle_tag
-    assert len(user.players) == 1  # type: ignore
-    assert user.players[0].profile_id == 8972769  # type: ignore
+    assert len(user.players) == 1
+    assert user.players[0].profile_id == 8972769
 
 
 def test_register_existing(db, user, fake_battle_tag_response):

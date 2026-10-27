@@ -29,5 +29,5 @@ def test_add_player(user: User, fake_metadata_response):
     assert "10993388" in response.text
     assert user.battle_tag in response.text
     assert user.telegram_username and user.telegram_username in response.text
-    assert len(user.players) == 1  # type: ignore
-    assert user.players[0].profile_id == 10993388  # type: ignore
+    assert len(user.players) == 1
+    assert user.players[0].profile_id == 10993388

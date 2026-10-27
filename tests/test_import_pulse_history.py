@@ -37,8 +37,8 @@ def database(tmp_path):
     # A hand-made sample that SC2 Pulse also has (same day and MMR): not imported twice.
     sample = PlayerStat(
         player_id=eu.id,
-        race=Race.ZERG,  # type: ignore
-        league=League.DIAMOND,  # type: ignore
+        race=Race.ZERG,
+        league=League.DIAMOND,
         mmr=3500,
         wins=1,
         losses=1,

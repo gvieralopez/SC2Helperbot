@@ -31,18 +31,19 @@ def connection(db_engine):
 
 @pytest.fixture()
 def setup_database(connection):
-    Base.metadata.bind = connection
-    Base.metadata.create_all()
+    Base.metadata.create_all(connection)
+    connection.commit()
 
     yield
 
-    Base.metadata.drop_all()
+    Base.metadata.drop_all(connection)
+    connection.commit()
 
 
 @pytest.fixture
 def db_session(setup_database, connection):
     transaction = connection.begin()
-    yield scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=connection))
+    yield scoped_session(sessionmaker(autoflush=False, bind=connection))
     transaction.rollback()
 
 

@@ -137,8 +137,8 @@ def _convert_ladder(
     return [
         PlayerStat(
             player=player,
-            race=Race.from_raw(row["race"]),  # type: ignore
-            league=League.from_raw(row["league"]),  # type: ignore
+            race=Race.from_raw(row["race"]),
+            league=League.from_raw(row["league"]),
             mmr=mmr,
             wins=row["wins"],
             losses=row["losses"],

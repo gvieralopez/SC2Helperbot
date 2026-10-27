@@ -1,4 +1,3 @@
-
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -53,8 +52,8 @@ def add_player_stat(
 ) -> PlayerStat:
     player_stat = PlayerStat(
         player_id=player.id,
-        race=race,  # type: ignore
-        league=league,  # type: ignore
+        race=race,
+        league=league,
         mmr=mmr,
         wins=wins,
         losses=losses,

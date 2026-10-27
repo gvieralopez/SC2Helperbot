@@ -74,14 +74,14 @@ def test_add_player_stats(
         response = add_new_player_stats(telegram_id=1)
     assert str(player_1.profile_id) in response.text
     assert str(player_2.profile_id) in response.text
-    assert len(player_1.stats) == 2  # type: ignore
-    assert len(player_2.stats) == 2  # type: ignore
+    assert len(player_1.stats) == 2
+    assert len(player_2.stats) == 2
     expected_s1 = Race.PROTOSS, League.MASTER, 3038, 0, 1, "LRCUB"
     expected_s2 = Race.ZERG, League.DIAMOND, 3422, 10, 8, "LRCUB"
-    s1p1 = player_1.stats[0]  # type: ignore
-    s2p1 = player_1.stats[1]  # type: ignore
-    s1p2 = player_2.stats[0]  # type: ignore
-    s2p2 = player_2.stats[1]  # type: ignore
+    s1p1 = player_1.stats[0]
+    s2p1 = player_1.stats[1]
+    s1p2 = player_2.stats[0]
+    s2p2 = player_2.stats[1]
     assert (s1p1.race, s1p1.league, s1p1.mmr, s1p1.wins, s1p1.losses, s1p1.clan_tag) == expected_s1
     assert (s2p1.race, s2p1.league, s2p1.mmr, s2p1.wins, s2p1.losses, s2p1.clan_tag) == expected_s2
     assert (s1p2.race, s1p2.league, s1p2.mmr, s1p2.wins, s1p2.losses, s1p2.clan_tag) == expected_s1

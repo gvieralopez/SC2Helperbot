@@ -24,8 +24,8 @@ def _add_history(player: Player, times: list[datetime]) -> None:
     for i, time in enumerate(times):
         stat = PlayerStat(
             player_id=player.id,
-            race=Race.ZERG,  # type: ignore
-            league=League.GOLD,  # type: ignore
+            race=Race.ZERG,
+            league=League.GOLD,
             mmr=3000 + i,
             wins=1,
             losses=1,

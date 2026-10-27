@@ -42,9 +42,7 @@ class BlizzardResolver:
         response = requests.get(url, params=self.get_params())
         if response.status_code == 200:
             return response.json()
-        raise ValueError(
-            f"Blizzard API Response status not ok: {response}({response.content!s})"
-        )
+        raise ValueError(f"Blizzard API Response status not ok: {response}({response.content!s})")
 
     def get_params(self) -> dict:
         return {}
@@ -83,8 +81,8 @@ def build_player_stat(player: Player, ladder_info: dict) -> PlayerStat:
             if int(member["id"]) == player.profile_id:
                 return PlayerStat(
                     player_id=player.id,
-                    race=Race.from_raw(member["favoriteRace"]),  # type: ignore
-                    league=league,  # type: ignore
+                    race=Race.from_raw(member["favoriteRace"]),
+                    league=league,
                     mmr=mmr,
                     wins=team["wins"],
                     losses=team["losses"],

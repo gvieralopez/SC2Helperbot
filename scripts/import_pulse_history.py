@@ -68,7 +68,7 @@ def _import_player(db_session: Session, player: Player, report: Report) -> None:
         return
     report.players += 1
 
-    known = {(s.race, s.created_at, s.mmr) for s in player.stats}  # type: ignore
+    known = {(s.race, s.created_at, s.mmr) for s in player.stats}
     known_days = {(race, created_at.date(), mmr) for race, created_at, mmr in known}
     for stat in stats:
         key = (stat.race, stat.created_at, stat.mmr)
@@ -108,8 +108,8 @@ def _stats(player: Player, race: Race, history: dict, clan_tag: str | None) -> l
         last_wins = wins
         stat = PlayerStat(
             player_id=player.id,
-            race=race,  # type: ignore
-            league=LEAGUES[league],  # type: ignore
+            race=race,
+            league=LEAGUES[league],
             mmr=rating,
             wins=wins,
             losses=games - wins,

@@ -150,13 +150,13 @@ def fetch_all_users() -> BotResponse:
 
 
 def _fetch_stats(user: User) -> None:
-    for player in user.players:  # type: ignore
+    for player in user.players:
         for player_stat in resolve_player_stats(player):
             add_player_stat(
                 session.db_session,
                 player,
-                player_stat.race,  # type: ignore
-                player_stat.league,  # type: ignore
+                player_stat.race,
+                player_stat.league,
                 player_stat.mmr,
                 player_stat.wins,
                 player_stat.losses,

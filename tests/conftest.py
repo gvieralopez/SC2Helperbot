@@ -68,8 +68,8 @@ def add_stat():
     def _add_stat(player: Player, race: Race, mmr: int, league: League = League.GOLD) -> PlayerStat:
         stat = PlayerStat(
             player_id=player.id,
-            race=race,  # type: ignore
-            league=league,  # type: ignore
+            race=race,
+            league=league,
             mmr=mmr,
             wins=3,
             losses=1,
