@@ -1,14 +1,17 @@
+from http import HTTPStatus
+from typing import Any
+
 import requests
 
 from sc2bot.client.config import REALM_ID
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Player, PlayerStat
+
+TIMEOUT = 30
 
 
 class BlizzardResolver:
-    def __init__(self, base_url: str):
+    def __init__(self, base_url: str) -> None:
         self.base_url = base_url
 
     def resolve_player_stats(self, player: Player) -> list[PlayerStat]:
@@ -41,22 +44,22 @@ class BlizzardResolver:
         )
 
     def make_get_request(self, url: str) -> dict:
-        response = requests.get(url, params=self.get_params())
-        if response.status_code == 200:
-            return response.json()
-        raise ValueError(
-            f"Blizzard API Response status not ok: {response}({str(response.content)})"
-        )
+        response = requests.get(url, params=self.get_params(), timeout=TIMEOUT)
+        if response.status_code == HTTPStatus.OK:
+            data: dict[str, Any] = response.json()
+            return data
+        raise ValueError(f"Blizzard API Response status not ok: {response}({response.content!s})")
 
     def get_params(self) -> dict:
         return {}
 
     def extract_player_display_name_from_metadata(self, metadata: dict) -> str:
-        return metadata["name"]
+        name: str = metadata["name"]
+        return name
 
 
 class BlizzardAuthorizedResolver(BlizzardResolver):
-    def __init__(self, base_url: str, auth_url: str, client_id: str, client_secret: str):
+    def __init__(self, base_url: str, auth_url: str, client_id: str, client_secret: str) -> None:
         super().__init__(base_url)
         self.auth_url = auth_url
         self.client_id = client_id
@@ -70,10 +73,12 @@ class BlizzardAuthorizedResolver(BlizzardResolver):
             f"{self.auth_url}/oauth/token",
             auth=(self.client_id, self.client_secret),
             data={"grant_type": "client_credentials"},
+            timeout=TIMEOUT,
         )
-        if response.status_code == 200:
-            return response.json()["access_token"]
-        raise ValueError(f"Token response status not ok: {response}({str(response.content)})")
+        if response.status_code == HTTPStatus.OK:
+            token: str = response.json()["access_token"]
+            return token
+        raise ValueError(f"Token response status not ok: {response}({response.content!s})")
 
 
 def build_player_stat(player: Player, ladder_info: dict) -> PlayerStat:
@@ -85,8 +90,8 @@ def build_player_stat(player: Player, ladder_info: dict) -> PlayerStat:
             if int(member["id"]) == player.profile_id:
                 return PlayerStat(
                     player_id=player.id,
-                    race=Race.from_raw(member["favoriteRace"]),  # type: ignore
-                    league=league,  # type: ignore
+                    race=Race.from_raw(member["favoriteRace"]),
+                    league=league,
                     mmr=mmr,
                     wins=team["wins"],
                     losses=team["losses"],

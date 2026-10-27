@@ -1,17 +1,15 @@
 import json
 import sqlite3
 from datetime import datetime
+from pathlib import Path
 
 import pytest
+from scripts.convert_old_db import main
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
-from sc2bot.database.schema import User
-from scripts.convert_old_db import main
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Player, PlayerStat, User
 
 OLD_SCHEMA = """
 CREATE TABLE users (
@@ -33,7 +31,7 @@ UPDATED = "2022-03-21 17:30:05.123456"
 
 
 @pytest.fixture()
-def old_data(tmp_path):
+def old_data(tmp_path: Path) -> tuple[Path, Path]:
     old_db = tmp_path / "sc2.db"
     connection = sqlite3.connect(old_db)
     connection.executescript(OLD_SCHEMA)
@@ -54,6 +52,7 @@ def old_data(tmp_path):
         ],
     )
     connection.commit()
+    connection.close()
     history = tmp_path / "history"
     history.mkdir()
     # Ladder 1: two old points plus a last one on the day of the last update (not repeated).
@@ -64,37 +63,39 @@ def old_data(tmp_path):
     return old_db, history
 
 
-def test_convert_old_db(old_data, tmp_path):
+def test_convert_old_db(old_data: tuple[Path, Path], tmp_path: Path) -> None:
     new_db = f"sqlite:///{tmp_path / 'new.db'}"
     report = main(*old_data, new_db)
 
     assert (report.users, report.players, report.stats) == (2, 3, 6)
     assert report.skipped == ["ladder 4: user has no profile in region", "h16.json: no ladder"]
-    with Session(create_engine(new_db)) as db_session:
+    engine = create_engine(new_db)
+    with Session(engine) as db_session:
         foo = db_session.query(User).filter_by(telegram_id=100).one()
         assert (foo.telegram_username, foo.battle_tag) == ("@foo", "Foo#1234")
-        players = {player.region_id: player for player in foo.players}  # type: ignore
+        players = {player.region_id: player for player in foo.players}
         assert {r: (p.profile_id, p.display_name) for r, p in players.items()} == {
             1: (111, "Foo"),
             2: (222, "Foo"),
         }
-        zerg = players[2].stats  # type: ignore
+        zerg = players[2].stats
         assert [stat.mmr for stat in zerg] == [3000, 3050, 3100]
         assert zerg[0].created_at == datetime(2022, 2, 4)
         assert {(s.race, s.league, s.wins, s.losses, s.clan_tag) for s in zerg} == {
             (Race.ZERG, League.DIAMOND, 30, 20, "CLAN")
         }
-        terran = players[1].stats  # type: ignore
+        terran = players[1].stats
         assert [(stat.mmr, stat.clan_tag) for stat in terran] == [(2500, None)]
         assert terran[0].created_at == datetime(2022, 3, 21, 17, 30, 5, 123456)
 
         bar = db_session.query(Player).filter_by(profile_id=333).one()
         assert bar.display_name == "Bar"
-        assert [stat.mmr for stat in bar.stats] == [3900, 4000]  # type: ignore
+        assert [stat.mmr for stat in bar.stats] == [3900, 4000]
         assert db_session.query(PlayerStat).count() == 6
+    engine.dispose()
 
 
-def test_convert_refuses_a_database_with_users(old_data, tmp_path):
+def test_convert_refuses_a_database_with_users(old_data: tuple[Path, Path], tmp_path: Path) -> None:
     new_db = f"sqlite:///{tmp_path / 'new.db'}"
     main(*old_data, new_db)
     with pytest.raises(SystemExit):

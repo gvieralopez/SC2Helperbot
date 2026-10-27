@@ -9,25 +9,20 @@ The old history only kept the MMR and the date of each point, so every point tak
 league, wins, losses and clan of its ladder's last known state. History files without a
 ladder are dropped (their region and race are unknown).
 """
+
 import json
 import logging
 import sqlite3
-from dataclasses import dataclass
-from dataclasses import field
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from sys import argv
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Base
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
-from sc2bot.database.schema import User
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Base, Player, PlayerStat, User
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +54,8 @@ def main(old_db: Path, history_dir: Path, connection_string: str) -> Report:
         db_session.commit()
     finally:
         db_session.close()
+        old.close()
+        engine.dispose()
     return report
 
 
@@ -142,8 +139,8 @@ def _convert_ladder(
     return [
         PlayerStat(
             player=player,
-            race=Race.from_raw(row["race"]),  # type: ignore
-            league=League.from_raw(row["league"]),  # type: ignore
+            race=Race.from_raw(row["race"]),
+            league=League.from_raw(row["league"]),
             mmr=mmr,
             wins=row["wins"],
             losses=row["losses"],
@@ -160,7 +157,7 @@ def _read_history(history_dir: Path, ladder_id: int) -> list[tuple[datetime, int
         return []
     history = json.loads(history_file.read_text())
     dates = [datetime.strptime(date, "%d-%m-%Y") for date in history["dates"]]
-    return list(zip(dates, history["mmrs"]))
+    return list(zip(dates, history["mmrs"], strict=True))
 
 
 def _parse_datetime(raw: str) -> datetime:
@@ -170,6 +167,8 @@ def _parse_datetime(raw: str) -> datetime:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     result = main(Path(argv[1]), Path(argv[2]), argv[3])
-    logger.info(f"Converted {result.users} users, {result.players} players, {result.stats} stats")
+    logger.info(
+        "Converted %s users, %s players, %s stats", result.users, result.players, result.stats
+    )
     for reason in result.skipped:
-        logger.warning(f"Skipped {reason}")
+        logger.warning("Skipped %s", reason)

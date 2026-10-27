@@ -1,17 +1,12 @@
-from typing import Optional
-
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
-from sc2bot.database.schema import User
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Player, PlayerStat, User
 
 
 def create_or_update_user(
-    db_session: Session, telegram_id: int, telegram_username: str, battle_tag: str
+    db_session: Session, telegram_id: int, telegram_username: str | None, battle_tag: str
 ) -> User:
     user = db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
 
@@ -53,12 +48,12 @@ def add_player_stat(
     mmr: int,
     wins: int,
     losses: int,
-    clan_tag: Optional[str],
+    clan_tag: str | None,
 ) -> PlayerStat:
     player_stat = PlayerStat(
         player_id=player.id,
-        race=race,  # type: ignore
-        league=league,  # type: ignore
+        race=race,
+        league=league,
         mmr=mmr,
         wins=wins,
         losses=losses,
@@ -69,7 +64,7 @@ def add_player_stat(
     return player_stat
 
 
-def latest_stats(db_session: Session, user: Optional[User] = None) -> list[PlayerStat]:
+def latest_stats(db_session: Session, user: User | None = None) -> list[PlayerStat]:
     """Latest stat of every (player, race): the player's current ladder for that race.
 
     Latest by date, not by insertion: imported history can be older than what is stored.
@@ -84,6 +79,3 @@ def latest_stats(db_session: Session, user: Optional[User] = None) -> list[Playe
     if user is not None:
         query = query.join(Player).filter(Player.user_id == user.id)
     return sorted(query.all(), key=lambda stat: stat.mmr, reverse=True)
-
-
-# todo add db constraints (unique(telegram_id) and unique(region_id, profile_id)) - add unit test

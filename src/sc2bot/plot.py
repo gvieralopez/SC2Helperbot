@@ -1,17 +1,17 @@
 import io
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import matplotlib
 
 matplotlib.use("Agg")
 
-from matplotlib import dates as mdates  # noqa: E402
-from matplotlib.figure import Figure  # noqa: E402
-from matplotlib.ticker import MaxNLocator  # noqa: E402
+from matplotlib import dates as mdates
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.ticker import MaxNLocator
 
-from sc2bot.database.data import Race  # noqa: E402
-from sc2bot.database.schema import User  # noqa: E402
+from sc2bot.database.data import Race
+from sc2bot.database.schema import PlayerStat, User
 
 region_names = {1: "US", 2: "EU", 3: "KR", 4: "TW"}
 
@@ -57,7 +57,7 @@ def plot_mmr_history(user: User) -> bytes:
             x, y, recent = series
             times += x
             axes.plot(
-                [*x, newest],
+                mdates.date2num([*x, newest]),
                 [*y, y[-1]],
                 drawstyle="steps-post",
                 color=race_colors[race],
@@ -76,7 +76,9 @@ def plot_mmr_history(user: User) -> bytes:
     return image.getvalue()
 
 
-def window_series(stats: list, start: datetime) -> tuple[list, list, int] | None:
+def window_series(
+    stats: list[PlayerStat], start: datetime
+) -> tuple[list[datetime], list[int], int] | None:
     """(times, MMRs, points inside) of one ladder from start on, or None if not played since.
 
     A ladder played before the window starts at the MMR it had when the window opens.
@@ -92,21 +94,21 @@ def window_series(stats: list, start: datetime) -> tuple[list, list, int] | None
     return x, y, len(recent)
 
 
-def _ladders(user: User) -> list[tuple[int, Race, list]]:
+def _ladders(user: User) -> list[tuple[int, Race, list[PlayerStat]]]:
     """(region, race, stats sorted by date) of every ladder the user has stats for."""
     ladders = []
-    for player in user.players:  # type: ignore
-        races = sorted({stat.race for stat in player.stats}, key=lambda race: race.value)  # type: ignore
+    for player in user.players:
+        races = sorted({stat.race for stat in player.stats}, key=lambda race: race.value)
         for race in races:
             stats = sorted(
-                (stat for stat in player.stats if stat.race == race),  # type: ignore
+                (stat for stat in player.stats if stat.race == race),
                 key=lambda stat: stat.created_at,
             )
             ladders.append((player.region_id, race, stats))
     return ladders
 
 
-def _style(figure: Figure, axes, title: str, times: list) -> None:
+def _style(figure: Figure, axes: Axes, title: str, times: list[datetime]) -> None:
     axes.set_title(title)
     axes.set_ylabel("MMR")
     axes.grid(alpha=0.4)
@@ -118,7 +120,9 @@ def _style(figure: Figure, axes, title: str, times: list) -> None:
     if times and max(times) - min(times) < timedelta(days=1):
         # One day of data: show the day around it instead of an arbitrary range.
         middle = min(times) + (max(times) - min(times)) / 2
-        axes.set_xlim(middle - timedelta(days=1), middle + timedelta(days=1))
+        axes.set_xlim(
+            mdates.date2num(middle - timedelta(days=1)), mdates.date2num(middle + timedelta(days=1))
+        )
     lines = len(axes.get_lines())
     figure.legend(
         loc="outside lower center",

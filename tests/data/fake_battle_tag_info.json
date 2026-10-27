@@ -1,16 +1,46 @@
 [
   {
-    "realm": "1",
-    "region": "EU",
-    "rank": "Diamond",
-    "username": "FarSeer",
-    "bnet_id": "FarSeer#11726",
-    "race": "Zerg",
-    "mmr": 3485,
-    "wins": 7,
-    "losses": 9,
-    "clan": "H2OKT",
-    "profile_id": 8972769,
-    "alias": null
+    "members": {
+      "character": {
+        "realm": 1,
+        "name": "FarSeer#588",
+        "id": 223686264,
+        "accountId": 11238316,
+        "region": "US",
+        "battlenetId": 10993388,
+        "tag": "FarSeer",
+        "discriminator": 588
+      },
+      "account": {
+        "battleTag": "FarSeer#11726",
+        "id": 11238316,
+        "partition": "GLOBAL",
+        "hidden": null,
+        "tag": "FarSeer",
+        "discriminator": 11726
+      }
+    }
+  },
+  {
+    "members": {
+      "character": {
+        "realm": 1,
+        "name": "FarSeer#459",
+        "id": 11238316,
+        "accountId": 11238316,
+        "region": "EU",
+        "battlenetId": 8972769,
+        "tag": "FarSeer",
+        "discriminator": 459
+      },
+      "account": {
+        "battleTag": "FarSeer#11726",
+        "id": 11238316,
+        "partition": "GLOBAL",
+        "hidden": null,
+        "tag": "FarSeer",
+        "discriminator": 11726
+      }
+    }
   }
 ]

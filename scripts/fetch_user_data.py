@@ -1,10 +1,10 @@
 from sys import argv
 
-from sc2bot.client.sc2_ladder import get_battle_tag_info
+from sc2bot.client.sc2_pulse import get_battle_tag_info
 from sc2bot.database.schema import User
 
 
-def main(battle_tag: str):
+def main(battle_tag: str) -> None:
     print(get_battle_tag_info(User(battle_tag=battle_tag)))
 
 

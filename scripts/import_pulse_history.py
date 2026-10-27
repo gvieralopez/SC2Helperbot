@@ -9,29 +9,25 @@ and many per day since. It only knows the current clan, so imported points take 
 Data from SC2 Pulse (https://sc2pulse.nephest.com/sc2), whose API is free for non-commercial
 use with credit. Ids (leagues 0-6 from bronze, races 1-4) are documented in its API docs.
 """
+
 import logging
 import time
-from dataclasses import dataclass
-from dataclasses import field
-from datetime import datetime
-from datetime import timezone
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from sys import argv
+from typing import Any
 
 import requests
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from sc2bot.client.config import REALM_ID
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Base
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
+from sc2bot.client.sc2_pulse import API
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Base, Player, PlayerStat
 
 logger = logging.getLogger(__name__)
 
-API = "https://sc2pulse.nephest.com/sc2/api"
 HEADERS = {"User-Agent": "SC2Helperbot history import (github.com/gvieralopez/SC2Helperbot)"}
 FIELDS = ["TIMESTAMP", "RATING", "LEAGUE_TYPE", "WINS", "GAMES"]
 TEAMS_LIMIT = 200  # the API rejects larger pages
@@ -62,6 +58,7 @@ def main(connection_string: str) -> Report:
         db_session.commit()
     finally:
         db_session.close()
+        engine.dispose()
     return report
 
 
@@ -73,7 +70,7 @@ def _import_player(db_session: Session, player: Player, report: Report) -> None:
         return
     report.players += 1
 
-    known = {(s.race, s.created_at, s.mmr) for s in player.stats}  # type: ignore
+    known = {(s.race, s.created_at, s.mmr) for s in player.stats}
     known_days = {(race, created_at.date(), mmr) for race, created_at, mmr in known}
     for stat in stats:
         key = (stat.race, stat.created_at, stat.mmr)
@@ -91,7 +88,7 @@ def _fetch_history(player: Player, handle: str) -> list[PlayerStat] | None:
     if not teams:
         return None
     if len(teams) == TEAMS_LIMIT:
-        logger.warning(f"{handle}: {TEAMS_LIMIT} teams, the oldest seasons may be missing")
+        logger.warning("%s: %s teams, the oldest seasons may be missing", handle, TEAMS_LIMIT)
     clan_tag = (teams[0]["members"][0].get("clan") or {}).get("tag")
 
     stats = []
@@ -107,38 +104,42 @@ def _fetch_history(player: Player, handle: str) -> list[PlayerStat] | None:
 def _stats(player: Player, race: Race, history: dict, clan_tag: str | None) -> list[PlayerStat]:
     stats = []
     last_wins = 0
-    for timestamp, rating, league, wins, games in zip(*(history[name] for name in FIELDS)):
+    columns = (history[name] for name in FIELDS)
+    for timestamp, rating, league, reported_wins, games in zip(*columns, strict=True):
         # About a third of the points have no wins: take the last known ones, like the old history.
-        wins = min(last_wins if wins is None else wins, games)
+        wins = min(last_wins if reported_wins is None else reported_wins, games)
         last_wins = wins
         stat = PlayerStat(
             player_id=player.id,
-            race=race,  # type: ignore
-            league=LEAGUES[league],  # type: ignore
+            race=race,
+            league=LEAGUES[league],
             mmr=rating,
             wins=wins,
             losses=games - wins,
             clan_tag=clan_tag,
             # Naive UTC, like the CURRENT_TIMESTAMP default of the bot's own stats.
-            created_at=datetime.fromtimestamp(timestamp, timezone.utc).replace(tzinfo=None),
+            created_at=datetime.fromtimestamp(timestamp, UTC).replace(tzinfo=None),
         )
         stats.append(stat)
     return stats
 
 
-def _get(endpoint: str, **params) -> list:
+def _get(endpoint: str, **params: str | int | list[str]) -> list[Any]:
     time.sleep(PAUSE)
     response = requests.get(f"{API}/{endpoint}", params=params, headers=HEADERS, timeout=60)
     response.raise_for_status()
-    return response.json()
+    data: list[Any] = response.json()
+    return data
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     result = main(argv[1])
     logger.info(
-        f"{result.players} players found: {result.added} points added, "
-        f"{result.skipped} already stored"
+        "%s players found: %s points added, %s already stored",
+        result.players,
+        result.added,
+        result.skipped,
     )
     for handle in result.not_found:
-        logger.warning(f"Not found on SC2 Pulse: {handle}")
+        logger.warning("Not found on SC2 Pulse: %s", handle)

@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 
-from jinja2 import Environment
-from jinja2 import PackageLoader
-from jinja2 import select_autoescape
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 _environment = Environment(loader=PackageLoader("sc2bot"), autoescape=select_autoescape())
 
@@ -13,9 +11,9 @@ class BotResponse:
     image: bytes | None = None
 
 
-def text(template_name: str, **kwargs) -> str:
+def text(template_name: str, **kwargs: object) -> str:
     return _environment.get_template(f"{template_name}.txt").render(kwargs)
 
 
-def render(template_name: str, **kwargs) -> BotResponse:
+def render(template_name: str, **kwargs: object) -> BotResponse:
     return BotResponse(text(template_name, **kwargs))

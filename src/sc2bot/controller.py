@@ -1,38 +1,23 @@
 import re
 
-from sc2bot.bot_response import BotResponse
-from sc2bot.bot_response import render
-from sc2bot.client import get_battle_tag_info
-from sc2bot.client import resolve_player_display_name
-from sc2bot.client import resolve_player_stats
-from sc2bot.commands import categories_dict
+from sc2bot.bot_response import BotResponse, render
+from sc2bot.client import get_battle_tag_info, resolve_player_display_name, resolve_player_stats
 from sc2bot.commands import command_names
 from sc2bot.database import session
-from sc2bot.database.helpers import add_player_stat
-from sc2bot.database.helpers import create_or_update_player
-from sc2bot.database.helpers import create_or_update_user
-from sc2bot.database.helpers import latest_stats
-from sc2bot.database.schema import User
-from sc2bot.emojis import league_emojis
-from sc2bot.emojis import race_emojis
-from sc2bot.emojis import region_emojis
+from sc2bot.database.helpers import (
+    add_player_stat,
+    create_or_update_player,
+    create_or_update_user,
+    latest_stats,
+)
+from sc2bot.database.schema import PlayerStat, User
+from sc2bot.emojis import league_emojis, race_emojis, region_emojis
 from sc2bot.plot import plot_mmr_history
 
 
-def help(command: str | None = None, **kwargs) -> BotResponse:
-    if command is None:
-        from sc2bot.routes import routes_by_category
-
-        return render("help", categories=routes_by_category, categories_dict=categories_dict)
-    for cmd in command_names.values():
-        if cmd == command:
-            return render(f"hlp_{cmd}")
-    return render("command_not_found", command=command)
-
-
-def set_battle_tag(battle_tag: str, **kwargs) -> BotResponse:
-    telegram_id = extract_from_kwargs("telegram_id", **kwargs)
-    telegram_username = extract_from_kwargs("telegram_username", **kwargs)
+def set_battle_tag(
+    battle_tag: str, *, telegram_id: int, telegram_username: str | None, **_kwargs: object
+) -> BotResponse:
 
     if not _is_valid_battle_tag(battle_tag):
         return render("invalid_battle_tag")
@@ -52,8 +37,7 @@ def set_battle_tag(battle_tag: str, **kwargs) -> BotResponse:
     )
 
 
-def retrieve_user(**kwargs) -> BotResponse:
-    telegram_id = extract_from_kwargs("telegram_id", **kwargs)
+def retrieve_user(*, telegram_id: int, **_kwargs: object) -> BotResponse:
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
         return render("user_not_found", goto=command_names["register"])
@@ -65,8 +49,7 @@ def retrieve_user(**kwargs) -> BotResponse:
     )
 
 
-def add_player(profile_uri: str, **kwargs) -> BotResponse:
-    telegram_id = extract_from_kwargs("telegram_id", **kwargs)
+def add_player(profile_uri: str, *, telegram_id: int, **_kwargs: object) -> BotResponse:
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
         return render("user_not_found", goto=command_names["register"])
@@ -91,8 +74,7 @@ def add_player(profile_uri: str, **kwargs) -> BotResponse:
     )
 
 
-def add_new_player_stats(**kwargs) -> BotResponse:
-    telegram_id = extract_from_kwargs("telegram_id", **kwargs)
+def add_new_player_stats(*, telegram_id: int, **_kwargs: object) -> BotResponse:
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
         return render("user_not_found", goto=command_names["register"])
@@ -106,24 +88,23 @@ def add_new_player_stats(**kwargs) -> BotResponse:
     )
 
 
-def list_users(**kwargs) -> BotResponse:
+def list_users(**_kwargs: object) -> BotResponse:
     users = session.db_session.query(User).order_by(User.id).all()
     return render("users", users=users)
 
 
-def rank(**kwargs) -> BotResponse:
-    best_by_user: dict = {}
+def rank(**_kwargs: object) -> BotResponse:
+    best_by_user: dict[int, PlayerStat] = {}
     for stat in latest_stats(session.db_session):
         best_by_user.setdefault(stat.player.user_id, stat)
     return _ranking("🤖Bot Ranking", list(best_by_user.values()))
 
 
-def ladders(**kwargs) -> BotResponse:
+def ladders(**_kwargs: object) -> BotResponse:
     return _ranking("🤖All ladders", latest_stats(session.db_session))
 
 
-def profile(**kwargs) -> BotResponse:
-    telegram_id = extract_from_kwargs("telegram_id", **kwargs)
+def profile(*, telegram_id: int, **_kwargs: object) -> BotResponse:
     user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
     if user is None:
         return render("user_not_found", goto=command_names["register"])
@@ -135,7 +116,7 @@ def profile(**kwargs) -> BotResponse:
     return response
 
 
-def _ranking(title: str, stats: list) -> BotResponse:
+def _ranking(title: str, stats: list[PlayerStat]) -> BotResponse:
     return render(
         "ranking",
         title=title,
@@ -154,13 +135,13 @@ def fetch_all_users() -> BotResponse:
 
 
 def _fetch_stats(user: User) -> None:
-    for player in user.players:  # type: ignore
+    for player in user.players:
         for player_stat in resolve_player_stats(player):
             add_player_stat(
                 session.db_session,
                 player,
-                player_stat.race,  # type: ignore
-                player_stat.league,  # type: ignore
+                player_stat.race,
+                player_stat.league,
                 player_stat.mmr,
                 player_stat.wins,
                 player_stat.losses,
@@ -168,15 +149,14 @@ def _fetch_stats(user: User) -> None:
             )
 
 
-def extract_from_kwargs(arg_name: str, **kwargs):
-    if arg_name not in kwargs:
-        raise TypeError(f"{arg_name} kwarg expected")
-    return kwargs[arg_name]
-
-
 def _is_valid_battle_tag(battle_tag: str) -> bool:
     pattern = (
-        r"(^([A-zÀ-ú][A-zÀ-ú0-9]{2,11})|(^([а-яёА-ЯЁÀ-ú][а-яёА-ЯЁ0-9À-ú]{2,11})))(#[0-9]{4,})$"
+        # A Latin or Cyrillic name, then #digits. The Cyrillic letters are escaped
+        # (\u0430-\u044f, \u0451, \u0410-\u042f, \u0401) so they can't be mistaken for Latin ones.
+        r"(^([A-zÀ-ú][A-zÀ-ú0-9]{2,11})"
+        r"|(^([\u0430-\u044f\u0451\u0410-\u042f\u0401À-ú]"
+        r"[\u0430-\u044f\u0451\u0410-\u042f\u04010-9À-ú]{2,11})))"
+        r"(#[0-9]{4,})$"
     )
     match = re.match(pattern, battle_tag)
     return bool(match)
