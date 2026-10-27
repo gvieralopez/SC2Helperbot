@@ -13,7 +13,7 @@ from matplotlib.ticker import MaxNLocator
 from sc2bot.database.data import Race
 from sc2bot.database.schema import PlayerStat, User
 
-region_names = {1: "US", 2: "EU", 3: "KR", 4: "TW"}
+region_names = {1: "US", 2: "EU", 3: "KR", 4: "TW", 5: "CN"}
 
 # Colour tells the race, line style the region, so 8 ladders stay readable.
 race_colors = {
@@ -22,7 +22,7 @@ race_colors = {
     Race.TERRAN: "#1F6FB5",
     Race.RANDOM: "#6B7280",
 }
-region_styles = {1: "--", 2: "-", 3: ":", 4: "-."}
+region_styles = {1: "--", 2: "-", 3: ":", 4: "-.", 5: (0, (5, 1, 1, 1, 1, 1))}
 
 # Sized for a phone screen: few large labels on a small canvas.
 FIGURE_SIZE = (6, 4.5)

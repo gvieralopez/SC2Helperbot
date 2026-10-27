@@ -1,0 +1,127 @@
+[
+  {
+    "season": 68,
+    "region": "US",
+    "league": {
+      "type": 4
+    },
+    "rating": 3732,
+    "wins": 6,
+    "losses": 4,
+    "lastPlayed": "2026-08-14T20:59:34Z",
+    "legacyUid": "201-0-1-1.10993388.3",
+    "members": [
+      {
+        "character": {
+          "realm": 1,
+          "region": "US",
+          "battlenetId": 10993388,
+          "name": "FarSeer#588"
+        },
+        "clan": {
+          "tag": "TIZA"
+        }
+      }
+    ]
+  },
+  {
+    "season": 68,
+    "region": "US",
+    "league": {
+      "type": 3
+    },
+    "rating": 3644,
+    "wins": 0,
+    "losses": 2,
+    "lastPlayed": "2026-08-14T20:17:10Z",
+    "legacyUid": "201-0-1-1.10993388.4",
+    "members": [
+      {
+        "character": {
+          "realm": 1,
+          "region": "US",
+          "battlenetId": 10993388,
+          "name": "FarSeer#588"
+        },
+        "clan": {
+          "tag": "TIZA"
+        }
+      }
+    ]
+  },
+  {
+    "season": 68,
+    "region": "EU",
+    "league": {
+      "type": 4
+    },
+    "rating": 3572,
+    "wins": 18,
+    "losses": 16,
+    "lastPlayed": "2026-08-16T19:19:53Z",
+    "legacyUid": "201-0-2-1.8972769.3",
+    "members": [
+      {
+        "character": {
+          "realm": 1,
+          "region": "EU",
+          "battlenetId": 8972769,
+          "name": "FarSeer#459"
+        },
+        "clan": {
+          "tag": "H2OKT"
+        }
+      }
+    ]
+  },
+  {
+    "season": 68,
+    "region": "US",
+    "league": {
+      "type": 3
+    },
+    "rating": 2943,
+    "wins": 0,
+    "losses": 2,
+    "lastPlayed": "2026-08-14T20:30:30Z",
+    "legacyUid": "201-0-1-1.10993388.2",
+    "members": [
+      {
+        "character": {
+          "realm": 1,
+          "region": "US",
+          "battlenetId": 10993388,
+          "name": "FarSeer#588"
+        },
+        "clan": {
+          "tag": "TIZA"
+        }
+      }
+    ]
+  },
+  {
+    "season": 68,
+    "region": "US",
+    "league": {
+      "type": 1
+    },
+    "rating": 2599,
+    "wins": 0,
+    "losses": 1,
+    "lastPlayed": "2026-08-13T22:06:15Z",
+    "legacyUid": "201-0-1-1.10993388.1",
+    "members": [
+      {
+        "character": {
+          "realm": 1,
+          "region": "US",
+          "battlenetId": 10993388,
+          "name": "FarSeer#588"
+        },
+        "clan": {
+          "tag": "TIZA"
+        }
+      }
+    ]
+  }
+]

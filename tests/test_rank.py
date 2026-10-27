@@ -22,7 +22,8 @@ def test_latest_stats_of_one_user(ladders: tuple[User, User]) -> None:
 
 def test_rank_best_ladder_per_user(ladders: tuple[User, User]) -> None:
     text = rank(telegram_id=1).text
-    assert text.index("QuxEU") < text.index("FooEU")
+    # Users by their Battle Tag name: "Qux" (3500) above "bar" (3100).
+    assert text.index("Qux") < text.index("bar")
     assert "#1" in text and "#2" in text and "#3" not in text
     assert "3500" in text and "3100" in text
     assert "2500" not in text and "3000" not in text

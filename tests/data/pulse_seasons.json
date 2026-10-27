@@ -1,0 +1,38 @@
+[
+  {
+    "battlenetId": 68,
+    "region": "KR",
+    "year": 2026,
+    "number": 3
+  },
+  {
+    "battlenetId": 68,
+    "region": "EU",
+    "year": 2026,
+    "number": 3
+  },
+  {
+    "battlenetId": 68,
+    "region": "US",
+    "year": 2026,
+    "number": 3
+  },
+  {
+    "battlenetId": 67,
+    "region": "KR",
+    "year": 2026,
+    "number": 2
+  },
+  {
+    "battlenetId": 67,
+    "region": "EU",
+    "year": 2026,
+    "number": 2
+  },
+  {
+    "battlenetId": 67,
+    "region": "US",
+    "year": 2026,
+    "number": 2
+  }
+]

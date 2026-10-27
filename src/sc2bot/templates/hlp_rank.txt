@@ -1,4 +1,1 @@
-Shows the best 1v1 ladder of each user, sorted by MMR.
-
-You just need to text me: /rank
-(with no additional parameters)
+/rank shows the best 1v1 ladder of each user, sorted by MMR.

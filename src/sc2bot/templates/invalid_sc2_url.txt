@@ -1,1 +1,0 @@
-The provided URL is not correct. It should look like this: {{ url_template }}

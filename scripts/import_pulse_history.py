@@ -21,9 +21,8 @@ import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from sc2bot.client.config import REALM_ID
-from sc2bot.client.sc2_pulse import API
-from sc2bot.database.data import League, Race
+from sc2bot.client.sc2_pulse import API, LEAGUES, RACES, toon_handle
+from sc2bot.database.data import Race
 from sc2bot.database.schema import Base, Player, PlayerStat
 
 logger = logging.getLogger(__name__)
@@ -33,10 +32,6 @@ FIELDS = ["TIMESTAMP", "RATING", "LEAGUE_TYPE", "WINS", "GAMES"]
 TEAMS_LIMIT = 200  # the API rejects larger pages
 HISTORIES_PER_CALL = 10  # the API's maximum
 PAUSE = 0.5  # seconds between calls, to go easy on a free service
-
-# The last part of a team legacy uid ("201-0-2-1.8972769.3") is the race.
-RACES = {"1": Race.TERRAN, "2": Race.PROTOSS, "3": Race.ZERG, "4": Race.RANDOM}
-LEAGUES = {league.value: league for league in League}
 
 
 @dataclass
@@ -63,7 +58,7 @@ def main(connection_string: str) -> Report:
 
 
 def _import_player(db_session: Session, player: Player, report: Report) -> None:
-    handle = f"{player.region_id}-S2-{REALM_ID}-{player.profile_id}"
+    handle = toon_handle(player)
     stats = _fetch_history(player, handle)
     if stats is None:
         report.not_found.append(handle)

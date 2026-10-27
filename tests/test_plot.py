@@ -47,6 +47,13 @@ def test_plot_any_time_span_without_warnings(user: User, player: Player, span: t
     assert image.startswith(b"\x89PNG")
 
 
+@pytest.mark.parametrize("region_id", [1, 2, 3, 4, 5])
+def test_plot_every_region(user: User, player: Player, region_id: int) -> None:
+    player.region_id = region_id
+    _add_history(player, [START, START + timedelta(days=2)])
+    assert plot_mmr_history(user).startswith(b"\x89PNG")
+
+
 def test_window_series_starts_at_the_mmr_held_when_the_window_opens() -> None:
     stats = [PlayerStat(created_at=START + timedelta(days=day), mmr=day) for day in (0, 10, 20)]
     series = window_series(stats, START + timedelta(days=15))

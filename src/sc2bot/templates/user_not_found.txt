@@ -1,1 +1,1 @@
-You need to /{{ goto }} first.
+First /{{ goto }} your Battle Tag: <code>/{{ goto }} MyName#1234</code>

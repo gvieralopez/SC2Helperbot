@@ -1,7 +1,1 @@
-Shows all available commands.
-
-You just need to text me: /help
-(with no additional parameters)
-
-In case you want to get help for scpecific commands, you can ask:
-<code>/help command</code>
+/help lists the commands, and <code>/help command</code> explains one, e.g. /help_rank

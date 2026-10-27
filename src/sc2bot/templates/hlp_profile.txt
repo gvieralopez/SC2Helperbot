@@ -1,4 +1,1 @@
-Shows your current 1v1 ladders and a plot of your MMR over time.
-
-You just need to text me: /profile
-(with no additional parameters)
+/profile shows your 1v1 ladders and a chart of your MMR over the last 6 months played.

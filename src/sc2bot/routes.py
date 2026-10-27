@@ -6,9 +6,9 @@ from sc2bot.commands import Category, categories_dict
 from sc2bot.commands import command_names as cn
 from sc2bot.controller import (
     add_new_player_stats,
-    add_player,
     ladders,
     list_users,
+    ping_outside_a_group,
     profile,
     rank,
     retrieve_user,
@@ -40,15 +40,15 @@ def help_command(command: str | None = None, **_kwargs: object) -> BotResponse:
 
 
 _routes = [
-    Route(cn["help"], help_command, Category.GENERAL),
-    Route(cn["register"], set_battle_tag, Category.CONFIG),
-    Route(cn["link"], add_player, Category.CONFIG),
-    Route(cn["user"], retrieve_user, Category.GENERAL),
-    Route(cn["fetch"], add_new_player_stats, Category.GENERAL),
-    Route(cn["users"], list_users, Category.GENERAL),
-    Route(cn["rank"], rank, Category.GENERAL),
-    Route(cn["ladders"], ladders, Category.GENERAL),
-    Route(cn["profile"], profile, Category.GENERAL),
+    Route(cn["register"], set_battle_tag, Category.YOU),
+    Route(cn["user"], retrieve_user, Category.YOU),
+    Route(cn["profile"], profile, Category.YOU),
+    Route(cn["fetch"], add_new_player_stats, Category.YOU),
+    Route(cn["rank"], rank, Category.EVERYONE),
+    Route(cn["ladders"], ladders, Category.EVERYONE),
+    Route(cn["users"], list_users, Category.EVERYONE),
+    Route(cn["ping"], ping_outside_a_group, Category.EVERYONE),
+    Route(cn["help"], help_command, Category.EVERYONE),
 ]
 
 

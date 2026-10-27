@@ -13,12 +13,12 @@ def test_every_route_has_help_and_description(name: str) -> None:
     route = routes[name]
     assert route.description.strip()
     assert route.help.text.strip()
-    assert f"/help {name}" in route.error.text
+    assert f"/help_{name}" in route.error.text
 
 
 def test_routes_by_category() -> None:
-    assert set(routes_by_category[Category.CONFIG]) == {"register", "link"}
-    assert "rank" in routes_by_category[Category.GENERAL]
+    assert set(routes_by_category[Category.YOU]) == {"register", "user", "profile", "fetch"}
+    assert "rank" in routes_by_category[Category.EVERYONE]
 
 
 def test_general_help_lists_every_command() -> None:
@@ -32,4 +32,4 @@ def test_help_of_one_command() -> None:
 
 
 def test_help_of_unknown_command() -> None:
-    assert "not found" in help_command("nope").text
+    assert "no /nope command" in help_command("nope").text

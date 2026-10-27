@@ -1,0 +1,1 @@
+📣 {% for user in users %}{{ user | mention }}{% if not loop.last %} {% endif %}{% else %}Nobody else in this group is in the bot: /register first.{% endfor %}

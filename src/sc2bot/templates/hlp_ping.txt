@@ -1,0 +1,1 @@
+/ping in a group mentions everyone in the bot who is in that group, four per message (Telegram only notifies the first four mentions of a message).

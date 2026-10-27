@@ -16,7 +16,7 @@ def test_profile_without_ladders(user: User) -> None:
 
 def test_profile(ladders: tuple[User, User]) -> None:
     response = profile(telegram_id=1)
-    assert "bar ladders" in response.text
+    assert "bar" in response.text
     assert "3100" in response.text and "2500" in response.text
-    assert "QuxEU" not in response.text
+    assert "Qux" not in response.text and "3500" not in response.text
     assert response.image is not None and response.image.startswith(b"\x89PNG")

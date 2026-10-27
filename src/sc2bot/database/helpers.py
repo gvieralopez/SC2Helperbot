@@ -1,7 +1,6 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from sc2bot.database.data import League, Race
 from sc2bot.database.schema import Player, PlayerStat, User
 
 
@@ -38,30 +37,6 @@ def create_or_update_player(
     db_session.add(player)
     db_session.commit()
     return player
-
-
-def add_player_stat(
-    db_session: Session,
-    player: Player,
-    race: Race,
-    league: League,
-    mmr: int,
-    wins: int,
-    losses: int,
-    clan_tag: str | None,
-) -> PlayerStat:
-    player_stat = PlayerStat(
-        player_id=player.id,
-        race=race,
-        league=league,
-        mmr=mmr,
-        wins=wins,
-        losses=losses,
-        clan_tag=clan_tag,
-    )
-    db_session.add(player_stat)
-    db_session.commit()
-    return player_stat
 
 
 def latest_stats(db_session: Session, user: User | None = None) -> list[PlayerStat]:
