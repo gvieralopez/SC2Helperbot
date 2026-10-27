@@ -21,14 +21,14 @@ import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from sc2bot.client.sc2_pulse import API, LEAGUES, RACES, toon_handle
+from sc2bot.client.sc2_pulse import API, LEAGUES, RACES, tier, toon_handle
 from sc2bot.database.data import Race
 from sc2bot.database.schema import Base, Player, PlayerStat
 
 logger = logging.getLogger(__name__)
 
 HEADERS = {"User-Agent": "SC2Helperbot history import (github.com/gvieralopez/SC2Helperbot)"}
-FIELDS = ["TIMESTAMP", "RATING", "LEAGUE_TYPE", "WINS", "GAMES"]
+FIELDS = ["TIMESTAMP", "RATING", "LEAGUE_TYPE", "TIER_TYPE", "WINS", "GAMES"]
 TEAMS_LIMIT = 200  # the API rejects larger pages
 HISTORIES_PER_CALL = 10  # the API's maximum
 PAUSE = 0.5  # seconds between calls, to go easy on a free service
@@ -100,7 +100,7 @@ def _stats(player: Player, race: Race, history: dict, clan_tag: str | None) -> l
     stats = []
     last_wins = 0
     columns = (history[name] for name in FIELDS)
-    for timestamp, rating, league, reported_wins, games in zip(*columns, strict=True):
+    for timestamp, rating, league, tier_type, reported_wins, games in zip(*columns, strict=True):
         # About a third of the points have no wins: take the last known ones, like the old history.
         wins = min(last_wins if reported_wins is None else reported_wins, games)
         last_wins = wins
@@ -108,6 +108,7 @@ def _stats(player: Player, race: Race, history: dict, clan_tag: str | None) -> l
             player_id=player.id,
             race=race,
             league=LEAGUES[league],
+            tier=tier(tier_type),
             mmr=rating,
             wins=wins,
             losses=games - wins,

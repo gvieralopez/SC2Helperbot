@@ -67,6 +67,7 @@ def _history(uid: str, points: list[tuple[int, int, int, int | None, int]]) -> d
             "TIMESTAMP": timestamps,
             "RATING": ratings,
             "LEAGUE_TYPE": leagues,
+            "TIER_TYPE": [1] * len(points),  # tier 2 of each league
             "WINS": wins,
             "GAMES": games,
         },
@@ -107,6 +108,7 @@ def test_import_pulse_history(database: tuple[str, sessionmaker[Session]]) -> No
     assert (season_43.race, season_43.league, season_43.mmr) == (Race.ZERG, League.GOLD, 2900)
     assert (season_43.wins, season_43.losses, season_43.clan_tag) == (10, 10, "H2OKT")
     assert season_43.created_at == datetime(2020, 6, 10)
+    assert season_43.tier == 2
     assert sample.created_at == datetime(2022, 2, 4, 17, 30)
     assert (random.race, random.league, random.mmr, random.losses) == (
         Race.RANDOM,

@@ -86,6 +86,11 @@ def current_seasons() -> dict[int, int]:
     return seasons
 
 
+def tier(tier_type: int | str) -> int:
+    """The league tier, 1 (top) to 3, from SC2 Pulse's tier type (0 is the top tier)."""
+    return int(tier_type) + 1
+
+
 def toon_handle(player: Player) -> str:
     return f"{player.region_id}-S2-{REALM}-{player.profile_id}"
 
@@ -98,6 +103,7 @@ def _stat(player: Player, team: dict[str, Any]) -> PlayerStat:
         player_id=player.id,
         race=RACES[team["legacyUid"].rsplit(".", 1)[1]],
         league=LEAGUES[team["league"]["type"]],
+        tier=tier(team["tierType"]),
         mmr=team["rating"],
         wins=team["wins"],
         losses=team["losses"],

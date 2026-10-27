@@ -202,6 +202,8 @@ def _fetch_stats(players: list[Player]) -> None:
         last = latest.get((stat.player_id, stat.race))
         games = stat.wins + stat.losses
         if last and (last.mmr, last.wins + last.losses) == (stat.mmr, games):
+            if last.tier is None:  # stored before tiers were
+                last.tier = stat.tier
             continue
         session.db_session.add(stat)
     session.db_session.commit()

@@ -89,6 +89,16 @@ uv run python -m scripts.import_pulse_history sqlite:///p/to/db.db
 
 Profiles, ladders and history by [SC2 Pulse](https://sc2pulse.nephest.com/sc2), free for non-commercial use with credit.
 
+### Upgrading a database from before 0.3.0
+
+0.3.0 stores the league tier of each stat. Before starting it on an older database, with the bot stopped, add the column once:
+
+```bash
+uv run python -m scripts.add_tier_column sqlite:///p/to/db.db
+```
+
+Older stats keep no tier; the next daily fetch fills it in for everyone's current ladders.
+
 ## Development
 
 Setup, QA and releases: [DEVELOPMENT.md](DEVELOPMENT.md).
