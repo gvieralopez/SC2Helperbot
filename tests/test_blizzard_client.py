@@ -1,7 +1,9 @@
 import base64
 import re
+from typing import Any
 from unittest.mock import MagicMock
 
+import pytest
 import requests_mock
 
 from sc2bot.client.blizzard import BlizzardAuthorizedResolver, BlizzardResolver
@@ -10,8 +12,10 @@ from sc2bot.database.schema import Player
 
 
 def test_player_stats(
-    fake_ladder_info_response_1, fake_ladder_info_response_2, fake_ladder_summary_response
-):
+    fake_ladder_info_response_1: Any,
+    fake_ladder_info_response_2: Any,
+    fake_ladder_summary_response: Any,
+) -> None:
     base_url = "http://api.com"
     profile_id = 10993388
     with requests_mock.Mocker() as m:
@@ -33,7 +37,7 @@ def test_player_stats(
             Player(id=111, region_id=1, profile_id=profile_id)
         )
     assert len(stats) == 2
-    stats.sort(key=lambda l: l.mmr)
+    stats.sort(key=lambda stat: stat.mmr)
     s = stats[0]
     expected = 111, Race.PROTOSS, League.MASTER, 3038, 0, 1, "LRCUB"
     assert (s.player_id, s.race, s.league, s.mmr, s.wins, s.losses, s.clan_tag) == expected
@@ -42,7 +46,7 @@ def test_player_stats(
     assert (s.player_id, s.race, s.league, s.mmr, s.wins, s.losses, s.clan_tag) == expected
 
 
-def test_player_display_name(fake_metadata_response):
+def test_player_display_name(fake_metadata_response: Any) -> None:
     base_url = "http://api.com"
     profile_id = 10993388
     with requests_mock.Mocker() as m:
@@ -53,7 +57,7 @@ def test_player_display_name(fake_metadata_response):
     assert display_name == "FarSeer"
 
 
-def test_obtain_token(monkeypatch):
+def test_obtain_token(monkeypatch: pytest.MonkeyPatch) -> None:
     base_url = "http://api.com"
     auth_url = "http://auth.com"
     with requests_mock.Mocker() as m:

@@ -37,9 +37,3 @@ class League(Enum):
             "master": League.MASTER,
             "grand master": League.GRAND_MASTER,
         }[raw.lower()]
-
-
-def get_enum_value(enum_type, entry_name: str) -> Race | None:
-    if hasattr(enum_type, entry_name):
-        return enum_type[entry_name]
-    return None

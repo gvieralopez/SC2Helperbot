@@ -7,6 +7,7 @@ import pytest
 from sc2bot import __main__ as bot_main
 from sc2bot.bot_response import BotResponse
 from sc2bot.database.schema import User
+from sc2bot.routes import routes
 
 
 def _message(text: str) -> Any:
@@ -44,7 +45,7 @@ async def test_failing_command_answers_its_usage(db: None, monkeypatch: pytest.M
     def fail(*_args: str, **_kwargs: object) -> BotResponse:
         raise ValueError
 
-    monkeypatch.setattr(bot_main.routes["user"], "target", fail)
+    monkeypatch.setattr(routes["user"], "target", fail)
     message = _message("/user")
     await bot_main.handle_command(message, _bot())
     assert "/help user" in message.answer.await_args.args[0]

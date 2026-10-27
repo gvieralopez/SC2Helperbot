@@ -104,6 +104,8 @@ skip-magic-trailing-comma = true
 [tool.mypy]
 python_version = "3.14"
 files = ["src", "scripts", "tests"]
+# matplotlib.dates ships without type hints for its locators and formatters.
+untyped_calls_exclude = ["matplotlib.dates"]
 warn_unused_configs = true
 warn_redundant_casts = true
 warn_unused_ignores = true
@@ -119,6 +121,10 @@ no_implicit_reexport = true
 warn_return_any = true
 extra_checks = true
 
+
+[[tool.mypy.overrides]]
+module = ["apscheduler.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"

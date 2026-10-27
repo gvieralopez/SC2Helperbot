@@ -1,5 +1,7 @@
 import json
+from collections.abc import Callable, Iterator
 from pathlib import Path
+from typing import Any
 
 import pytest
 from sqlalchemy import create_engine
@@ -11,22 +13,25 @@ from sc2bot.database.schema import Base, Player, PlayerStat, User
 
 
 @pytest.fixture()
-def data_folder():
+def data_folder() -> Path:
     return Path(__file__).parent / "data"
 
 
 @pytest.fixture()
-def db(monkeypatch):
+def db(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(bind=engine)
     session_maker = sessionmaker(bind=engine)
-    monkeypatch.setattr(session, "db_session", session_maker())
+    db_session = session_maker()
+    monkeypatch.setattr(session, "db_session", db_session)
     yield
+    db_session.close()
     Base.metadata.drop_all(bind=engine)
+    engine.dispose()
 
 
 @pytest.fixture
-def user(db) -> User:
+def user(db: None) -> User:
     user = User(telegram_id=1, telegram_username="foo", battle_tag="bar")
     session.db_session.add(user)
     session.db_session.commit()
@@ -34,37 +39,37 @@ def user(db) -> User:
 
 
 @pytest.fixture()
-def fake_metadata_response(data_folder):
+def fake_metadata_response(data_folder: Path) -> Any:
     with Path(data_folder / "fake_metadata.json").open() as f:
         return json.load(f)
 
 
 @pytest.fixture()
-def fake_battle_tag_response(data_folder):
+def fake_battle_tag_response(data_folder: Path) -> Any:
     with Path(data_folder / "fake_battle_tag_info.json").open() as f:
         return json.load(f)
 
 
 @pytest.fixture()
-def fake_ladder_info_response_1(data_folder):
+def fake_ladder_info_response_1(data_folder: Path) -> Any:
     with Path(data_folder / "fake_ladder_info_1.json").open() as f:
         return json.load(f)
 
 
 @pytest.fixture()
-def fake_ladder_info_response_2(data_folder):
+def fake_ladder_info_response_2(data_folder: Path) -> Any:
     with Path(data_folder / "fake_ladder_info_2.json").open() as f:
         return json.load(f)
 
 
 @pytest.fixture()
-def fake_ladder_summary_response(data_folder):
+def fake_ladder_summary_response(data_folder: Path) -> Any:
     with Path(data_folder / "fake_ladder_summary.json").open() as f:
         return json.load(f)
 
 
 @pytest.fixture()
-def add_stat():
+def add_stat() -> Callable[..., PlayerStat]:
     def _add_stat(player: Player, race: Race, mmr: int, league: League = League.GOLD) -> PlayerStat:
         stat = PlayerStat(
             player_id=player.id,
@@ -83,7 +88,7 @@ def add_stat():
 
 
 @pytest.fixture()
-def ladders(user: User, add_stat):
+def ladders(user: User, add_stat: Callable[..., PlayerStat]) -> tuple[User, User]:
     """Two users: foo (EU zerg + US terran, zerg played twice) and qux (EU protoss)."""
     other = User(telegram_id=2, telegram_username="qux", battle_tag="Qux#1234")
     session.db_session.add(other)

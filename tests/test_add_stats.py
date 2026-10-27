@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 import requests_mock
 
@@ -5,11 +7,11 @@ from sc2bot import controller
 from sc2bot.controller import add_new_player_stats, fetch_all_users
 from sc2bot.database import session
 from sc2bot.database.data import League, Race
-from sc2bot.database.schema import Player
+from sc2bot.database.schema import Player, PlayerStat, User
 
 
 @pytest.fixture()
-def player_1(user) -> Player:
+def player_1(user: User) -> Player:
     player = Player(user_id=user.id, region_id=1, profile_id=10993388, display_name="baz")
     session.db_session.add(player)
     session.db_session.commit()
@@ -17,19 +19,19 @@ def player_1(user) -> Player:
 
 
 @pytest.fixture()
-def player_2(user) -> Player:
-    player = Player(user_id=user.id, region_id=1, profile_id=10993388, display_name="quz")
+def player_2(user: User) -> Player:
+    player = Player(user_id=user.id, region_id=2, profile_id=10993388, display_name="quz")
     session.db_session.add(player)
     session.db_session.commit()
     return player
 
 
-def test_add_player_wrong_user(db):
+def test_add_player_wrong_user(db: None) -> None:
     response = add_new_player_stats(telegram_id=1)
     assert "register" in response.text
 
 
-def test_add_player_stats_no_player(user):
+def test_add_player_stats_no_player(user: User) -> None:
     response = add_new_player_stats(telegram_id=1)
     assert user.battle_tag in response.text
     assert user.telegram_username and user.telegram_username in response.text
@@ -38,17 +40,17 @@ def test_add_player_stats_no_player(user):
 def test_add_player_stats(
     player_1: Player,
     player_2: Player,
-    fake_ladder_summary_response,
-    fake_ladder_info_response_1,
-    fake_ladder_info_response_2,
-):
+    fake_ladder_summary_response: Any,
+    fake_ladder_info_response_1: Any,
+    fake_ladder_info_response_2: Any,
+) -> None:
     with requests_mock.Mocker() as m:
         m.get(
             f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_1.profile_id}/ladder/summary",
             json=fake_ladder_summary_response,
         )
         m.get(
-            f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_2.profile_id}/ladder/summary",
+            f"https://starcraft2.com/en-us/api/sc2/profile/2/1/{player_2.profile_id}/ladder/summary",
             json=fake_ladder_summary_response,
         )
         (
@@ -59,7 +61,7 @@ def test_add_player_stats(
         )
         (
             m.get(
-                f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_2.profile_id}/ladder/307413",
+                f"https://starcraft2.com/en-us/api/sc2/profile/2/1/{player_2.profile_id}/ladder/307413",
                 json=fake_ladder_info_response_1,
             ),
         )
@@ -68,7 +70,7 @@ def test_add_player_stats(
             json=fake_ladder_info_response_2,
         )
         m.get(
-            f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_2.profile_id}/ladder/307173",
+            f"https://starcraft2.com/en-us/api/sc2/profile/2/1/{player_2.profile_id}/ladder/307173",
             json=fake_ladder_info_response_2,
         )
         response = add_new_player_stats(telegram_id=1)
@@ -88,11 +90,14 @@ def test_add_player_stats(
     assert (s2p2.race, s2p2.league, s2p2.mmr, s2p2.wins, s2p2.losses, s2p2.clan_tag) == expected_s2
 
 
-def test_fetch_all_users(ladders, monkeypatch):
-    fetched = []
-    monkeypatch.setattr(
-        controller, "resolve_player_stats", lambda player: fetched.append(player) or []
-    )
+def test_fetch_all_users(ladders: tuple[User, User], monkeypatch: pytest.MonkeyPatch) -> None:
+    fetched: list[Player] = []
+
+    def fake_resolve(player: Player) -> list[PlayerStat]:
+        fetched.append(player)
+        return []
+
+    monkeypatch.setattr(controller, "resolve_player_stats", fake_resolve)
     response = fetch_all_users()
     assert {player.display_name for player in fetched} == {"FooEU", "FooUS", "QuxEU"}
     assert "Bot Ranking" in response.text and "QuxEU" in response.text

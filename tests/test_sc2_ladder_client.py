@@ -1,15 +1,15 @@
+from typing import Any
+
 import requests_mock
 
 from sc2bot.client.sc2_ladder import get_battle_tag_info
 from sc2bot.database.schema import User
 
 
-def test_battle_tag_info(fake_battle_tag_response):
+def test_battle_tag_info(fake_battle_tag_response: Any) -> None:
     battle_tag = "foo"
     with requests_mock.Mocker() as m:
-        m.get(
-            f"http://www.sc2ladder.com/api/player?query={battle_tag}", json=fake_battle_tag_response
-        )
+        m.get("http://www.sc2ladder.com/api/player", json=fake_battle_tag_response)
         players = get_battle_tag_info(User(id=111, battle_tag=battle_tag))
 
     assert len(players) == 1

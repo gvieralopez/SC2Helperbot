@@ -6,6 +6,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 from matplotlib import dates as mdates
+from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 
@@ -56,7 +57,7 @@ def plot_mmr_history(user: User) -> bytes:
             x, y, recent = series
             times += x
             axes.plot(
-                [*x, newest],
+                mdates.date2num([*x, newest]),
                 [*y, y[-1]],
                 drawstyle="steps-post",
                 color=race_colors[race],
@@ -107,7 +108,7 @@ def _ladders(user: User) -> list[tuple[int, Race, list[PlayerStat]]]:
     return ladders
 
 
-def _style(figure: Figure, axes, title: str, times: list) -> None:
+def _style(figure: Figure, axes: Axes, title: str, times: list[datetime]) -> None:
     axes.set_title(title)
     axes.set_ylabel("MMR")
     axes.grid(alpha=0.4)
@@ -119,7 +120,9 @@ def _style(figure: Figure, axes, title: str, times: list) -> None:
     if times and max(times) - min(times) < timedelta(days=1):
         # One day of data: show the day around it instead of an arbitrary range.
         middle = min(times) + (max(times) - min(times)) / 2
-        axes.set_xlim(middle - timedelta(days=1), middle + timedelta(days=1))
+        axes.set_xlim(
+            mdates.date2num(middle - timedelta(days=1)), mdates.date2num(middle + timedelta(days=1))
+        )
     lines = len(axes.get_lines())
     figure.legend(
         loc="outside lower center",

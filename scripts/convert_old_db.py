@@ -54,6 +54,8 @@ def main(old_db: Path, history_dir: Path, connection_string: str) -> Report:
         db_session.commit()
     finally:
         db_session.close()
+        old.close()
+        engine.dispose()
     return report
 
 
@@ -155,7 +157,7 @@ def _read_history(history_dir: Path, ladder_id: int) -> list[tuple[datetime, int
         return []
     history = json.loads(history_file.read_text())
     dates = [datetime.strptime(date, "%d-%m-%Y") for date in history["dates"]]
-    return list(zip(dates, history["mmrs"]))
+    return list(zip(dates, history["mmrs"], strict=True))
 
 
 def _parse_datetime(raw: str) -> datetime:
@@ -165,6 +167,8 @@ def _parse_datetime(raw: str) -> datetime:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     result = main(Path(argv[1]), Path(argv[2]), argv[3])
-    logger.info(f"Converted {result.users} users, {result.players} players, {result.stats} stats")
+    logger.info(
+        "Converted %s users, %s players, %s stats", result.users, result.players, result.stats
+    )
     for reason in result.skipped:
-        logger.warning(f"Skipped {reason}")
+        logger.warning("Skipped %s", reason)

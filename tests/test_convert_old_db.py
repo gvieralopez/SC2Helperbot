@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 from scripts.convert_old_db import main
@@ -30,7 +31,7 @@ UPDATED = "2022-03-21 17:30:05.123456"
 
 
 @pytest.fixture()
-def old_data(tmp_path):
+def old_data(tmp_path: Path) -> tuple[Path, Path]:
     old_db = tmp_path / "sc2.db"
     connection = sqlite3.connect(old_db)
     connection.executescript(OLD_SCHEMA)
@@ -51,6 +52,7 @@ def old_data(tmp_path):
         ],
     )
     connection.commit()
+    connection.close()
     history = tmp_path / "history"
     history.mkdir()
     # Ladder 1: two old points plus a last one on the day of the last update (not repeated).
@@ -61,13 +63,14 @@ def old_data(tmp_path):
     return old_db, history
 
 
-def test_convert_old_db(old_data, tmp_path):
+def test_convert_old_db(old_data: tuple[Path, Path], tmp_path: Path) -> None:
     new_db = f"sqlite:///{tmp_path / 'new.db'}"
     report = main(*old_data, new_db)
 
     assert (report.users, report.players, report.stats) == (2, 3, 6)
     assert report.skipped == ["ladder 4: user has no profile in region", "h16.json: no ladder"]
-    with Session(create_engine(new_db)) as db_session:
+    engine = create_engine(new_db)
+    with Session(engine) as db_session:
         foo = db_session.query(User).filter_by(telegram_id=100).one()
         assert (foo.telegram_username, foo.battle_tag) == ("@foo", "Foo#1234")
         players = {player.region_id: player for player in foo.players}
@@ -89,9 +92,10 @@ def test_convert_old_db(old_data, tmp_path):
         assert bar.display_name == "Bar"
         assert [stat.mmr for stat in bar.stats] == [3900, 4000]
         assert db_session.query(PlayerStat).count() == 6
+    engine.dispose()
 
 
-def test_convert_refuses_a_database_with_users(old_data, tmp_path):
+def test_convert_refuses_a_database_with_users(old_data: tuple[Path, Path], tmp_path: Path) -> None:
     new_db = f"sqlite:///{tmp_path / 'new.db'}"
     main(*old_data, new_db)
     with pytest.raises(SystemExit):

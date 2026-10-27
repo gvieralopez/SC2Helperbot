@@ -2,15 +2,11 @@ import asyncio
 import logging
 import os
 
-from aiogram import Bot
-from aiogram import Dispatcher
-from aiogram import F
-from aiogram import Router
+from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramAPIError
-from aiogram.types import BufferedInputFile
-from aiogram.types import Message
+from aiogram.types import BufferedInputFile, Message
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from sc2bot.bot_response import BotResponse

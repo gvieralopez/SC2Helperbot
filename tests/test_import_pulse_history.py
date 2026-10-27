@@ -1,11 +1,13 @@
+from collections.abc import Iterator
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 import requests_mock
 from scripts import import_pulse_history
 from scripts.import_pulse_history import main
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from sc2bot.database.data import League, Race
 from sc2bot.database.schema import Base, Player, PlayerStat, User
@@ -17,12 +19,12 @@ SEASON_43 = int(datetime(2020, 6, 10, tzinfo=UTC).timestamp())
 
 
 @pytest.fixture(autouse=True)
-def no_pause(monkeypatch):
+def no_pause(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(import_pulse_history, "PAUSE", 0)
 
 
 @pytest.fixture()
-def database(tmp_path):
+def database(tmp_path: Path) -> Iterator[tuple[str, sessionmaker[Session]]]:
     connection_string = f"sqlite:///{tmp_path / 'db.db'}"
     engine = create_engine(connection_string)
     Base.metadata.create_all(engine)
@@ -46,6 +48,7 @@ def database(tmp_path):
     )
     db_session.add(sample)
     db_session.commit()
+    db_session.close()
     yield connection_string, sessionmaker(bind=engine)
     engine.dispose()
 
@@ -54,8 +57,10 @@ def _team(uid: str) -> dict:
     return {"legacyUid": uid, "members": [{"clan": {"tag": "H2OKT"}}]}
 
 
-def _history(uid: str, points: list[tuple[int, int, int, int, int]]) -> dict:
-    timestamps, ratings, leagues, wins, games = (list(column) for column in zip(*points))
+def _history(uid: str, points: list[tuple[int, int, int, int | None, int]]) -> dict:
+    timestamps, ratings, leagues, wins, games = (
+        list(column) for column in zip(*points, strict=True)
+    )
     return {
         "staticData": {"LEGACY_UID": uid},
         "history": {
@@ -68,7 +73,7 @@ def _history(uid: str, points: list[tuple[int, int, int, int, int]]) -> dict:
     }
 
 
-def _mock_pulse(mocker):
+def _mock_pulse(mocker: requests_mock.Mocker) -> None:
     zerg, random = "201-0-2-1.8972769.3", "201-0-2-1.8972769.4"
     mocker.get(
         f"{API}/character-teams?toonHandle=2-S2-1-8972769",
@@ -84,7 +89,7 @@ def _mock_pulse(mocker):
     )
 
 
-def test_import_pulse_history(database):
+def test_import_pulse_history(database: tuple[str, sessionmaker[Session]]) -> None:
     connection_string, session_maker = database
     with requests_mock.Mocker() as mocker:
         _mock_pulse(mocker)
@@ -96,7 +101,8 @@ def test_import_pulse_history(database):
     assert len(histories) == 1
     assert set(histories[0].qs["teamlegacyuid"]) == {"201-0-2-1.8972769.3", "201-0-2-1.8972769.4"}
 
-    stats = session_maker().query(PlayerStat).order_by(PlayerStat.created_at).all()
+    with session_maker() as db_session:
+        stats = db_session.query(PlayerStat).order_by(PlayerStat.created_at).all()
     season_43, sample, random, random_no_wins = stats
     assert (season_43.race, season_43.league, season_43.mmr) == (Race.ZERG, League.GOLD, 2900)
     assert (season_43.wins, season_43.losses, season_43.clan_tag) == (10, 10, "H2OKT")
@@ -111,11 +117,12 @@ def test_import_pulse_history(database):
     assert (random_no_wins.wins, random_no_wins.losses) == (5, 4)
 
 
-def test_import_twice_adds_nothing(database):
+def test_import_twice_adds_nothing(database: tuple[str, sessionmaker[Session]]) -> None:
     connection_string, session_maker = database
     with requests_mock.Mocker() as mocker:
         _mock_pulse(mocker)
         main(connection_string)
         report = main(connection_string)
     assert (report.added, report.skipped) == (0, 4)
-    assert session_maker().query(PlayerStat).count() == 4
+    with session_maker() as db_session:
+        assert db_session.query(PlayerStat).count() == 4

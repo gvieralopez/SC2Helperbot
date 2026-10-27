@@ -15,6 +15,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from sys import argv
+from typing import Any
 
 import requests
 from sqlalchemy import create_engine
@@ -57,6 +58,7 @@ def main(connection_string: str) -> Report:
         db_session.commit()
     finally:
         db_session.close()
+        engine.dispose()
     return report
 
 
@@ -86,7 +88,7 @@ def _fetch_history(player: Player, handle: str) -> list[PlayerStat] | None:
     if not teams:
         return None
     if len(teams) == TEAMS_LIMIT:
-        logger.warning(f"{handle}: {TEAMS_LIMIT} teams, the oldest seasons may be missing")
+        logger.warning("%s: %s teams, the oldest seasons may be missing", handle, TEAMS_LIMIT)
     clan_tag = (teams[0]["members"][0].get("clan") or {}).get("tag")
 
     stats = []
@@ -102,9 +104,10 @@ def _fetch_history(player: Player, handle: str) -> list[PlayerStat] | None:
 def _stats(player: Player, race: Race, history: dict, clan_tag: str | None) -> list[PlayerStat]:
     stats = []
     last_wins = 0
-    for timestamp, rating, league, wins, games in zip(*(history[name] for name in FIELDS)):
+    columns = (history[name] for name in FIELDS)
+    for timestamp, rating, league, reported_wins, games in zip(*columns, strict=True):
         # About a third of the points have no wins: take the last known ones, like the old history.
-        wins = min(last_wins if wins is None else wins, games)
+        wins = min(last_wins if reported_wins is None else reported_wins, games)
         last_wins = wins
         stat = PlayerStat(
             player_id=player.id,
@@ -121,19 +124,22 @@ def _stats(player: Player, race: Race, history: dict, clan_tag: str | None) -> l
     return stats
 
 
-def _get(endpoint: str, **params) -> list:
+def _get(endpoint: str, **params: str | int | list[str]) -> list[Any]:
     time.sleep(PAUSE)
     response = requests.get(f"{API}/{endpoint}", params=params, headers=HEADERS, timeout=60)
     response.raise_for_status()
-    return response.json()
+    data: list[Any] = response.json()
+    return data
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     result = main(argv[1])
     logger.info(
-        f"{result.players} players found: {result.added} points added, "
-        f"{result.skipped} already stored"
+        "%s players found: %s points added, %s already stored",
+        result.players,
+        result.added,
+        result.skipped,
     )
     for handle in result.not_found:
-        logger.warning(f"Not found on SC2 Pulse: {handle}")
+        logger.warning("Not found on SC2 Pulse: %s", handle)

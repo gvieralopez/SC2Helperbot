@@ -6,7 +6,7 @@ from sc2bot.database.schema import Player, PlayerStat, User
 
 
 def create_or_update_user(
-    db_session: Session, telegram_id: int, telegram_username: str, battle_tag: str
+    db_session: Session, telegram_id: int, telegram_username: str | None, battle_tag: str
 ) -> User:
     user = db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
 
@@ -79,6 +79,3 @@ def latest_stats(db_session: Session, user: User | None = None) -> list[PlayerSt
     if user is not None:
         query = query.join(Player).filter(Player.user_id == user.id)
     return sorted(query.all(), key=lambda stat: stat.mmr, reverse=True)
-
-
-# todo add db constraints (unique(telegram_id) and unique(region_id, profile_id)) - add unit test

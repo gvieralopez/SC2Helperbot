@@ -14,7 +14,9 @@ def resolve_player_display_name(region_id: int, profile_id: int) -> str:
             return resolver.resolve_player_display_name(region_id, profile_id)
         except Exception as e:
             logger.warning(
-                f"The resolver {resolver.base_url} couldn't retrieve the player display name: {e}"
+                "The resolver %s couldn't retrieve the player display name: %s",
+                resolver.base_url,
+                e,
             )
     raise RuntimeError("Player display name couldn't be resolved.")
 
@@ -25,7 +27,7 @@ def resolve_player_stats(player: Player) -> list[PlayerStat]:
             return resolver.resolve_player_stats(player)
         except Exception as e:
             logger.warning(
-                f"The resolver {resolver.base_url} couldn't retrieve the player stats: {e}"
+                "The resolver %s couldn't retrieve the player stats: %s", resolver.base_url, e
             )
     return []
 

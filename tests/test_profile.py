@@ -1,19 +1,20 @@
 from sc2bot.controller import profile
+from sc2bot.database.schema import User
 
 
-def test_profile_user_not_found(db):
+def test_profile_user_not_found(db: None) -> None:
     response = profile(telegram_id=1)
     assert "register" in response.text
     assert response.image is None
 
 
-def test_profile_without_ladders(user):
+def test_profile_without_ladders(user: User) -> None:
     response = profile(telegram_id=1)
     assert "No ladders" in response.text
     assert response.image is None
 
 
-def test_profile(ladders):
+def test_profile(ladders: tuple[User, User]) -> None:
     response = profile(telegram_id=1)
     assert "bar ladders" in response.text
     assert "3100" in response.text and "2500" in response.text

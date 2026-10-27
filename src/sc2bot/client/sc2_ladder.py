@@ -1,4 +1,6 @@
 import logging
+from http import HTTPStatus
+from typing import Any
 
 import requests
 
@@ -20,14 +22,15 @@ def get_battle_tag_info(user: User) -> list[Player]:
             for player_info in player_infos
         ]
     except Exception as e:
-        logger.warning(f"API call failed: {e}")
+        logger.warning("API call failed: %s", e)
         return []
 
 
-def make_get_request(battle_tag: str) -> list[dict]:
-    response = requests.get(f"{BASE_URL}/api/player?query={battle_tag}")
-    if response.status_code == 200:
-        return response.json()
+def make_get_request(battle_tag: str) -> list[dict[str, Any]]:
+    response = requests.get(f"{BASE_URL}/api/player", params={"query": battle_tag}, timeout=30)
+    if response.status_code == HTTPStatus.OK:
+        players: list[dict[str, Any]] = response.json()
+        return players
     raise ValueError(f"SC2 Ladder API Response status not ok: {response}({response.content!s})")
 
 
