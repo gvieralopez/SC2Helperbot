@@ -9,10 +9,10 @@ from scripts.import_pulse_history import main
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from sc2bot.client.sc2_pulse import API
 from sc2bot.database.data import League, Race
 from sc2bot.database.schema import Base, Player, PlayerStat, User
 
-API = import_pulse_history.API
 DAY_1 = int(datetime(2022, 2, 4, 12, tzinfo=UTC).timestamp())
 DAY_2 = int(datetime(2022, 2, 5, 12, tzinfo=UTC).timestamp())
 SEASON_43 = int(datetime(2020, 6, 10, tzinfo=UTC).timestamp())

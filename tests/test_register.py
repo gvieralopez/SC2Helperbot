@@ -15,7 +15,7 @@ def test_register_wrong_battle_tag(db: None) -> None:
 def test_register(db: None, fake_battle_tag_response: Any) -> None:
     battle_tag = "quuz#1234"
     with requests_mock.Mocker() as m:
-        m.get("http://www.sc2ladder.com/api/player", json=fake_battle_tag_response)
+        m.get("https://sc2pulse.nephest.com/sc2/api/characters", json=fake_battle_tag_response)
         response = set_battle_tag(battle_tag, telegram_id=1, telegram_username="foo")
     assert "8972769" in response.text
     assert battle_tag in response.text
@@ -23,14 +23,13 @@ def test_register(db: None, fake_battle_tag_response: Any) -> None:
     user = session.db_session.query(User).filter_by(telegram_id=1).one()
     assert user.telegram_username == "foo"
     assert user.battle_tag == battle_tag
-    assert len(user.players) == 1
-    assert user.players[0].profile_id == 8972769
+    assert sorted(player.profile_id for player in user.players) == [8972769, 10993388]
 
 
 def test_register_existing(db: None, user: User, fake_battle_tag_response: Any) -> None:
     battle_tag = "quuz#1234"
     with requests_mock.Mocker() as m:
-        m.get("http://www.sc2ladder.com/api/player", json=fake_battle_tag_response)
+        m.get("https://sc2pulse.nephest.com/sc2/api/characters", json=fake_battle_tag_response)
         set_battle_tag(battle_tag, telegram_id=user.telegram_id, telegram_username="baz")
     assert user.telegram_username == "baz"
     assert user.battle_tag == battle_tag

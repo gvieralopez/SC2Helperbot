@@ -22,12 +22,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from sc2bot.client.config import REALM_ID
+from sc2bot.client.sc2_pulse import API
 from sc2bot.database.data import League, Race
 from sc2bot.database.schema import Base, Player, PlayerStat
 
 logger = logging.getLogger(__name__)
 
-API = "https://sc2pulse.nephest.com/sc2/api"
 HEADERS = {"User-Agent": "SC2Helperbot history import (github.com/gvieralopez/SC2Helperbot)"}
 FIELDS = ["TIMESTAMP", "RATING", "LEAGUE_TYPE", "WINS", "GAMES"]
 TEAMS_LIMIT = 200  # the API rejects larger pages

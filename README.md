@@ -22,7 +22,8 @@
 
 ---
 
-Register your Battle Tag and the bot finds your StarCraft II profiles, fetches your 1v1 ladders
+Register your Battle Tag and the bot finds your StarCraft II profiles on
+[SC2 Pulse](https://sc2pulse.nephest.com/sc2), fetches your 1v1 ladders
 from Blizzard every day and ranks everyone in the group. A live instance runs as
 [@SC2Helperbot](https://t.me/SC2Helperbot).
 
@@ -88,7 +89,7 @@ The old history only kept the MMR of each day, so those points take the league, 
 uv run python -m scripts.import_pulse_history sqlite:///p/to/db.db
 ```
 
-History data by [SC2 Pulse](https://sc2pulse.nephest.com/sc2), free for non-commercial use with credit.
+Profile search and history data by [SC2 Pulse](https://sc2pulse.nephest.com/sc2), free for non-commercial use with credit.
 
 ## Development
 
