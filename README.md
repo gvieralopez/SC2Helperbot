@@ -29,6 +29,7 @@ Register your Battle Tag and the bot finds your StarCraft II profiles and 1v1 la
 ## Features
 
 - **Ranking.** `/rank` shows the best 1v1 ladder of each user and `/ladders` every ladder, sorted by MMR.
+- **Ping.** `/ping` in a group mentions everyone in the bot who is in that group, four per message (Telegram only notifies the first four mentions of a message).
 - **Profile.** `/profile` shows your ladders and a chart of your MMR over the last 6 months played.
 - **Daily fetch.** Every user's profiles and ladders are updated once a day and the ranking is posted and pinned in a group.
 - **Full history.** Your whole 1v1 career can be imported once from [SC2 Pulse](https://sc2pulse.nephest.com/sc2).
@@ -54,7 +55,7 @@ make run
 ## Usage
 
 Text the bot `/register YourName#1234` and it finds your StarCraft II profiles (new ones are added
-by the daily fetch). Then `/fetch`, `/profile`, `/rank`, `/ladders` and `/users`; `/help` lists them all
+by the daily fetch). Then `/fetch`, `/profile`, `/rank`, `/ladders`, `/users` and, in a group, `/ping`; `/help` lists them all
 and `/help <command>` explains one. In a group, `/rank@SC2Helperbot` and `/help_fetch` work too.
 
 ## Configuration

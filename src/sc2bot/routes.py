@@ -8,6 +8,7 @@ from sc2bot.controller import (
     add_new_player_stats,
     ladders,
     list_users,
+    ping_outside_a_group,
     profile,
     rank,
     retrieve_user,
@@ -46,6 +47,7 @@ _routes = [
     Route(cn["rank"], rank, Category.EVERYONE),
     Route(cn["ladders"], ladders, Category.EVERYONE),
     Route(cn["users"], list_users, Category.EVERYONE),
+    Route(cn["ping"], ping_outside_a_group, Category.EVERYONE),
     Route(cn["help"], help_command, Category.EVERYONE),
 ]
 

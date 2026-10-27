@@ -5,13 +5,15 @@ from html import escape
 
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
+from aiogram.enums import ChatMemberStatus, ChatType, ParseMode
 from aiogram.exceptions import TelegramAPIError
 from aiogram.types import BufferedInputFile, Message
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from sc2bot.bot_response import BotResponse, split_text
-from sc2bot.controller import fetch_all_users
+from sc2bot.commands import command_names
+from sc2bot.controller import fetch_all_users, ping_texts, registered_users
+from sc2bot.database.schema import User
 from sc2bot.parsing import extract_command
 from sc2bot.routes import routes
 
@@ -38,6 +40,9 @@ async def handle_command(message: Message, bot: Bot) -> None:
     if not parts or parts[0] not in routes or message.from_user is None:
         return
     command_name, *arguments = parts
+    if command_name == command_names["ping"] and message.chat.type != ChatType.PRIVATE:
+        await ping(message, bot)
+        return
 
     sender = message.from_user
     # Without a username, a link to the user, like the old bot stored (shown as is by mention).
@@ -53,6 +58,26 @@ async def handle_command(message: Message, bot: Bot) -> None:
         response = routes[command_name].error
 
     await answer(message, response)
+
+
+async def ping(message: Message, bot: Bot) -> None:
+    """Mention the registered users who are in this group, except whoever asked."""
+    caller = message.from_user.id if message.from_user else None
+    users = [user for user in registered_users() if user.telegram_id != caller]
+    in_group = await asyncio.gather(*(_is_member(bot, message.chat.id, user) for user in users))
+    members = [user for user, member in zip(users, in_group, strict=True) if member]
+    for text in ping_texts(members):
+        await message.answer(text)
+
+
+async def _is_member(bot: Bot, chat_id: int, user: User) -> bool:
+    try:
+        member = await bot.get_chat_member(chat_id, user.telegram_id)
+    except TelegramAPIError:
+        return False  # never seen in this chat
+    if member.status == ChatMemberStatus.RESTRICTED:
+        return bool(getattr(member, "is_member", False))
+    return member.status not in (ChatMemberStatus.LEFT, ChatMemberStatus.KICKED)
 
 
 async def answer(message: Message, response: BotResponse) -> None:

@@ -14,6 +14,8 @@ from sc2bot.plot import plot_mmr_history
 
 logger = logging.getLogger(__name__)
 
+PINGS_PER_MESSAGE = 4
+
 
 def set_battle_tag(
     battle_tag: str, *, telegram_id: int, telegram_username: str | None, **_kwargs: object
@@ -44,9 +46,25 @@ def add_new_player_stats(*, telegram_id: int, **_kwargs: object) -> BotResponse:
     return _user_info(user)
 
 
+def ping_outside_a_group(**_kwargs: object) -> BotResponse:
+    return render("hlp_ping")
+
+
+def ping_texts(users: list[User]) -> list[str]:
+    """Messages mentioning the users, four per message: Telegram notifies only the first four."""
+    batches = [
+        users[start : start + PINGS_PER_MESSAGE]
+        for start in range(0, len(users), PINGS_PER_MESSAGE)
+    ]
+    return [render("ping", users=batch).text for batch in batches or [[]]]
+
+
+def registered_users() -> list[User]:
+    return session.db_session.query(User).order_by(User.id).all()
+
+
 def list_users(**_kwargs: object) -> BotResponse:
-    users = session.db_session.query(User).order_by(User.id).all()
-    return render("users", users=users)
+    return render("users", users=registered_users())
 
 
 def rank(**_kwargs: object) -> BotResponse:
