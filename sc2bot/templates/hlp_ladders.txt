@@ -1,0 +1,4 @@
+Shows all the 1v1 ladders of all the registered users, sorted by MMR.
+
+You just need to text me: /ladders
+(with no additional parameters)

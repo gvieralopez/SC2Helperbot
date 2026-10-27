@@ -8,6 +8,7 @@ command_names = {
     "fetch": "fetch",
     "users": "users",
     "rank": "rank",
+    "ladders": "ladders",
 }
 
 

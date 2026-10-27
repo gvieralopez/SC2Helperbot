@@ -10,6 +10,7 @@ from sc2bot.commands import command_names as cn
 from sc2bot.controller import add_new_player_stats
 from sc2bot.controller import add_player
 from sc2bot.controller import help
+from sc2bot.controller import ladders
 from sc2bot.controller import list_users
 from sc2bot.controller import rank
 from sc2bot.controller import retrieve_user
@@ -39,6 +40,7 @@ _routes = [
     Route(cn["fetch"], add_new_player_stats, Category.GENERAL),
     Route(cn["users"], list_users, Category.GENERAL),
     Route(cn["rank"], rank, Category.GENERAL),
+    Route(cn["ladders"], ladders, Category.GENERAL),
 ]
 
 

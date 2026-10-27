@@ -128,6 +128,10 @@ def rank(**kwargs) -> BotResponse:
     return _ranking("🤖Bot Ranking", list(best_by_user.values()))
 
 
+def ladders(**kwargs) -> BotResponse:
+    return _ranking("🤖All ladders", latest_stats(session.db_session))
+
+
 def _ranking(title: str, stats: list) -> BotResponse:
     return render(
         "ranking",
