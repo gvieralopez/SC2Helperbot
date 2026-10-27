@@ -17,7 +17,7 @@ def test_every_route_has_help_and_description(name: str) -> None:
 
 
 def test_routes_by_category() -> None:
-    assert set(routes_by_category[Category.CONFIG]) == {"register", "link"}
+    assert set(routes_by_category[Category.CONFIG]) == {"register"}
     assert "rank" in routes_by_category[Category.GENERAL]
 
 

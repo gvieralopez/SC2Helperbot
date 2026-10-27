@@ -12,4 +12,4 @@ league_emojis = {
     League.GRAND_MASTER: "👑",
 }
 
-region_emojis = {1: "🇺🇸", 2: "🇪🇺", 3: "🇰🇷", 4: "🇹🇼"}
+region_emojis = {1: "🇺🇸", 2: "🇪🇺", 3: "🇰🇷", 4: "🇹🇼", 5: "🇨🇳"}

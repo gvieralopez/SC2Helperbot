@@ -9,8 +9,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 from sc2bot.database.data import League, Race
-from sc2bot.database.helpers import add_player_stat, create_or_update_player, create_or_update_user
-from sc2bot.database.schema import Base, Player, User
+from sc2bot.database.helpers import create_or_update_player, create_or_update_user
+from sc2bot.database.schema import Base, Player, PlayerStat, User
 
 
 @pytest.fixture()
@@ -122,8 +122,17 @@ def test_player_update(db_session: Session, player: Player) -> None:
 
 
 def test_player_stat(db_session: Session, player: Player) -> None:
-    stat = add_player_stat(db_session, player, Race.PROTOSS, League.PLATINUM, 1234, 12, 1, "foo")
-    assert db_session.query(Player).count() == 1
+    stat = PlayerStat(
+        player_id=player.id,
+        race=Race.PROTOSS,
+        league=League.PLATINUM,
+        mmr=1234,
+        wins=12,
+        losses=1,
+        clan_tag="foo",
+    )
+    db_session.add(stat)
+    db_session.commit()
     assert get_seconds_elapsed(stat.created_at) < 5
 
 

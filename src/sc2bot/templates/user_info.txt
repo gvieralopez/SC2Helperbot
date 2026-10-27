@@ -16,6 +16,4 @@
     🇰🇷 <code>{{ player.profile_id }}</code> {{ player.display_name }}{% else %}
     🇹🇼 <code>{{ player.profile_id }}</code> {{ player.display_name }}{% endif %}{% endfor %}
 
-You can manually /{{ goto_link }} a StarCraft 2 Profile Id to your user.
-
 <b>Last Updated:</b> {{ user.modified_at }}

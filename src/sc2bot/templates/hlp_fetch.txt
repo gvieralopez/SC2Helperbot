@@ -1,4 +1,4 @@
-Retreives Battle Net game data via Blizzard API.
+Updates your StarCraft II profiles and 1v1 ladders from SC2 Pulse now (the bot also does it every day).
 
 You just need to text me: /fetch
 (with no additional parameters)

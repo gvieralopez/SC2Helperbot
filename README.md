@@ -22,16 +22,15 @@
 
 ---
 
-Register your Battle Tag and the bot finds your StarCraft II profiles on
-[SC2 Pulse](https://sc2pulse.nephest.com/sc2), fetches your 1v1 ladders
-from Blizzard every day and ranks everyone in the group. A live instance runs as
+Register your Battle Tag and the bot finds your StarCraft II profiles and 1v1 ladders on
+[SC2 Pulse](https://sc2pulse.nephest.com/sc2), updates them every day and ranks everyone in the group. A live instance runs as
 [@SC2Helperbot](https://t.me/SC2Helperbot).
 
 ## Features
 
 - **Ranking.** `/rank` shows the best 1v1 ladder of each user and `/ladders` every ladder, sorted by MMR.
 - **Profile.** `/profile` shows your ladders and a chart of your MMR over the last 6 months played.
-- **Daily fetch.** Every user's stats are fetched once a day and the ranking is posted and pinned in a log channel.
+- **Daily fetch.** Every user's profiles and ladders are updated once a day and the ranking is posted and pinned in a group.
 - **Full history.** Your whole 1v1 career can be imported once from [SC2 Pulse](https://sc2pulse.nephest.com/sc2).
 
 ## Quick start
@@ -54,8 +53,8 @@ make run
 
 ## Usage
 
-Text the bot `/register YourName#1234` and it links your StarCraft II profiles; `/link` adds one by its
-starcraft2.com URL. Then `/fetch`, `/profile`, `/rank`, `/ladders` and `/users`; `/help` lists them all
+Text the bot `/register YourName#1234` and it finds your StarCraft II profiles (new ones are added
+by the daily fetch). Then `/fetch`, `/profile`, `/rank`, `/ladders` and `/users`; `/help` lists them all
 and `/help <command>` explains one. In a group, `/rank@SC2Helperbot` and `/help_fetch` work too.
 
 ## Configuration
@@ -64,8 +63,6 @@ Environment variables (see `.env.example`):
 
 - `BOT_TOKEN`: the Telegram token of your bot (get it from [BotFather](https://t.me/botfather)).
 - `CONNECTION_STRING`: the database connection string, e.g. `sqlite:///p/to/db.db`.
-- `BLIZZARD_CLIENT_ID` and `BLIZZARD_CLIENT_SECRET`: your Blizzard API client (get it [here](https://develop.battle.net/documentation/guides/using-oauth)).
-- [Optional] `REALM_ID`: the Blizzard realm id (default `1`).
 - [Optional] `LOG_CHANNEL_ID`: the Telegram chat where the daily ranking is posted and pinned (default: not posted).
 - [Optional] `DAILY_FETCH_TIME`: the time of the daily fetch of every user, as `HH:MM` (default `17:30`).
 
@@ -89,7 +86,7 @@ The old history only kept the MMR of each day, so those points take the league, 
 uv run python -m scripts.import_pulse_history sqlite:///p/to/db.db
 ```
 
-Profile search and history data by [SC2 Pulse](https://sc2pulse.nephest.com/sc2), free for non-commercial use with credit.
+Profiles, ladders and history by [SC2 Pulse](https://sc2pulse.nephest.com/sc2), free for non-commercial use with credit.
 
 ## Development
 

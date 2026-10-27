@@ -3,7 +3,6 @@ from enum import Enum
 command_names = {
     "help": "help",
     "register": "register",
-    "link": "link",
     "user": "user",
     "fetch": "fetch",
     "users": "users",

@@ -1,9 +1,11 @@
+import json
+from pathlib import Path
 from typing import Any
 
 import requests_mock
 
-from sc2bot.client.sc2_pulse import get_battle_tag_info
-from sc2bot.database.schema import User
+from sc2bot.client.sc2_pulse import current_ladders, current_seasons, get_battle_tag_info
+from sc2bot.database.schema import Player, User
 
 SEARCH = "https://sc2pulse.nephest.com/sc2/api/characters"
 
@@ -31,3 +33,24 @@ def test_battle_tag_info_failure() -> None:
     with requests_mock.Mocker() as m:
         m.get(SEARCH, status_code=503)
         assert get_battle_tag_info(User(id=111, battle_tag="FarSeer#11726")) == []
+
+
+def test_current_seasons(data_folder: Path) -> None:
+    seasons = json.loads((data_folder / "pulse_seasons.json").read_text())
+    with requests_mock.Mocker() as m:
+        m.get("https://sc2pulse.nephest.com/sc2/api/seasons", json=seasons)
+        assert current_seasons() == {1: 68, 2: 68, 3: 68}
+
+
+def test_current_ladders_without_a_season() -> None:
+    china = Player(id=1, region_id=5, profile_id=1, display_name="Foo")
+    with requests_mock.Mocker() as m:
+        m.get("https://sc2pulse.nephest.com/sc2/api/seasons", json=[])
+        assert current_ladders([china]) == []
+    assert len(m.request_history) == 1
+
+
+def test_current_ladders_of_nobody_asks_nothing() -> None:
+    with requests_mock.Mocker() as m:
+        assert current_ladders([]) == []
+    assert m.request_history == []
