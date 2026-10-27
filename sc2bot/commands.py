@@ -9,6 +9,7 @@ command_names = {
     "users": "users",
     "rank": "rank",
     "ladders": "ladders",
+    "profile": "profile",
 }
 
 

@@ -16,6 +16,7 @@ from sc2bot.database.schema import User
 from sc2bot.emojis import league_emojis
 from sc2bot.emojis import race_emojis
 from sc2bot.emojis import region_emojis
+from sc2bot.plot import plot_mmr_history
 
 
 def help(command: str | None = None, **kwargs) -> BotResponse:
@@ -130,6 +131,19 @@ def rank(**kwargs) -> BotResponse:
 
 def ladders(**kwargs) -> BotResponse:
     return _ranking("🤖All ladders", latest_stats(session.db_session))
+
+
+def profile(**kwargs) -> BotResponse:
+    telegram_id = extract_from_kwargs("telegram_id", **kwargs)
+    user = session.db_session.query(User).filter_by(telegram_id=telegram_id).one_or_none()
+    if user is None:
+        return render("user_not_found", goto=command_names["register"])
+
+    stats = latest_stats(session.db_session, user)
+    response = _ranking(f"🎮{user.battle_tag} ladders (1v1)", stats)
+    if stats:
+        response.image = plot_mmr_history(user)
+    return response
 
 
 def _ranking(title: str, stats: list) -> BotResponse:

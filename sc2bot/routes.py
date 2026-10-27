@@ -12,6 +12,7 @@ from sc2bot.controller import add_player
 from sc2bot.controller import help
 from sc2bot.controller import ladders
 from sc2bot.controller import list_users
+from sc2bot.controller import profile
 from sc2bot.controller import rank
 from sc2bot.controller import retrieve_user
 from sc2bot.controller import set_battle_tag
@@ -41,6 +42,7 @@ _routes = [
     Route(cn["users"], list_users, Category.GENERAL),
     Route(cn["rank"], rank, Category.GENERAL),
     Route(cn["ladders"], ladders, Category.GENERAL),
+    Route(cn["profile"], profile, Category.GENERAL),
 ]
 
 

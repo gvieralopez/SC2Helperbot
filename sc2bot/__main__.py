@@ -1,3 +1,4 @@
+import io
 import logging
 import os
 
@@ -41,7 +42,8 @@ async def router(message: types.Message):
 
 async def answer(message: types.Message, response: BotResponse):
     if response.image:
-        await message.answer_photo(response.image, response.text, parse_mode="html")
+        photo = types.InputFile(io.BytesIO(response.image), filename="mmr.png")
+        await message.answer_photo(photo, response.text, parse_mode="html")
         return
 
     await message.answer(response.text, parse_mode="html")
