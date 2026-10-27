@@ -132,3 +132,4 @@ def test_main_polls_commands(monkeypatch: pytest.MonkeyPatch) -> None:
     [job] = application.job_queue.jobs()
     assert job.callback is bot_main._daily_job
     assert polled["drop_pending_updates"] is True
+    assert "callback_query" in polled["allowed_updates"]

@@ -39,7 +39,9 @@ def main() -> None:
     )
     application.add_handler(MessageHandler(filters.COMMAND, _on_command))
     _schedule_daily_fetch(application)
-    application.run_polling(drop_pending_updates=True)
+    # Telegram remembers the update types a bot last asked for: ask for all of them, or the
+    # button taps (callback queries) of a bot that once asked only for messages never arrive.
+    application.run_polling(drop_pending_updates=True, allowed_updates=Update.ALL_TYPES)
 
 
 async def _on_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
