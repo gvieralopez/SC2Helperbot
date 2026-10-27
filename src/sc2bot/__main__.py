@@ -113,9 +113,14 @@ async def answer(bot: Bot, chat_id: int | str, response: BotResponse) -> None:
     """Send the response; its buttons go under the photo, or else under the last message."""
     text, markup = response.text, _keyboard(response)
     if response.image:
-        if len(split_text(text, CAPTION_LIMIT)) == 1:
+        caption = split_text(text, CAPTION_LIMIT)
+        if len(caption) <= 1:
             await bot.send_photo(
-                chat_id, response.image, caption=text, filename="mmr.png", reply_markup=markup
+                chat_id,
+                response.image,
+                caption=caption[0] if caption else None,
+                filename="mmr.png",
+                reply_markup=markup,
             )
             return
         await bot.send_photo(chat_id, response.image, filename="mmr.png", reply_markup=markup)
@@ -134,7 +139,7 @@ async def _on_button(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> Non
     response = profile_button(query.data)
     if response is None or response.image is None:
         return
-    media = InputMediaPhoto(response.image, caption=response.text, filename="mmr.png")
+    media = InputMediaPhoto(response.image, caption=response.text or None, filename="mmr.png")
     try:
         await query.edit_message_media(media, reply_markup=_keyboard(response))
     except BadRequest as error:

@@ -1,15 +1,33 @@
 import io
 from datetime import datetime, timedelta
+from functools import cache
+from importlib.resources import files
 
 import matplotlib
 
 matplotlib.use("Agg")
 
+import numpy as np
 from matplotlib import dates as mdates
+from matplotlib import image as mpimg
+from matplotlib.artist import Artist
+from matplotlib.axes import Axes
 from matplotlib.collections import LineCollection
 from matplotlib.figure import Figure
+from matplotlib.offsetbox import (
+    AnchoredOffsetbox,
+    DrawingArea,
+    HPacker,
+    OffsetBox,
+    OffsetImage,
+    TextArea,
+    VPacker,
+)
+from matplotlib.text import Text
 from matplotlib.ticker import MaxNLocator
+from matplotlib.transforms import Affine2D
 
+from sc2bot import icons
 from sc2bot.database.data import Race
 from sc2bot.database.schema import PlayerStat
 
@@ -21,16 +39,24 @@ race_colors = {
 }
 
 # Sized for a phone screen: few large labels on a small canvas.
-FIGURE_SIZE = (6, 4)
+FIGURE_SIZE = (6, 4.5)
 DPI = 160
 FONT_SIZE = 13
 LINE_WIDTH = 2.5
+NAME_SIZE = 16
+DETAIL_SIZE = 12
+# Icon sizes in points.
+FLAG_SIZE = 24
+EMBLEM_SIZE = 28
+BADGE_SIZE = 22
 # MMR held this long without a game is a break: drawn lighter.
 BREAK = timedelta(days=14)
 BREAK_ALPHA = 0.25
 
 
-def plot_ladder(stats: list[PlayerStat], race: Race, title: str, window: timedelta | None) -> bytes:
+def plot_ladder(
+    stats: list[PlayerStat], race: Race, region_id: int, name: str, window: timedelta | None
+) -> bytes:
     """PNG of one ladder's MMR over the `window` before its last game (None: all of it).
 
     Games close in time are joined by a line. Across a break (no game for longer than BREAK)
@@ -39,7 +65,7 @@ def plot_ladder(stats: list[PlayerStat], race: Race, title: str, window: timedel
     with matplotlib.rc_context({"font.size": FONT_SIZE}):
         figure = Figure(figsize=FIGURE_SIZE, dpi=DPI, layout="constrained")
         axes = figure.subplots()
-        axes.set_title(title)
+        _header(axes, stats, race, region_id, name)
         if not stats:
             axes.set_axis_off()
             axes.text(0.5, 0.5, "No games", ha="center", va="center", color=race_colors[race])
@@ -66,6 +92,86 @@ def plot_ladder(stats: list[PlayerStat], race: Race, title: str, window: timedel
                 mdates.date2num(times[-1] + timedelta(days=1)),
             )
         return _png(figure)
+
+
+def _header(axes: Axes, stats: list[PlayerStat], race: Race, region_id: int, name: str) -> None:
+    """Above the chart: the player on a server, then how they do with this race."""
+    last = stats[-1] if stats else None
+    clan = f"<{last.clan_tag}> " if last and last.clan_tag else ""
+    player = HPacker(
+        children=[
+            TextArea(f"{clan}{name}", textprops={"size": NAME_SIZE, "weight": "bold"}),
+            _drawn(icons.flag(region_id), FLAG_SIZE),
+        ],
+        align="center",
+        pad=0,
+        sep=6,
+    )
+    ladder: list[Artist] = [_emblem(race), _detail(race.name.title(), "black")]
+    if last:
+        games = last.wins + last.losses
+        ladder += [
+            _detail("·", "#888888"),
+            _drawn(icons.league_badge(last.league, last.tier), BADGE_SIZE),
+            TextArea(str(last.mmr), textprops={"size": DETAIL_SIZE, "weight": "bold"}),
+            _detail("·", "#888888"),
+            _detail(f"{100 * last.wins // games if games else 0}% of {games}", "#555555"),
+        ]
+    header = VPacker(
+        children=[player, HPacker(children=ladder, align="center", pad=0, sep=5)],
+        align="center",
+        pad=0,
+        sep=4,
+    )
+    anchored = AnchoredOffsetbox(
+        loc="lower center",
+        child=header,
+        frameon=False,
+        bbox_to_anchor=(0.5, 1.02),
+        bbox_transform=axes.transAxes,
+        borderpad=0,
+    )
+    axes.add_artist(anchored)
+
+
+def _detail(text: str, color: str) -> TextArea:
+    return TextArea(text, textprops={"size": DETAIL_SIZE, "color": color})
+
+
+def _emblem(race: Race) -> OffsetBox:
+    if race == Race.RANDOM:
+        return _drawn(icons.random_race(), EMBLEM_SIZE * 0.75)
+    image = _emblem_image(race)
+    return OffsetImage(image, zoom=EMBLEM_SIZE / image.shape[1])
+
+
+@cache
+def _emblem_image(race: Race) -> np.ndarray:
+    png = files("sc2bot").joinpath(f"emblems/{race.name.lower()}.png").read_bytes()
+    image: np.ndarray = mpimg.imread(io.BytesIO(png))
+    return image
+
+
+def _drawn(icon: icons.Icon, size: float) -> DrawingArea:
+    area = DrawingArea(size, size)
+    to_area = Affine2D().scale(size) + area.get_transform()
+    for shape in icon.shapes:
+        shape.set_transform(to_area)
+        area.add_artist(shape)
+    if icon.label:
+        label = Text(
+            0.5,
+            icon.label.y,
+            icon.label.text,
+            ha="center",
+            va="center",
+            color=icon.label.color,
+            weight="bold",
+            fontsize=size * 0.55 * icon.label.scale,
+            transform=to_area,
+        )
+        area.add_artist(label)
+    return area
 
 
 def _png(figure: Figure) -> bytes:

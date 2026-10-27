@@ -114,16 +114,9 @@ def _profile_view(user: User, region_id: int, race: Race, window: str) -> BotRes
     """One ladder (region and race) of the user over a time window, and the buttons that change
     one of the three; each button holds the whole view it leads to."""
     stats = _ladder_stats(user, region_id, race)
-    response = render(
-        "profile",
-        user=user,
-        stat=stats[-1] if stats else None,
-        region_emojis=region_emojis,
-        league_emojis=league_emojis,
-        race_emojis=race_emojis,
-    )
-    title = f"{REGION_NAMES[region_id]} {race.name.title()}"
-    response.image = plot_ladder(stats, race, title, PROFILE_WINDOWS[window][1])
+    name = user.battle_tag.split("#")[0]
+    chart = plot_ladder(stats, race, region_id, name, PROFILE_WINDOWS[window][1])
+    response = BotResponse("", chart)
 
     def button(label: str, selected: bool, region: int, button_race: Race, span: str) -> Button:
         data = f"profile:{user.id}:{region}:{button_race.value}:{span}"
