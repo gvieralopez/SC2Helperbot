@@ -1,17 +1,13 @@
 import warnings
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from types import SimpleNamespace
 
 import pytest
 
 from sc2bot.database import session
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
-from sc2bot.plot import plot_mmr_history
-from sc2bot.plot import window_series
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Player, PlayerStat
+from sc2bot.plot import plot_mmr_history, window_series
 
 START = datetime(2022, 2, 4, 17, 30)
 

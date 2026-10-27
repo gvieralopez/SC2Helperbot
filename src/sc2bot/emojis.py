@@ -1,12 +1,6 @@
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
+from sc2bot.database.data import League, Race
 
-race_emojis = {
-    Race.ZERG: "🪲",
-    Race.PROTOSS: "✨",
-    Race.TERRAN: "🧍‍♂️",
-    Race.RANDOM: "❓",
-}
+race_emojis = {Race.ZERG: "🪲", Race.PROTOSS: "✨", Race.TERRAN: "🧍‍♂️", Race.RANDOM: "❓"}
 
 league_emojis = {
     League.BRONZE: "🥉",
@@ -18,9 +12,4 @@ league_emojis = {
     League.GRAND_MASTER: "👑",
 }
 
-region_emojis = {
-    1: "🇺🇸",
-    2: "🇪🇺",
-    3: "🇰🇷",
-    4: "🇹🇼",
-}
+region_emojis = {1: "🇺🇸", 2: "🇪🇺", 3: "🇰🇷", 4: "🇹🇼"}

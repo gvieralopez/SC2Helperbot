@@ -1,10 +1,8 @@
 import requests
 
 from sc2bot.client.config import REALM_ID
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Player, PlayerStat
 
 
 class BlizzardResolver:
@@ -45,7 +43,7 @@ class BlizzardResolver:
         if response.status_code == 200:
             return response.json()
         raise ValueError(
-            f"Blizzard API Response status not ok: {response}({str(response.content)})"
+            f"Blizzard API Response status not ok: {response}({response.content!s})"
         )
 
     def get_params(self) -> dict:
@@ -73,7 +71,7 @@ class BlizzardAuthorizedResolver(BlizzardResolver):
         )
         if response.status_code == 200:
             return response.json()["access_token"]
-        raise ValueError(f"Token response status not ok: {response}({str(response.content)})")
+        raise ValueError(f"Token response status not ok: {response}({response.content!s})")
 
 
 def build_player_stat(player: Player, ladder_info: dict) -> PlayerStat:

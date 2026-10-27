@@ -1,13 +1,9 @@
-from typing import Optional
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
-from sc2bot.database.schema import User
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Player, PlayerStat, User
 
 
 def create_or_update_user(
@@ -53,7 +49,7 @@ def add_player_stat(
     mmr: int,
     wins: int,
     losses: int,
-    clan_tag: Optional[str],
+    clan_tag: str | None,
 ) -> PlayerStat:
     player_stat = PlayerStat(
         player_id=player.id,
@@ -69,7 +65,7 @@ def add_player_stat(
     return player_stat
 
 
-def latest_stats(db_session: Session, user: Optional[User] = None) -> list[PlayerStat]:
+def latest_stats(db_session: Session, user: User | None = None) -> list[PlayerStat]:
     """Latest stat of every (player, race): the player's current ladder for that race.
 
     Latest by date, not by insertion: imported history can be older than what is stored.

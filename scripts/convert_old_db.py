@@ -9,25 +9,20 @@ The old history only kept the MMR and the date of each point, so every point tak
 league, wins, losses and clan of its ladder's last known state. History files without a
 ladder are dropped (their region and race are unknown).
 """
+
 import json
 import logging
 import sqlite3
-from dataclasses import dataclass
-from dataclasses import field
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from sys import argv
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Base
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
-from sc2bot.database.schema import User
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Base, Player, PlayerStat, User
 
 logger = logging.getLogger(__name__)
 

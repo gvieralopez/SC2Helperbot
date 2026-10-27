@@ -1,17 +1,16 @@
 import io
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import matplotlib
 
 matplotlib.use("Agg")
 
-from matplotlib import dates as mdates  # noqa: E402
-from matplotlib.figure import Figure  # noqa: E402
-from matplotlib.ticker import MaxNLocator  # noqa: E402
+from matplotlib import dates as mdates
+from matplotlib.figure import Figure
+from matplotlib.ticker import MaxNLocator
 
-from sc2bot.database.data import Race  # noqa: E402
-from sc2bot.database.schema import User  # noqa: E402
+from sc2bot.database.data import Race
+from sc2bot.database.schema import User
 
 region_names = {1: "US", 2: "EU", 3: "KR", 4: "TW"}
 

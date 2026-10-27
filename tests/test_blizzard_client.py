@@ -4,10 +4,8 @@ from unittest.mock import MagicMock
 
 import requests_mock
 
-from sc2bot.client.blizzard import BlizzardAuthorizedResolver
-from sc2bot.client.blizzard import BlizzardResolver
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
+from sc2bot.client.blizzard import BlizzardAuthorizedResolver, BlizzardResolver
+from sc2bot.database.data import League, Race
 from sc2bot.database.schema import Player
 
 
@@ -21,10 +19,12 @@ def test_player_stats(
             f"{base_url}/sc2/profile/1/1/{profile_id}/ladder/summary",
             json=fake_ladder_summary_response,
         )
-        m.get(
-            f"{base_url}/sc2/profile/1/1/{profile_id}/ladder/307413",
-            json=fake_ladder_info_response_1,
-        ),
+        (
+            m.get(
+                f"{base_url}/sc2/profile/1/1/{profile_id}/ladder/307413",
+                json=fake_ladder_info_response_1,
+            ),
+        )
         m.get(
             f"{base_url}/sc2/profile/1/1/{profile_id}/ladder/307173",
             json=fake_ladder_info_response_2,

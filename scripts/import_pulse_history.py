@@ -9,25 +9,20 @@ and many per day since. It only knows the current clan, so imported points take 
 Data from SC2 Pulse (https://sc2pulse.nephest.com/sc2), whose API is free for non-commercial
 use with credit. Ids (leagues 0-6 from bronze, races 1-4) are documented in its API docs.
 """
+
 import logging
 import time
-from dataclasses import dataclass
-from dataclasses import field
-from datetime import datetime
-from datetime import timezone
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from sys import argv
 
 import requests
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from sc2bot.client.config import REALM_ID
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Base
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Base, Player, PlayerStat
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +115,7 @@ def _stats(player: Player, race: Race, history: dict, clan_tag: str | None) -> l
             losses=games - wins,
             clan_tag=clan_tag,
             # Naive UTC, like the CURRENT_TIMESTAMP default of the bot's own stats.
-            created_at=datetime.fromtimestamp(timestamp, timezone.utc).replace(tzinfo=None),
+            created_at=datetime.fromtimestamp(timestamp, UTC).replace(tzinfo=None),
         )
         stats.append(stat)
     return stats

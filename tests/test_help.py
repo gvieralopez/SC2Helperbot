@@ -1,10 +1,8 @@
 import pytest
 
-from sc2bot.commands import Category
-from sc2bot.commands import command_names
+from sc2bot.commands import Category, command_names
 from sc2bot.controller import help
-from sc2bot.routes import routes
-from sc2bot.routes import routes_by_category
+from sc2bot.routes import routes, routes_by_category
 
 
 def test_every_command_has_a_route():

@@ -2,11 +2,9 @@ import pytest
 import requests_mock
 
 from sc2bot import controller
-from sc2bot.controller import add_new_player_stats
-from sc2bot.controller import fetch_all_users
+from sc2bot.controller import add_new_player_stats, fetch_all_users
 from sc2bot.database import session
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
+from sc2bot.database.data import League, Race
 from sc2bot.database.schema import Player
 
 
@@ -53,14 +51,18 @@ def test_add_player_stats(
             f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_2.profile_id}/ladder/summary",
             json=fake_ladder_summary_response,
         )
-        m.get(
-            f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_1.profile_id}/ladder/307413",
-            json=fake_ladder_info_response_1,
-        ),
-        m.get(
-            f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_2.profile_id}/ladder/307413",
-            json=fake_ladder_info_response_1,
-        ),
+        (
+            m.get(
+                f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_1.profile_id}/ladder/307413",
+                json=fake_ladder_info_response_1,
+            ),
+        )
+        (
+            m.get(
+                f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_2.profile_id}/ladder/307413",
+                json=fake_ladder_info_response_1,
+            ),
+        )
         m.get(
             f"https://starcraft2.com/en-us/api/sc2/profile/1/1/{player_1.profile_id}/ladder/307173",
             json=fake_ladder_info_response_2,

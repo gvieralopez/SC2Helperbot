@@ -1,20 +1,13 @@
-from datetime import datetime
-from datetime import timezone
+from datetime import UTC, datetime
 from time import sleep
 
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.helpers import add_player_stat
-from sc2bot.database.helpers import create_or_update_player
-from sc2bot.database.helpers import create_or_update_user
-from sc2bot.database.schema import Base
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import User
+from sc2bot.database.data import League, Race
+from sc2bot.database.helpers import add_player_stat, create_or_update_player, create_or_update_user
+from sc2bot.database.schema import Base, Player, User
 
 
 @pytest.fixture()
@@ -56,16 +49,8 @@ def db_session(setup_database, connection):
 @pytest.fixture
 def user_list():
     return [
-        {
-            "telegram_id": 1,
-            "telegram_username": "foo",
-            "battle_tag": "bar",
-        },
-        {
-            "telegram_id": 2,
-            "telegram_username": "baz",
-            "battle_tag": "quz",
-        },
+        {"telegram_id": 1, "telegram_username": "foo", "battle_tag": "bar"},
+        {"telegram_id": 2, "telegram_username": "baz", "battle_tag": "quz"},
     ]
 
 
@@ -135,4 +120,4 @@ def test_player_stat(db_session, player):
 
 
 def get_seconds_elapsed(since: datetime) -> float:
-    return (datetime.now(tz=timezone.utc) - since.replace(tzinfo=timezone.utc)).total_seconds()
+    return (datetime.now(tz=UTC) - since.replace(tzinfo=UTC)).total_seconds()

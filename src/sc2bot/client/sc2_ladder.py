@@ -2,8 +2,7 @@ import logging
 
 import requests
 
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import User
+from sc2bot.database.schema import Player, User
 
 logger = logging.getLogger(__name__)
 
@@ -29,16 +28,10 @@ def make_get_request(battle_tag: str) -> list[dict]:
     response = requests.get(f"{BASE_URL}/api/player?query={battle_tag}")
     if response.status_code == 200:
         return response.json()
-    raise ValueError(f"SC2 Ladder API Response status not ok: {response}({str(response.content)})")
+    raise ValueError(f"SC2 Ladder API Response status not ok: {response}({response.content!s})")
 
 
-region_raw_to_id = {
-    "us": 1,
-    "eu": 2,
-    "ko": 3,
-    "tw": 4,
-    "cn": 5,
-}
+region_raw_to_id = {"us": 1, "eu": 2, "ko": 3, "tw": 4, "cn": 5}
 
 
 BASE_URL = "http://www.sc2ladder.com"

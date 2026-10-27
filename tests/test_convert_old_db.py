@@ -3,15 +3,12 @@ import sqlite3
 from datetime import datetime
 
 import pytest
+from scripts.convert_old_db import main
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
-from sc2bot.database.schema import User
-from scripts.convert_old_db import main
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Player, PlayerStat, User
 
 OLD_SCHEMA = """
 CREATE TABLE users (

@@ -1,24 +1,19 @@
-from datetime import datetime
-from datetime import timezone
+from datetime import UTC, datetime
 
 import pytest
 import requests_mock
+from scripts import import_pulse_history
+from scripts.import_pulse_history import main
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Base
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
-from sc2bot.database.schema import User
-from scripts import import_pulse_history
-from scripts.import_pulse_history import main
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Base, Player, PlayerStat, User
 
 API = import_pulse_history.API
-DAY_1 = int(datetime(2022, 2, 4, 12, tzinfo=timezone.utc).timestamp())
-DAY_2 = int(datetime(2022, 2, 5, 12, tzinfo=timezone.utc).timestamp())
-SEASON_43 = int(datetime(2020, 6, 10, tzinfo=timezone.utc).timestamp())
+DAY_1 = int(datetime(2022, 2, 4, 12, tzinfo=UTC).timestamp())
+DAY_2 = int(datetime(2022, 2, 5, 12, tzinfo=UTC).timestamp())
+SEASON_43 = int(datetime(2020, 6, 10, tzinfo=UTC).timestamp())
 
 
 @pytest.fixture(autouse=True)

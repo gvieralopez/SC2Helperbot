@@ -8,7 +8,7 @@ class Race(Enum):
     RANDOM = 3
 
     @classmethod
-    def from_raw(cls, raw: str) -> "Race":
+    def from_raw(cls, raw: str) -> Race:
         return {
             "protoss": Race.PROTOSS,
             "zerg": Race.ZERG,
@@ -27,7 +27,7 @@ class League(Enum):
     GRAND_MASTER = 6
 
     @classmethod
-    def from_raw(cls, raw: str) -> "League":
+    def from_raw(cls, raw: str) -> League:
         return {
             "bronze": League.BRONZE,
             "silver": League.SILVER,

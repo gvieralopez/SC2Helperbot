@@ -3,10 +3,7 @@ import io
 import logging
 import os
 
-from aiogram import Bot
-from aiogram import Dispatcher
-from aiogram import executor
-from aiogram import types
+from aiogram import Bot, Dispatcher, executor, types
 from aiogram.utils.exceptions import TelegramAPIError
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 

@@ -6,12 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from sc2bot.database import session
-from sc2bot.database.data import League
-from sc2bot.database.data import Race
-from sc2bot.database.schema import Base
-from sc2bot.database.schema import Player
-from sc2bot.database.schema import PlayerStat
-from sc2bot.database.schema import User
+from sc2bot.database.data import League, Race
+from sc2bot.database.schema import Base, Player, PlayerStat, User
 
 
 @pytest.fixture()
