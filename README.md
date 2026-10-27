@@ -61,6 +61,17 @@ $ [Coming soon]
 ```
 
 
+### 2.6 Bringing the data of the old bot
+
+The old bot (before this rewrite) kept its data in `data/sc2.db` and `data/history/`. To load it into a new, empty database:
+
+```
+$ python -m scripts.convert_old_db data/sc2.db data/history sqlite:///p/to/db.db
+```
+
+The old history only kept the MMR of each day, so those points take the league, wins, losses and clan of their ladder's last known state.
+
+
 ## 3. Contributing
 
 Just make a PR.
