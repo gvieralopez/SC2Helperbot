@@ -27,6 +27,7 @@ from tzlocal import get_localzone
 from sc2bot.bot_response import BotResponse, split_text
 from sc2bot.commands import command_names
 from sc2bot.controller import fetch_all_users, ping_texts, profile_button, registered_users
+from sc2bot.database import session
 from sc2bot.database.schema import User
 from sc2bot.parsing import extract_command
 from sc2bot.routes import routes
@@ -42,6 +43,10 @@ CAPTION_LIMIT = 1024
 
 
 def main() -> None:
+    connection_string = os.environ.get("CONNECTION_STRING")
+    if not connection_string:
+        raise SystemExit("Set CONNECTION_STRING to the database, e.g. sqlite:////data/sc2bot.db")
+    session.connect(connection_string)
     # httpx logs every request, a line per poll.
     logging.getLogger("httpx").setLevel(logging.WARNING)
     application = (

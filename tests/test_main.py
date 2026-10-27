@@ -123,13 +123,14 @@ def _callback_update(data: str) -> Update:
     return Update(update_id=1, callback_query=query)
 
 
-def test_main_polls_commands(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_main_polls_commands(unbound_session: None, monkeypatch: pytest.MonkeyPatch) -> None:
     polled: dict[str, Any] = {}
 
     def run_polling(application: Application, **kwargs: Any) -> None:
         polled.update(kwargs, application=application)
 
     monkeypatch.setenv("BOT_TOKEN", "123:abc")
+    monkeypatch.setenv("CONNECTION_STRING", "sqlite://")
     monkeypatch.setattr(Application, "run_polling", run_polling)
     bot_main.main()
     application = polled["application"]
@@ -205,3 +206,9 @@ async def test_a_stale_tap_changes_nothing(monkeypatch: pytest.MonkeyPatch) -> N
     update.callback_query.answer.assert_awaited_once()
     update.callback_query.edit_message_media.assert_not_awaited()
     await bot_main._on_button(_tap(None), SimpleNamespace())  # type: ignore[arg-type]
+
+
+def test_main_needs_the_database(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("CONNECTION_STRING", raising=False)
+    with pytest.raises(SystemExit, match="CONNECTION_STRING"):
+        bot_main.main()
