@@ -72,6 +72,17 @@ $ python -m scripts.convert_old_db data/sc2.db data/history sqlite:///p/to/db.db
 The old history only kept the MMR of each day, so those points take the league, wins, losses and clan of their ladder's last known state.
 
 
+### 2.7 Importing the full MMR history
+
+[SC2 Pulse](https://sc2pulse.nephest.com/sc2) keeps the 1v1 MMR history of every ranked player. To add it for every player in the database (points already stored are skipped, so it can be run again after new players register):
+
+```
+$ python -m scripts.import_pulse_history sqlite:///p/to/db.db
+```
+
+History data by [SC2 Pulse](https://sc2pulse.nephest.com/sc2), free for non-commercial use with credit.
+
+
 ## 3. Contributing
 
 Just make a PR.
