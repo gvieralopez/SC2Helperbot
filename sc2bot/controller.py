@@ -97,18 +97,7 @@ def add_new_player_stats(**kwargs) -> BotResponse:
     if user is None:
         return render("user_not_found", goto=command_names["register"])
 
-    for player in user.players:
-        for player_stat in resolve_player_stats(player):
-            add_player_stat(
-                session.db_session,
-                player,
-                player_stat.race,  # type: ignore
-                player_stat.league,  # type: ignore
-                player_stat.mmr,
-                player_stat.wins,
-                player_stat.losses,
-                player_stat.clan_tag,
-            )
+    _fetch_stats(user)
     return render(
         "user_info",
         user=user,
@@ -155,6 +144,28 @@ def _ranking(title: str, stats: list) -> BotResponse:
         league_emojis=league_emojis,
         race_emojis=race_emojis,
     )
+
+
+def fetch_all_users() -> BotResponse:
+    """Daily job: fetch the stats of every user, then build the ranking to post."""
+    for user in session.db_session.query(User).all():
+        _fetch_stats(user)
+    return rank()
+
+
+def _fetch_stats(user: User) -> None:
+    for player in user.players:  # type: ignore
+        for player_stat in resolve_player_stats(player):
+            add_player_stat(
+                session.db_session,
+                player,
+                player_stat.race,  # type: ignore
+                player_stat.league,  # type: ignore
+                player_stat.mmr,
+                player_stat.wins,
+                player_stat.losses,
+                player_stat.clan_tag,
+            )
 
 
 def extract_from_kwargs(arg_name: str, **kwargs):

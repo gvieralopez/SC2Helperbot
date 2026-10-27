@@ -1,7 +1,9 @@
 import pytest
 import requests_mock
 
+from sc2bot import controller
 from sc2bot.controller import add_new_player_stats
+from sc2bot.controller import fetch_all_users
 from sc2bot.database import session
 from sc2bot.database.data import League
 from sc2bot.database.data import Race
@@ -82,3 +84,13 @@ def test_add_player_stats(
     assert (s2p1.race, s2p1.league, s2p1.mmr, s2p1.wins, s2p1.losses, s2p1.clan_tag) == expected_s2
     assert (s1p2.race, s1p2.league, s1p2.mmr, s1p2.wins, s1p2.losses, s1p2.clan_tag) == expected_s1
     assert (s2p2.race, s2p2.league, s2p2.mmr, s2p2.wins, s2p2.losses, s2p2.clan_tag) == expected_s2
+
+
+def test_fetch_all_users(ladders, monkeypatch):
+    fetched = []
+    monkeypatch.setattr(
+        controller, "resolve_player_stats", lambda player: fetched.append(player) or []
+    )
+    response = fetch_all_users()
+    assert {player.display_name for player in fetched} == {"FooEU", "FooUS", "QuxEU"}
+    assert "Bot Ranking" in response.text and "QuxEU" in response.text

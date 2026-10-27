@@ -42,6 +42,8 @@ The main configuration file is `.env`, but it is not distributed with this code.
 - `BLIZZARD_CLIENT_SECRET` contains your Blizzard client secret (Get it [here](https://develop.battle.net/documentation/guides/using-oauth))
 
 - [Optional] `REALM_ID` containing the Blizzard realm id (Default is 1)
+- [Optional] `LOG_CHANNEL_ID` containing the Telegram chat where the daily ranking is posted and pinned (Default: not posted)
+- [Optional] `DAILY_FETCH_TIME` containing the time of the daily fetch of every user, as `HH:MM` (Default is `17:30`)
 
 
 ### 2.5 Running your own instance
