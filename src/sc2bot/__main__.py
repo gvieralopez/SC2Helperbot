@@ -10,7 +10,7 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram.types import BufferedInputFile, Message
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from sc2bot.bot_response import BotResponse
+from sc2bot.bot_response import BotResponse, split_text
 from sc2bot.controller import fetch_all_users
 from sc2bot.parsing import extract_command
 from sc2bot.routes import routes
@@ -20,6 +20,9 @@ logger = logging.getLogger(__name__)
 # Where the daily ranking is posted and pinned (unset: fetch only).
 LOG_CHANNEL_ID = os.environ.get("LOG_CHANNEL_ID")
 DAILY_FETCH_TIME = os.environ.get("DAILY_FETCH_TIME", "17:30")
+# Telegram's limits for a message and for a photo caption.
+MESSAGE_LIMIT = 4096
+CAPTION_LIMIT = 1024
 
 router = Router()
 
@@ -53,11 +56,15 @@ async def handle_command(message: Message, bot: Bot) -> None:
 
 
 async def answer(message: Message, response: BotResponse) -> None:
+    text = response.text
     if response.image:
         photo = BufferedInputFile(response.image, filename="mmr.png")
-        await message.answer_photo(photo, caption=response.text)
-        return
-    await message.answer(response.text)
+        if len(split_text(text, CAPTION_LIMIT)) == 1:
+            await message.answer_photo(photo, caption=text)
+            return
+        await message.answer_photo(photo)
+    for part in split_text(text, MESSAGE_LIMIT):
+        await message.answer(part)
 
 
 async def daily_fetch(bot: Bot) -> None:
@@ -66,8 +73,11 @@ async def daily_fetch(bot: Bot) -> None:
     if not LOG_CHANNEL_ID:
         return
     try:
-        message = await bot.send_message(LOG_CHANNEL_ID, response.text)
-        await bot.pin_chat_message(LOG_CHANNEL_ID, message.message_id)
+        parts = split_text(response.text, MESSAGE_LIMIT)
+        first = await bot.send_message(LOG_CHANNEL_ID, parts[0])
+        for part in parts[1:]:
+            await bot.send_message(LOG_CHANNEL_ID, part)
+        await bot.pin_chat_message(LOG_CHANNEL_ID, first.message_id)
     except TelegramAPIError:
         logger.exception("Couldn't post the daily ranking")
 
