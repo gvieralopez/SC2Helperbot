@@ -11,6 +11,7 @@ from sc2bot.controller import add_new_player_stats
 from sc2bot.controller import add_player
 from sc2bot.controller import help
 from sc2bot.controller import list_users
+from sc2bot.controller import rank
 from sc2bot.controller import retrieve_user
 from sc2bot.controller import set_battle_tag
 
@@ -37,6 +38,7 @@ _routes = [
     Route(cn["user"], retrieve_user, Category.GENERAL),
     Route(cn["fetch"], add_new_player_stats, Category.GENERAL),
     Route(cn["users"], list_users, Category.GENERAL),
+    Route(cn["rank"], rank, Category.GENERAL),
 ]
 
 

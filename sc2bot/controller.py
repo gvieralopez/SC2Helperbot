@@ -11,7 +11,11 @@ from sc2bot.database import session
 from sc2bot.database.helpers import add_player_stat
 from sc2bot.database.helpers import create_or_update_player
 from sc2bot.database.helpers import create_or_update_user
+from sc2bot.database.helpers import latest_stats
 from sc2bot.database.schema import User
+from sc2bot.emojis import league_emojis
+from sc2bot.emojis import race_emojis
+from sc2bot.emojis import region_emojis
 
 
 def help(command: str | None = None, **kwargs) -> BotResponse:
@@ -115,6 +119,24 @@ def add_new_player_stats(**kwargs) -> BotResponse:
 def list_users(**kwargs) -> BotResponse:
     users = session.db_session.query(User).order_by(User.id).all()
     return render("users", users=users)
+
+
+def rank(**kwargs) -> BotResponse:
+    best_by_user: dict = {}
+    for stat in latest_stats(session.db_session):
+        best_by_user.setdefault(stat.player.user_id, stat)
+    return _ranking("🤖Bot Ranking", list(best_by_user.values()))
+
+
+def _ranking(title: str, stats: list) -> BotResponse:
+    return render(
+        "ranking",
+        title=title,
+        stats=stats,
+        region_emojis=region_emojis,
+        league_emojis=league_emojis,
+        race_emojis=race_emojis,
+    )
 
 
 def extract_from_kwargs(arg_name: str, **kwargs):

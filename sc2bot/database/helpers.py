@@ -1,5 +1,6 @@
 from typing import Optional
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from sc2bot.database.data import League
@@ -66,6 +67,17 @@ def add_player_stat(
     db_session.add(player_stat)
     db_session.commit()
     return player_stat
+
+
+def latest_stats(db_session: Session, user: Optional[User] = None) -> list[PlayerStat]:
+    """Latest stat of every (player, race): the player's current ladder for that race."""
+    latest_ids = db_session.query(func.max(PlayerStat.id)).group_by(
+        PlayerStat.player_id, PlayerStat.race
+    )
+    query = db_session.query(PlayerStat).filter(PlayerStat.id.in_(latest_ids))
+    if user is not None:
+        query = query.join(Player).filter(Player.user_id == user.id)
+    return sorted(query.all(), key=lambda stat: stat.mmr, reverse=True)
 
 
 # todo add db constraints (unique(telegram_id) and unique(region_id, profile_id)) - add unit test
