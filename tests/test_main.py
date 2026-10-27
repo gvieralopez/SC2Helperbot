@@ -4,12 +4,14 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from telegram.error import TelegramError
-from telegram.ext import Application, MessageHandler
+from telegram import CallbackQuery, Update
+from telegram import User as TelegramUser
+from telegram.error import BadRequest, TelegramError
+from telegram.ext import Application, CallbackQueryHandler, MessageHandler
 from tzlocal import get_localzone
 
 from sc2bot import __main__ as bot_main
-from sc2bot.bot_response import BotResponse
+from sc2bot.bot_response import BotResponse, Button
 from sc2bot.database.schema import User
 from sc2bot.routes import routes
 from tests.fakes import CHAT_ID, fake_bot, fake_message, sent_texts
@@ -115,6 +117,12 @@ async def test_daily_job_fetches_with_its_bot(monkeypatch: pytest.MonkeyPatch) -
     fetch.assert_awaited_once_with(bot)
 
 
+def _callback_update(data: str) -> Update:
+    tapper = TelegramUser(id=1, first_name="Foo", is_bot=False)
+    query = CallbackQuery(id="1", from_user=tapper, chat_instance="chat", data=data)
+    return Update(update_id=1, callback_query=query)
+
+
 def test_main_polls_commands(monkeypatch: pytest.MonkeyPatch) -> None:
     polled: dict[str, Any] = {}
 
@@ -125,11 +133,72 @@ def test_main_polls_commands(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(Application, "run_polling", run_polling)
     bot_main.main()
     application = polled["application"]
-    [handler] = application.handlers[0]
-    assert isinstance(handler, MessageHandler) and handler.callback is bot_main._on_command
+    commands, buttons = application.handlers[0]
+    assert isinstance(commands, MessageHandler) and commands.callback is bot_main._on_command
+    assert isinstance(buttons, CallbackQueryHandler) and buttons.callback is bot_main._on_button
+    assert buttons.check_update(_callback_update("profile:1:2:1:6m"))
+    assert not buttons.check_update(_callback_update("something else"))
     assert application.bot.defaults.parse_mode == "HTML"
     assert application.bot.defaults.tzinfo == get_localzone()
     [job] = application.job_queue.jobs()
     assert job.callback is bot_main._daily_job
     assert polled["drop_pending_updates"] is True
     assert "callback_query" in polled["allowed_updates"]
+
+
+def _buttons() -> list[list[Button]]:
+    return [[Button("• 🇺🇸 US", "profile:1:1:1:6m"), Button("🇪🇺 EU", "profile:1:2:1:6m")]]
+
+
+async def test_buttons_go_under_the_photo() -> None:
+    bot = fake_bot()
+    await bot_main.answer(bot, CHAT_ID, BotResponse("caption", b"\x89PNG", _buttons()))
+    markup = bot.send_photo.await_args.kwargs["reply_markup"]
+    assert [[b.text for b in row] for row in markup.inline_keyboard] == [["• 🇺🇸 US", "🇪🇺 EU"]]
+    assert markup.inline_keyboard[0][1].callback_data == "profile:1:2:1:6m"
+
+
+async def test_buttons_of_a_text_go_under_its_last_part() -> None:
+    bot = fake_bot()
+    text = "\n".join(f"line {i}" for i in range(1000))
+    await bot_main.answer(bot, CHAT_ID, BotResponse(text, buttons=_buttons()))
+    markups = [call.kwargs["reply_markup"] for call in bot.send_message.await_args_list]
+    assert len(markups) > 1 and markups[-1] is not None
+    assert all(markup is None for markup in markups[:-1])
+
+
+def _tap(data: str | None, edit: Any = None) -> Any:
+    query = SimpleNamespace(data=data, answer=AsyncMock(), edit_message_media=edit or AsyncMock())
+    return SimpleNamespace(callback_query=query)
+
+
+async def test_a_tap_replaces_the_photo(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        bot_main, "profile_button", lambda data: BotResponse(data, b"\x89PNG", _buttons())
+    )
+    update = _tap("profile:1:2:1:6m")
+    await bot_main._on_button(update, SimpleNamespace())  # type: ignore[arg-type]
+    query = update.callback_query
+    query.answer.assert_awaited_once()
+    media = query.edit_message_media.await_args.args[0]
+    assert media.caption == "profile:1:2:1:6m"
+    assert query.edit_message_media.await_args.kwargs["reply_markup"] is not None
+
+
+async def test_tapping_what_is_shown_is_ignored(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(bot_main, "profile_button", lambda data: BotResponse(data, b"\x89PNG"))
+    not_modified = AsyncMock(side_effect=BadRequest("Message is not modified: same content"))
+    await bot_main._on_button(_tap("profile:1:1:1:6m", not_modified), SimpleNamespace())  # type: ignore[arg-type]
+
+    other = AsyncMock(side_effect=BadRequest("Message to edit not found"))
+    with pytest.raises(BadRequest):
+        await bot_main._on_button(_tap("profile:1:1:1:6m", other), SimpleNamespace())  # type: ignore[arg-type]
+
+
+async def test_a_stale_tap_changes_nothing(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(bot_main, "profile_button", lambda data: None)
+    update = _tap("profile:999:1:1:6m")
+    await bot_main._on_button(update, SimpleNamespace())  # type: ignore[arg-type]
+    update.callback_query.answer.assert_awaited_once()
+    update.callback_query.edit_message_media.assert_not_awaited()
+    await bot_main._on_button(_tap(None), SimpleNamespace())  # type: ignore[arg-type]

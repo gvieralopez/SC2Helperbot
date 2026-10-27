@@ -102,3 +102,13 @@ def test_fetch_all_users(ladders: tuple[User, User], pulse_seasons: Any) -> None
     teams_request = m.request_history[-1]
     assert set(teams_request.qs["toonhandle"]) == {"2-s2-1-11", "1-s2-1-12", "2-s2-1-21"}
     assert "Ranking" in response.text and "Qux" in response.text
+
+
+def test_fetch_keeps_the_stats_when_pulse_ladders_fail(ladders: tuple[User, User]) -> None:
+    before = _stats()
+    with requests_mock.Mocker() as m:
+        _mock_pulse(m, [], [], [])
+        m.get(f"{API}/seasons", status_code=503)
+        response = add_new_player_stats(telegram_id=1)
+    assert "bar" in response.text
+    assert _stats() == before

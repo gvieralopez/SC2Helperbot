@@ -1,0 +1,1 @@
+🎮 <b>{{ user.battle_tag }}</b> · {% if stat %}{{ region_emojis[stat.player.region_id] }}{{ league_emojis[stat.league] }}{{ race_emojis[stat.race] }} <code>{{ stat.mmr }}</code> <i>{{ (100 * stat.wins // (stat.wins + stat.losses)) if stat.wins + stat.losses else 0 }}%</i>{% else %}no games in this ladder{% endif %}

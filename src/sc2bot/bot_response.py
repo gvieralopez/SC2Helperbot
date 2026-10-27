@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
@@ -19,9 +19,16 @@ _environment.filters["mention"] = mention
 
 
 @dataclass
+class Button:
+    label: str
+    data: str  # what to show when tapped, read back by the controller
+
+
+@dataclass
 class BotResponse:
     text: str
     image: bytes | None = None
+    buttons: list[list[Button]] = field(default_factory=list)  # rows of buttons
 
 
 def text(template_name: str, **kwargs: object) -> str:
