@@ -1,4 +1,1 @@
-Updates your StarCraft II profiles and 1v1 ladders from SC2 Pulse now (the bot also does it every day).
-
-You just need to text me: /fetch
-(with no additional parameters)
+/fetch updates your profiles and 1v1 ladders from SC2 Pulse now. The bot also does it for everyone every day.

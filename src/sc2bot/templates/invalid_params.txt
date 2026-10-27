@@ -1,4 +1,1 @@
-❌Wrong usage of command /{{ command }}
-
-You can see how to use it here:
-<code>/help {{ command }}</code>
+❌ Wrong use of /{{ command }}. See /help_{{ command }}.

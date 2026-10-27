@@ -13,11 +13,8 @@ command_names = {
 
 
 class Category(Enum):
-    CONFIG = 1
-    GENERAL = 2
+    YOU = 1
+    EVERYONE = 2
 
 
-categories_dict = {
-    Category.GENERAL: "General purpose",
-    Category.CONFIG: "Setting up your credentials",
-}
+categories_dict = {Category.YOU: "You", Category.EVERYONE: "Everyone"}

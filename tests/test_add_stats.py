@@ -101,4 +101,4 @@ def test_fetch_all_users(ladders: tuple[User, User], pulse_seasons: Any) -> None
     assert searches == [["bar"], ["qux#1234"]]
     teams_request = m.request_history[-1]
     assert set(teams_request.qs["toonhandle"]) == {"2-s2-1-11", "1-s2-1-12", "2-s2-1-21"}
-    assert "Bot Ranking" in response.text and "QuxEU" in response.text
+    assert "Ranking" in response.text and "Qux" in response.text

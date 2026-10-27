@@ -1,9 +1,6 @@
-<b>List of available commands</b>
+<b>Commands</b>
 {% for cat_name, cat in categories.items() %}
-<i>{{ categories_dict[cat_name] }}</i>
-{% for cmd_name, cmd in cat.items() %}
-<b>/{{ cmd_name }}</b> {{ cmd.description }} {% endfor %}
+<i>{{ categories_dict[cat_name] }}</i>{% for cmd_name, cmd in cat.items() %}
+/{{ cmd_name }} – {{ cmd.description }}{% endfor %}
 {% endfor %}
-
-ℹ️Get also help from specific commands:
-<code>/help register</code>
+ℹ️ <code>/help command</code> explains one, e.g. /help_register

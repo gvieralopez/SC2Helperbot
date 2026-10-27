@@ -48,7 +48,7 @@ async def test_failing_command_answers_its_usage(db: None, monkeypatch: pytest.M
     monkeypatch.setattr(routes["user"], "target", fail)
     message = _message("/user")
     await bot_main.handle_command(message, _bot())
-    assert "/help user" in message.answer.await_args.args[0]
+    assert "/help_user" in message.answer.await_args.args[0]
 
 
 async def test_image_is_sent_as_photo() -> None:

@@ -9,7 +9,7 @@ from sc2bot.database.schema import User
 
 def test_register_wrong_battle_tag(db: None) -> None:
     response = set_battle_tag("bar", telegram_id=1, telegram_username="foo")
-    assert "battletag" in response.text.lower()
+    assert "battle tag" in response.text.lower()
 
 
 def test_register(db: None, fake_battle_tag_response: Any) -> None:

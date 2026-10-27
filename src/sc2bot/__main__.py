@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from html import escape
 
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
@@ -35,11 +36,14 @@ async def handle_command(message: Message, bot: Bot) -> None:
         return
     command_name, *arguments = parts
 
+    sender = message.from_user
+    # Without a username, a link to the user, like the old bot stored (shown as is by mention).
+    username = (
+        sender.username or f'<a href="tg://user?id={sender.id}">{escape(sender.full_name)}</a>'
+    )
     try:
         response = routes[command_name].target(
-            *arguments,
-            telegram_id=message.from_user.id,
-            telegram_username=message.from_user.username,
+            *arguments, telegram_id=sender.id, telegram_username=username
         )
     except Exception:
         logger.exception("There was an error executing the command")

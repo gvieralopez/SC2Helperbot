@@ -1,19 +1,6 @@
-💬 <b>Telegram</b>
+👤 {{ user | mention }} · <code>{{ user.battle_tag }}</code>
+{% for player in user.players %}
+{{ region_emojis[player.region_id] }} {{ player.display_name }} <code>{{ player.profile_id }}</code>{% else %}
+No StarCraft II profiles found for this Battle Tag.{% endfor %}
 
-<i>User:</i> {{ user.telegram_username }}
-<i>id:</i> <code>{{ user.telegram_id }}</code>
-
-
-🎮 <b>StarCraft II</b>
-
-<i>Battle Tag:</i> <code>{{ user.battle_tag }}</code>
-                   (Click on /{{ goto_register }} to modify it)
-
-<i>StarCraft 2 Profiles Ids:</i>{% if not user.players%}
-    <code>[No profiles found]</code>{% endif %}{% for player in user.players %}{% if player.region_id == 1%}
-    🇺🇸 <code>{{ player.profile_id }}</code> {{ player.display_name }}{% elif player.region_id == 2%}
-    🇪🇺 <code>{{ player.profile_id }}</code> {{ player.display_name }}{% elif player.region_id == 3%}
-    🇰🇷 <code>{{ player.profile_id }}</code> {{ player.display_name }}{% else %}
-    🇹🇼 <code>{{ player.profile_id }}</code> {{ player.display_name }}{% endif %}{% endfor %}
-
-<b>Last Updated:</b> {{ user.modified_at }}
+Change it with /{{ goto_register }}

@@ -53,11 +53,11 @@ def rank(**_kwargs: object) -> BotResponse:
     best_by_user: dict[int, PlayerStat] = {}
     for stat in latest_stats(session.db_session):
         best_by_user.setdefault(stat.player.user_id, stat)
-    return _ranking("🤖Bot Ranking", list(best_by_user.values()))
+    return _ranking("🏆 Ranking", list(best_by_user.values()))
 
 
 def ladders(**_kwargs: object) -> BotResponse:
-    return _ranking("🤖All ladders", latest_stats(session.db_session))
+    return _ranking("📋 All ladders", latest_stats(session.db_session))
 
 
 def profile(*, telegram_id: int, **_kwargs: object) -> BotResponse:
@@ -66,7 +66,7 @@ def profile(*, telegram_id: int, **_kwargs: object) -> BotResponse:
         return render("user_not_found", goto=command_names["register"])
 
     stats = latest_stats(session.db_session, user)
-    response = _ranking(f"🎮{user.battle_tag} ladders (1v1)", stats)
+    response = _ranking(f"🎮 {user.battle_tag}", stats)
     if stats:
         response.image = plot_mmr_history(user)
     return response
@@ -93,7 +93,9 @@ def fetch_all_users() -> BotResponse:
 
 
 def _user_info(user: User) -> BotResponse:
-    return render("user_info", user=user, goto_register=command_names["register"])
+    return render(
+        "user_info", user=user, region_emojis=region_emojis, goto_register=command_names["register"]
+    )
 
 
 def _refresh_profiles(user: User) -> None:

@@ -1,1 +1,1 @@
-4️0️4️ Command <i> {{ command }} </i> not found
+❓ There's no /{{ command }} command. See /help.
