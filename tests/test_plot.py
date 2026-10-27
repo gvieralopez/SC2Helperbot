@@ -1,7 +1,7 @@
-import math
 import warnings
 from datetime import datetime
 from datetime import timedelta
+from types import SimpleNamespace
 
 import pytest
 
@@ -10,8 +10,8 @@ from sc2bot.database.data import League
 from sc2bot.database.data import Race
 from sc2bot.database.schema import Player
 from sc2bot.database.schema import PlayerStat
-from sc2bot.plot import _break_gaps
 from sc2bot.plot import plot_mmr_history
+from sc2bot.plot import window_series
 
 START = datetime(2022, 2, 4, 17, 30)
 
@@ -52,14 +52,15 @@ def test_plot_any_time_span_without_warnings(user, player, span):
     assert image.startswith(b"\x89PNG")
 
 
-def test_break_gaps_splits_long_gaps_only():
-    times = [START, START + timedelta(days=1), START + timedelta(days=100)]
-    x, y = _break_gaps(times, [1, 2, 3])
-    assert len(x) == 4
-    assert y[:2] == [1, 2] and math.isnan(y[2]) and y[3] == 3
-    assert START + timedelta(days=1) < x[2] < START + timedelta(days=100)
+def test_window_series_starts_at_the_mmr_held_when_the_window_opens():
+    stats = [
+        SimpleNamespace(created_at=START + timedelta(days=day), mmr=day) for day in (0, 10, 20)
+    ]
+    x, y, recent = window_series(stats, START + timedelta(days=15))
+    assert x == [START + timedelta(days=15), START + timedelta(days=20)]
+    assert y == [10, 20] and recent == 1
 
 
-def test_break_gaps_keeps_continuous_history():
-    times = [START + timedelta(days=day) for day in range(30)]
-    assert _break_gaps(times, list(range(30))) == (times, list(range(30)))
+def test_window_series_skips_ladders_not_played_since():
+    stats = [SimpleNamespace(created_at=START, mmr=3000)]
+    assert window_series(stats, START + timedelta(days=1)) is None

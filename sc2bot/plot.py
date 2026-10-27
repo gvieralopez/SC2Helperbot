@@ -1,4 +1,5 @@
 import io
+from datetime import datetime
 from datetime import timedelta
 
 import matplotlib
@@ -31,50 +32,78 @@ LEGEND_FONT_SIZE = 11
 LEGEND_COLUMNS = 3
 # Few points get a marker each, so a single fetch is still visible.
 MARKER_LIMIT = 15
-# Longer gaps without data break the line instead of drawing a fake trend.
-GAP = timedelta(days=14)
+# The chart shows the most recent months only: a whole career doesn't fit a phone screen.
+WINDOW = timedelta(days=182)
 
 
 def plot_mmr_history(user: User) -> bytes:
-    """PNG with one MMR-over-time line per (region, race) the user has played."""
+    """PNG with the recent MMR of every (region, race) the user played in those months.
+
+    MMR only changes when a game is played, so each line is drawn as steps.
+    """
+    ladders = _ladders(user)
+    newest = max(stat.created_at for _, _, stats in ladders for stat in stats)
+    start = newest - WINDOW
+    windowed = min(stat.created_at for _, _, stats in ladders for stat in stats) < start
+
     with matplotlib.rc_context({"font.size": FONT_SIZE}):
         figure = Figure(figsize=FIGURE_SIZE, dpi=DPI, layout="constrained")
         axes = figure.subplots()
         times = []
-        for player in user.players:  # type: ignore
-            races = sorted({stat.race for stat in player.stats}, key=lambda race: race.value)  # type: ignore
-            for race in races:
-                stats = sorted(
-                    (stat for stat in player.stats if stat.race == race),  # type: ignore
-                    key=lambda stat: stat.created_at,
-                )
-                x, y = _break_gaps([s.created_at for s in stats], [s.mmr for s in stats])
-                times += [s.created_at for s in stats]
-                axes.plot(
-                    x,
-                    y,
-                    color=race_colors[race],
-                    linestyle=region_styles[player.region_id],
-                    linewidth=2,
-                    marker="o" if len(stats) <= MARKER_LIMIT else None,
-                    markersize=5,
-                    label=f"{region_names[player.region_id]} {race.name.lower()}",
-                )
+        for region_id, race, stats in ladders:
+            series = window_series(stats, start)
+            if series is None:
+                continue
+            x, y, recent = series
+            times += x
+            axes.plot(
+                [*x, newest],
+                [*y, y[-1]],
+                drawstyle="steps-post",
+                color=race_colors[race],
+                linestyle=region_styles[region_id],
+                linewidth=2,
+                marker="o" if recent <= MARKER_LIMIT else None,
+                markevery=list(range(len(x) - recent, len(x))),
+                markersize=5,
+                label=f"{region_names[region_id]} {race.name.lower()}",
+            )
         _style(figure, axes, user.battle_tag, times)
+        if windowed:
+            axes.set_xlabel("last 6 months played", fontsize=LEGEND_FONT_SIZE)
         image = io.BytesIO()
         figure.savefig(image, format="png")
     return image.getvalue()
 
 
-def _break_gaps(times: list, mmrs: list) -> tuple[list, list]:
-    x, y = times[:1], mmrs[:1]
-    for previous, time, mmr in zip(times, times[1:], mmrs[1:]):
-        if time - previous > GAP:
-            x.append(previous + (time - previous) / 2)
-            y.append(float("nan"))
-        x.append(time)
-        y.append(mmr)
-    return x, y
+def window_series(stats: list, start: datetime) -> tuple[list, list, int] | None:
+    """(times, MMRs, points inside) of one ladder from start on, or None if not played since.
+
+    A ladder played before the window starts at the MMR it had when the window opens.
+    """
+    recent = [stat for stat in stats if stat.created_at >= start]
+    if not recent:
+        return None
+    x = [stat.created_at for stat in recent]
+    y = [stat.mmr for stat in recent]
+    earlier = [stat for stat in stats if stat.created_at < start]
+    if earlier:
+        x, y = [start, *x], [earlier[-1].mmr, *y]
+    return x, y, len(recent)
+
+
+def _ladders(user: User) -> list[tuple[int, Race, list]]:
+    """(region, race, stats sorted by date) of every ladder the user has stats for."""
+    ladders = []
+    for player in user.players:  # type: ignore
+        races = sorted({stat.race for stat in player.stats}, key=lambda race: race.value)  # type: ignore
+        for race in races:
+            stats = sorted(
+                (stat for stat in player.stats if stat.race == race),  # type: ignore
+                key=lambda stat: stat.created_at,
+            )
+            ladders.append((player.region_id, race, stats))
+    return ladders
 
 
 def _style(figure: Figure, axes, title: str, times: list) -> None:
