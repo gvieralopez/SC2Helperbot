@@ -12,12 +12,12 @@ authors = [
 license = { text = "MIT" }
 
 dependencies = [
-    "aiogram>=3.22",
-    "apscheduler>=3.11,<4",
     "jinja2>=3.1",
     "matplotlib>=3.10",
+    "python-telegram-bot[job-queue]>=22.8",
     "requests>=2.32",
     "sqlalchemy>=2.0",
+    "tzlocal>=5",
 ]
 
 [project.urls]
@@ -121,10 +121,6 @@ no_implicit_reexport = true
 warn_return_any = true
 extra_checks = true
 
-
-[[tool.mypy.overrides]]
-module = ["apscheduler.*"]
-ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"

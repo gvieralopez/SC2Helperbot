@@ -9,7 +9,7 @@ from sc2bot.controller import ladders
 from sc2bot.database import session
 from sc2bot.database.data import League, Race
 from sc2bot.database.schema import Player, PlayerStat, User
-from tests.test_main import _bot, _message
+from tests.fakes import CHAT_ID, fake_bot, sent_texts
 
 
 def _utf16(text: str) -> int:
@@ -68,20 +68,20 @@ def test_limit_counts_utf16_like_telegram() -> None:
 
 
 async def test_long_answer_is_sent_in_parts(crowd: None) -> None:
-    message = _message("/ladders")
-    await bot_main.answer(message, ladders())
-    sent = [call.args[0] for call in message.answer.await_args_list]
+    bot = fake_bot()
+    await bot_main.answer(bot, CHAT_ID, ladders())
+    sent = sent_texts(bot)
     assert len(sent) > 1
     assert all(_utf16(part) <= bot_main.MESSAGE_LIMIT for part in sent)
 
 
 async def test_long_caption_goes_after_the_photo() -> None:
-    message = _message("/profile")
+    bot = fake_bot()
     text = "\n".join(f"<code>#{i}</code> line" for i in range(100))
-    await bot_main.answer(message, BotResponse(text, b"\x89PNG"))
-    message.answer_photo.assert_awaited_once()
-    assert "caption" not in message.answer_photo.await_args.kwargs
-    sent = "\n".join(call.args[0] for call in message.answer.await_args_list)
+    await bot_main.answer(bot, CHAT_ID, BotResponse(text, b"\x89PNG"))
+    bot.send_photo.assert_awaited_once()
+    assert "caption" not in bot.send_photo.await_args.kwargs
+    sent = "\n".join(sent_texts(bot))
     assert _lines(sent) == _lines(text)
 
 
@@ -90,7 +90,7 @@ async def test_long_daily_ranking_pins_its_first_part(
 ) -> None:
     monkeypatch.setattr(bot_main, "LOG_CHANNEL_ID", "-100")
     monkeypatch.setattr(bot_main, "fetch_all_users", ladders)
-    bot: Any = _bot()
+    bot: Any = fake_bot()
     await bot_main.daily_fetch(bot)
     assert bot.send_message.await_count > 1
     assert re.search("Ranking|ladders", bot.send_message.await_args_list[0].args[1])

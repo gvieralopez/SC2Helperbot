@@ -1,14 +1,14 @@
 import asyncio
 import logging
 import os
+from datetime import time
 from html import escape
 
-from aiogram import Bot, Dispatcher, F, Router
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ChatMemberStatus, ChatType, ParseMode
-from aiogram.exceptions import TelegramAPIError
-from aiogram.types import BufferedInputFile, Message
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from telegram import Bot, Message, Update
+from telegram.constants import ChatMemberStatus, ChatType, ParseMode
+from telegram.error import TelegramError
+from telegram.ext import Application, ContextTypes, Defaults, MessageHandler, filters
+from tzlocal import get_localzone
 
 from sc2bot.bot_response import BotResponse, split_text
 from sc2bot.commands import command_names
@@ -26,17 +26,29 @@ DAILY_FETCH_TIME = os.environ.get("DAILY_FETCH_TIME", "17:30")
 MESSAGE_LIMIT = 4096
 CAPTION_LIMIT = 1024
 
-router = Router()
-
 
 def main() -> None:
-    asyncio.run(_run())
+    # httpx logs every request, a line per poll.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    application = (
+        Application.builder()
+        .token(os.environ["BOT_TOKEN"])
+        # Jobs run in the server's time zone, not in UTC.
+        .defaults(Defaults(parse_mode=ParseMode.HTML, tzinfo=get_localzone()))
+        .build()
+    )
+    application.add_handler(MessageHandler(filters.COMMAND, _on_command))
+    _schedule_daily_fetch(application)
+    application.run_polling(drop_pending_updates=True)
 
 
-@router.message(F.text.startswith("/"))
+async def _on_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.message is not None:
+        await handle_command(update.message, context.bot)
+
+
 async def handle_command(message: Message, bot: Bot) -> None:
-    me = await bot.me()
-    parts = extract_command(message.text or "", me.username)
+    parts = extract_command(message.text or "", bot.username)
     if not parts or parts[0] not in routes or message.from_user is None:
         return
     command_name, *arguments = parts
@@ -57,7 +69,7 @@ async def handle_command(message: Message, bot: Bot) -> None:
         logger.exception("There was an error executing the command")
         response = routes[command_name].error
 
-    await answer(message, response)
+    await answer(bot, message.chat.id, response)
 
 
 async def ping(message: Message, bot: Bot) -> None:
@@ -67,29 +79,28 @@ async def ping(message: Message, bot: Bot) -> None:
     in_group = await asyncio.gather(*(_is_member(bot, message.chat.id, user) for user in users))
     members = [user for user, member in zip(users, in_group, strict=True) if member]
     for text in ping_texts(members):
-        await message.answer(text)
+        await bot.send_message(message.chat.id, text)
 
 
 async def _is_member(bot: Bot, chat_id: int, user: User) -> bool:
     try:
         member = await bot.get_chat_member(chat_id, user.telegram_id)
-    except TelegramAPIError:
+    except TelegramError:
         return False  # never seen in this chat
     if member.status == ChatMemberStatus.RESTRICTED:
         return bool(getattr(member, "is_member", False))
-    return member.status not in (ChatMemberStatus.LEFT, ChatMemberStatus.KICKED)
+    return member.status not in (ChatMemberStatus.LEFT, ChatMemberStatus.BANNED)
 
 
-async def answer(message: Message, response: BotResponse) -> None:
+async def answer(bot: Bot, chat_id: int | str, response: BotResponse) -> None:
     text = response.text
     if response.image:
-        photo = BufferedInputFile(response.image, filename="mmr.png")
         if len(split_text(text, CAPTION_LIMIT)) == 1:
-            await message.answer_photo(photo, caption=text)
+            await bot.send_photo(chat_id, response.image, caption=text, filename="mmr.png")
             return
-        await message.answer_photo(photo)
+        await bot.send_photo(chat_id, response.image, filename="mmr.png")
     for part in split_text(text, MESSAGE_LIMIT):
-        await message.answer(part)
+        await bot.send_message(chat_id, part)
 
 
 async def daily_fetch(bot: Bot) -> None:
@@ -103,23 +114,19 @@ async def daily_fetch(bot: Bot) -> None:
         for part in parts[1:]:
             await bot.send_message(LOG_CHANNEL_ID, part)
         await bot.pin_chat_message(LOG_CHANNEL_ID, first.message_id)
-    except TelegramAPIError:
+    except TelegramError:
         logger.exception("Couldn't post the daily ranking")
 
 
-async def _run() -> None:
-    bot = Bot(os.environ["BOT_TOKEN"], default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    dispatcher = Dispatcher()
-    dispatcher.include_router(router)
-    _schedule_daily_fetch(bot)
-    await dispatcher.start_polling(bot, drop_pending_updates=True)
-
-
-def _schedule_daily_fetch(bot: Bot) -> None:
+def _schedule_daily_fetch(application: Application) -> None:
+    if application.job_queue is None:
+        raise RuntimeError('The daily fetch needs "python-telegram-bot[job-queue]".')
     hour, minute = DAILY_FETCH_TIME.split(":")
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(daily_fetch, "cron", hour=int(hour), minute=int(minute), args=[bot])
-    scheduler.start()
+    application.job_queue.run_daily(_daily_job, time(int(hour), int(minute)))
+
+
+async def _daily_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    await daily_fetch(context.bot)
 
 
 if __name__ == "__main__":
